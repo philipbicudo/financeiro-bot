@@ -20,8 +20,10 @@ def _get_headers():
 
 
 def _limpar_numero(numero: str) -> str:
-    if "@" in numero:
-        numero = numero.split("@")[0]
+    # Se vier com @lid ou @s.whatsapp.net, mantém o formato completo
+    if "@lid" in numero or "@s.whatsapp.net" in numero:
+        return numero
+    # Remove caracteres não numéricos
     numero = re.sub(r"[^\d]", "", numero)
     return numero
 
