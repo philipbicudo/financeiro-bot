@@ -3,729 +3,855 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>finia — Chat IA</title>
+<title>finia IA — Chat + Nota Fiscal + Simulador</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
   --midnight: #111827; --midnight-2: #1e293b;
   --growth: #22c55e; --growth-light: #dcfce7; --growth-mid: #16a34a;
   --bg: #f1f5f9; --surface: #ffffff; --border: #e2e8f0;
-  --text: #0f172a; --text-2: #475569; --text-3: #94a3b8;
-  --red: #ef4444; --amber: #f59e0b;
-  --shadow: 0 4px 24px rgba(0,0,0,0.12);
-  --shadow-lg: 0 12px 48px rgba(0,0,0,0.18);
+  --text: #0f172a; --text-2: #475569; --text-3: #94a3b8; --text-4: #cbd5e1;
+  --red: #ef4444; --red-bg: #fef2f2;
+  --amber: #f59e0b; --amber-bg: #fffbeb;
+  --blue: #3b82f6; --blue-bg: #eff6ff;
+  --purple: #8b5cf6; --purple-bg: #f5f3ff;
+  --shadow: 0 4px 24px rgba(0,0,0,0.1);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.16);
+  --r: 14px; --r-lg: 20px;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
 
-/* ── PAGE LAYOUT ── */
-.chat-page{flex:1;display:flex;flex-direction:column;max-width:860px;margin:0 auto;width:100%;padding:24px 20px 0;}
-
-/* ── HEADER ── */
-.chat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
-.chat-header-left{display:flex;align-items:center;gap:12px;}
-.chat-avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--midnight) 0%,var(--midnight-2) 100%);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;box-shadow:0 4px 12px rgba(17,24,39,0.3);}
-.chat-title{font-family:'Lora',serif;font-weight:700;font-size:1.2rem;letter-spacing:-0.5px;}
-.chat-sub{font-size:0.65rem;color:var(--text-3);display:flex;align-items:center;gap:6px;margin-top:2px;}
-.online-dot{width:7px;height:7px;background:var(--growth);border-radius:50%;animation:blink 2s infinite;}
+/* NAV */
+.nav{background:var(--midnight);height:56px;display:flex;align-items:center;padding:0 24px;flex-shrink:0;gap:16px;}
+.nav-back{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.6);font-size:0.65rem;font-weight:500;cursor:pointer;text-decoration:none;transition:color 0.1s;}
+.nav-back:hover{color:white;}
+.nav-divider{width:1px;height:20px;background:rgba(255,255,255,0.15);}
+.nav-logo{display:flex;align-items:center;gap:8px;}
+.nav-logomark{width:26px;height:26px;background:#fff;border-radius:7px;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;}
+.fmark{width:11px;height:17px;position:relative;}
+.fmark::before{content:'';position:absolute;left:0;top:0;width:3px;height:17px;background:var(--midnight);border-radius:2px;}
+.fmark::after{content:'';position:absolute;left:0;top:0;width:11px;height:3px;background:var(--midnight);border-radius:2px;box-shadow:0 7px 0 0 var(--midnight);}
+.fmark-mid{position:absolute;left:3px;top:7px;width:7px;height:3px;background:var(--midnight);border-radius:1px;}
+.fdot{position:absolute;right:-2px;bottom:-2px;width:6px;height:6px;background:var(--growth);border-radius:50%;border:1.5px solid var(--midnight);}
+.nav-wordmark{font-family:'Lora',serif;font-weight:700;font-size:0.95rem;color:white;}
+.nav-wordmark span{color:var(--growth);}
+.nav-status{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:0.58rem;color:rgba(255,255,255,0.5);}
+.status-dot{width:6px;height:6px;background:var(--growth);border-radius:50%;animation:blink 2s infinite;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-.chat-header-right{display:flex;gap:8px;}
-.header-btn{padding:8px 16px;border-radius:10px;font-size:0.65rem;font-weight:600;border:1.5px solid var(--border);background:white;color:var(--text-2);cursor:pointer;transition:all 0.12s;display:flex;align-items:center;gap:6px;}
-.header-btn:hover{border-color:var(--midnight);color:var(--midnight);}
-.header-btn.danger:hover{border-color:var(--red);color:var(--red);}
+.nav-clear{padding:6px 14px;border-radius:8px;font-size:0.58rem;font-weight:600;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);background:none;cursor:pointer;transition:all 0.1s;}
+.nav-clear:hover{border-color:rgba(255,255,255,0.4);color:white;}
 
-/* ── CONTEXT CARDS ── */
-.context-strip{display:flex;gap:10px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;}
-.ctx-card{background:white;border:1px solid var(--border);border-radius:12px;padding:10px 14px;flex-shrink:0;cursor:pointer;transition:all 0.12s;min-width:120px;}
-.ctx-card:hover{border-color:var(--midnight);box-shadow:0 2px 8px rgba(0,0,0,0.06);}
-.ctx-card-label{font-size:0.48rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-3);margin-bottom:4px;}
-.ctx-card-val{font-family:'Lora',serif;font-weight:700;font-size:0.9rem;letter-spacing:-0.3px;}
-.ctx-card-val.green{color:var(--growth-mid);}
-.ctx-card-val.red{color:var(--red);}
-.ctx-card-val.amber{color:var(--amber);}
+/* LAYOUT */
+.chat-layout{flex:1;display:flex;overflow:hidden;}
 
-/* ── MESSAGES ── */
-.messages-wrap{flex:1;overflow-y:auto;padding:4px 0 16px;display:flex;flex-direction:column;gap:12px;min-height:0;}
-.messages-wrap::-webkit-scrollbar{width:4px;}
-.messages-wrap::-webkit-scrollbar-track{background:transparent;}
-.messages-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+/* SIDEBAR */
+.chat-sidebar{width:280px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+.sidebar-section{padding:16px 16px 8px;font-size:0.48rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-4);}
+.sidebar-ctx{padding:12px 16px;border-bottom:1px solid var(--border);}
+.ctx-title{font-size:0.52rem;font-weight:700;color:var(--text-3);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;}
+.ctx-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ctx-item{background:var(--bg);border-radius:10px;padding:10px;cursor:pointer;transition:all 0.1s;}
+.ctx-item:hover{background:var(--growth-light);}
+.ctx-item-label{font-size:0.45rem;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px;}
+.ctx-item-val{font-family:'Lora',serif;font-weight:700;font-size:0.85rem;letter-spacing:-0.3px;}
+.ctx-item-val.green{color:var(--growth-mid);}
+.ctx-item-val.red{color:var(--red);}
+.ctx-item-val.amber{color:var(--amber);}
 
-/* Message bubbles */
-.msg{display:flex;gap:10px;animation:msgIn 0.25s ease both;}
-@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.feature-btn{display:flex;align-items:center;gap:10px;padding:11px 16px;cursor:pointer;transition:background 0.1s;border:none;background:none;width:100%;text-align:left;}
+.feature-btn:hover{background:var(--bg);}
+.feature-btn.active{background:var(--growth-light);}
+.feature-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;}
+.feature-name{font-size:0.65rem;font-weight:600;color:var(--text);}
+.feature-desc{font-size:0.5rem;color:var(--text-3);margin-top:1px;}
+.feature-btn.active .feature-name{color:var(--growth-mid);}
+
+.suggestion-list{padding:8px 12px;display:flex;flex-direction:column;gap:4px;}
+.suggestion-item{padding:8px 12px;border-radius:10px;font-size:0.6rem;color:var(--text-2);cursor:pointer;transition:background 0.1s;border:1px solid transparent;}
+.suggestion-item:hover{background:var(--bg);border-color:var(--border);}
+
+/* MAIN CHAT */
+.chat-main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+
+/* MODE TABS */
+.mode-tabs{display:flex;border-bottom:1px solid var(--border);background:white;flex-shrink:0;}
+.mode-tab{flex:1;padding:12px;font-size:0.62rem;font-weight:600;color:var(--text-3);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.12s;display:flex;align-items:center;justify-content:center;gap:6px;}
+.mode-tab:hover{color:var(--text);}
+.mode-tab.active{color:var(--midnight);border-bottom-color:var(--midnight);font-weight:700;}
+
+/* PANELS */
+.panel{display:none;flex:1;overflow:hidden;flex-direction:column;}
+.panel.active{display:flex;}
+
+/* CHAT PANEL */
+.messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;}
+.messages::-webkit-scrollbar{width:4px;}
+.messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+.msg{display:flex;gap:10px;animation:msgIn 0.2s ease both;}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .msg.user{flex-direction:row-reverse;}
-
-.msg-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;margin-top:2px;}
-.msg-avatar.ai{background:var(--midnight);color:white;font-size:0.7rem;font-weight:800;}
-.msg-avatar.user{background:linear-gradient(135deg,var(--growth),var(--growth-mid));color:white;font-size:0.6rem;font-weight:800;}
-
-.msg-content{max-width:72%;}
-.msg-name{font-size:0.5rem;font-weight:600;color:var(--text-3);margin-bottom:4px;}
+.msg-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:800;flex-shrink:0;margin-top:2px;}
+.msg-av.ai{background:var(--midnight);color:white;}
+.msg-av.user{background:linear-gradient(135deg,var(--growth),var(--growth-mid));color:white;}
+.msg-body{max-width:70%;}
+.msg-name{font-size:0.48rem;font-weight:600;color:var(--text-3);margin-bottom:3px;}
 .msg.user .msg-name{text-align:right;}
-
-.msg-bubble{padding:10px 14px;border-radius:16px;font-size:0.7rem;line-height:1.65;word-break:break-word;}
-.msg.ai .msg-bubble{background:white;border:1px solid var(--border);border-radius:4px 16px 16px 16px;color:var(--text);}
-.msg.user .msg-bubble{background:var(--midnight);color:white;border-radius:16px 4px 16px 16px;}
-
-.msg-bubble strong{font-weight:700;}
-.msg-bubble .tx-registered{background:var(--growth-light);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:8px 12px;margin-top:8px;font-size:0.65rem;color:var(--growth-mid);}
-.msg-bubble .tx-registered-title{font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px;}
-
-.msg-time{font-size:0.45rem;color:var(--text-3);margin-top:4px;}
+.bubble{padding:10px 14px;border-radius:16px;font-size:0.68rem;line-height:1.65;}
+.bubble.ai{background:white;border:1px solid var(--border);border-radius:4px 16px 16px 16px;color:var(--text);}
+.bubble.user{background:var(--midnight);color:white;border-radius:16px 4px 16px 16px;}
+.msg-time{font-size:0.43rem;color:var(--text-3);margin-top:3px;}
 .msg.user .msg-time{text-align:right;}
 
-/* Voice message bubble */
-.voice-bubble{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--midnight);border-radius:16px 4px 16px 16px;min-width:160px;}
-.voice-wave{display:flex;align-items:center;gap:2px;flex:1;}
-.voice-bar{width:3px;border-radius:2px;background:rgba(255,255,255,0.5);}
-.voice-duration{font-size:0.55rem;color:rgba(255,255,255,0.6);white-space:nowrap;}
+/* Special bubbles */
+.tx-card{background:var(--growth-light);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:10px 12px;margin-top:8px;font-size:0.62rem;color:var(--growth-mid);}
+.tx-card-title{font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:6px;font-size:0.65rem;}
+.tx-card-row{display:flex;align-items:center;gap:6px;margin-top:2px;color:var(--growth-mid);opacity:0.85;}
 
-/* Typing indicator */
-.typing-bubble{display:flex;align-items:center;gap:4px;padding:10px 14px;background:white;border:1px solid var(--border);border-radius:4px 16px 16px 16px;width:fit-content;}
-.typing-dot{width:7px;height:7px;border-radius:50%;background:var(--text-3);animation:typingBounce 1.4s infinite;}
+.sim-card{background:white;border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:8px;}
+.sim-card-title{font-weight:700;font-size:0.65rem;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.sim-item{background:var(--bg);border-radius:8px;padding:8px;}
+.sim-item-label{font-size:0.45rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:2px;}
+.sim-item-val{font-family:'Lora',serif;font-weight:700;font-size:0.88rem;letter-spacing:-0.3px;}
+.sim-item-val.green{color:var(--growth-mid);}
+.sim-item-val.red{color:var(--red);}
+.sim-bar{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin-bottom:6px;}
+.sim-bar-fill{height:100%;border-radius:4px;transition:width 1s ease;}
+.sim-analysis{font-size:0.6rem;color:var(--text-2);line-height:1.6;padding:8px;background:var(--bg);border-radius:8px;}
+.sim-alert{font-size:0.58rem;color:var(--red);background:var(--red-bg);padding:6px 10px;border-radius:8px;margin-top:6px;display:flex;align-items:center;gap:5px;}
+.sim-ok{font-size:0.58rem;color:var(--growth-mid);background:var(--growth-light);padding:6px 10px;border-radius:8px;margin-top:6px;display:flex;align-items:center;gap:5px;}
+
+.typing-wrap{display:flex;align-items:center;gap:4px;padding:10px 14px;background:white;border:1px solid var(--border);border-radius:4px 16px 16px 16px;width:fit-content;}
+.typing-dot{width:7px;height:7px;border-radius:50%;background:var(--text-3);animation:bounce 1.4s infinite;}
 .typing-dot:nth-child(2){animation-delay:0.2s;}
 .typing-dot:nth-child(3){animation-delay:0.4s;}
-@keyframes typingBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
 
-/* Quick suggestions */
-.suggestions{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px;}
-.suggestion{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:white;font-size:0.6rem;font-weight:600;color:var(--text-2);cursor:pointer;transition:all 0.12s;}
-.suggestion:hover{border-color:var(--midnight);color:var(--midnight);background:var(--bg);}
+/* SUGGESTIONS */
+.quick-pills{display:flex;flex-wrap:wrap;gap:6px;padding:0 20px 12px;}
+.pill{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:white;font-size:0.58rem;font-weight:600;color:var(--text-2);cursor:pointer;transition:all 0.1s;}
+.pill:hover{border-color:var(--midnight);color:var(--midnight);}
 
-/* ── INPUT AREA ── */
-.input-area{background:white;border:1.5px solid var(--border);border-radius:20px;padding:10px 10px 10px 16px;display:flex;align-items:flex-end;gap:8px;margin-bottom:20px;box-shadow:var(--shadow);transition:border-color 0.15s;}
-.input-area:focus-within{border-color:var(--midnight);}
-.input-textarea{flex:1;border:none;outline:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.78rem;color:var(--text);resize:none;max-height:120px;min-height:24px;line-height:1.5;background:transparent;}
-.input-textarea::placeholder{color:var(--text-3);}
-
-.input-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-
-.mic-btn{width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all 0.15s;flex-shrink:0;}
-.mic-btn.idle{background:var(--bg);color:var(--text-2);}
-.mic-btn.idle:hover{background:var(--midnight);color:white;}
-.mic-btn.recording{background:var(--red);color:white;animation:recPulse 1s infinite;}
+/* INPUT */
+.input-wrap{padding:12px 20px 16px;background:white;border-top:1px solid var(--border);flex-shrink:0;}
+.input-box{display:flex;align-items:flex-end;gap:8px;background:var(--bg);border:1.5px solid var(--border);border-radius:16px;padding:8px 8px 8px 14px;transition:border-color 0.12s;}
+.input-box:focus-within{border-color:var(--midnight);background:white;}
+.input-ta{flex:1;border:none;outline:none;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.72rem;color:var(--text);resize:none;max-height:100px;min-height:22px;line-height:1.5;}
+.input-ta::placeholder{color:var(--text-3);}
+.input-btns{display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.ibtn{width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.9rem;transition:all 0.12s;}
+.ibtn.mic{background:var(--bg);color:var(--text-2);}
+.ibtn.mic:hover{background:var(--midnight);color:white;}
+.ibtn.mic.rec{background:var(--red);color:white;animation:recPulse 1s infinite;}
+.ibtn.img{background:var(--bg);color:var(--text-2);}
+.ibtn.img:hover{background:var(--blue-bg);color:var(--blue);}
+.ibtn.send{background:var(--midnight);color:white;}
+.ibtn.send:hover{background:var(--midnight-2);}
 @keyframes recPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.4)}50%{box-shadow:0 0 0 8px rgba(239,68,68,0)}}
+.rec-indicator{display:none;align-items:center;gap:6px;font-size:0.58rem;font-weight:600;color:var(--red);margin-bottom:8px;}
+.rec-indicator.show{display:flex;}
+.rec-dot{width:7px;height:7px;background:var(--red);border-radius:50%;animation:recPulse 1s infinite;}
 
-.send-btn{width:40px;height:40px;border-radius:50%;background:var(--midnight);color:white;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.9rem;transition:all 0.15s;flex-shrink:0;}
-.send-btn:hover{background:var(--midnight-2);transform:scale(1.05);}
-.send-btn:disabled{background:var(--border);cursor:default;transform:none;}
+/* ── NOTA FISCAL PANEL ── */
+.nota-panel{flex:1;overflow-y:auto;padding:24px;}
+.nota-upload-zone{border:2px dashed var(--border);border-radius:var(--r-lg);padding:40px;text-align:center;cursor:pointer;transition:all 0.15s;background:white;margin-bottom:20px;}
+.nota-upload-zone:hover,.nota-upload-zone.drag{border-color:var(--midnight);background:var(--bg);}
+.nota-upload-zone.has-image{border-style:solid;border-color:var(--growth);background:var(--growth-light);}
+.upload-icon{font-size:2.5rem;margin-bottom:12px;}
+.upload-title{font-size:0.8rem;font-weight:700;margin-bottom:6px;}
+.upload-sub{font-size:0.62rem;color:var(--text-3);}
+.nota-preview{max-width:100%;border-radius:12px;margin-top:16px;display:none;box-shadow:var(--shadow);}
+.nota-preview.show{display:block;}
+.nota-result{background:white;border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;display:none;}
+.nota-result.show{display:block;}
+.nota-result-title{font-family:'Lora',serif;font-weight:700;font-size:0.9rem;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.nota-item{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.62rem;}
+.nota-item:last-child{border-bottom:none;}
+.nota-item-name{color:var(--text-2);}
+.nota-item-val{font-weight:700;}
+.nota-total{display:flex;justify-content:space-between;padding:12px 0 0;font-size:0.75rem;font-weight:700;margin-top:4px;}
+.nota-actions{display:flex;gap:10px;margin-top:14px;}
+.nota-btn{flex:1;padding:10px;border-radius:10px;font-size:0.65rem;font-weight:700;border:none;cursor:pointer;transition:all 0.12s;}
+.nota-btn.confirm{background:var(--midnight);color:white;}
+.nota-btn.confirm:hover{background:var(--midnight-2);}
+.nota-btn.retry{background:var(--bg);color:var(--text-2);border:1px solid var(--border);}
+.nota-btn.retry:hover{border-color:var(--midnight);}
 
-/* Recording indicator */
-.recording-bar{display:flex;align-items:center;gap:8px;padding:6px 14px;background:rgba(239,68,68,0.08);border-radius:20px;font-size:0.62rem;font-weight:600;color:var(--red);display:none;}
-.recording-bar.show{display:flex;}
-.rec-dot{width:8px;height:8px;background:var(--red);border-radius:50%;animation:recPulse 1s infinite;}
-.rec-timer{font-family:'Lora',serif;font-weight:700;min-width:32px;}
+/* ── SIMULADOR PANEL ── */
+.sim-panel{flex:1;overflow-y:auto;padding:24px;}
+.sim-form{background:white;border:1px solid var(--border);border-radius:var(--r-lg);padding:22px;margin-bottom:18px;}
+.sim-form-title{font-family:'Lora',serif;font-weight:700;font-size:0.9rem;margin-bottom:16px;}
+.form-group{margin-bottom:14px;}
+.form-label{font-size:0.58rem;font-weight:600;color:var(--text-2);margin-bottom:5px;display:block;}
+.form-input{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.65rem;color:var(--text);outline:none;transition:border-color 0.12s;}
+.form-input:focus{border-color:var(--midnight);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.sim-run-btn{width:100%;padding:11px;background:var(--midnight);color:white;border:none;border-radius:10px;font-size:0.68rem;font-weight:700;cursor:pointer;transition:all 0.12s;margin-top:4px;}
+.sim-run-btn:hover{background:var(--midnight-2);}
+.sim-run-btn:disabled{background:var(--border);cursor:default;}
+.sim-or{text-align:center;font-size:0.58rem;color:var(--text-3);margin:14px 0;position:relative;}
+.sim-or::before,.sim-or::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:var(--border);}
+.sim-or::before{left:0;} .sim-or::after{right:0;}
+.sim-voice-btn{width:100%;padding:10px;background:var(--bg);color:var(--text-2);border:1.5px solid var(--border);border-radius:10px;font-size:0.62rem;font-weight:600;cursor:pointer;transition:all 0.12s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.sim-voice-btn:hover{border-color:var(--midnight);color:var(--midnight);}
+.sim-voice-btn.rec{background:var(--red-bg);border-color:var(--red);color:var(--red);animation:recPulse 1s infinite;}
 
-/* ══════════════════════════════════
-   FLOATING CHAT WIDGET
-══════════════════════════════════ */
-.float-btn{position:fixed;bottom:28px;right:28px;width:56px;height:56px;border-radius:50%;background:var(--midnight);color:white;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:var(--shadow-lg);transition:all 0.2s;z-index:1000;}
-.float-btn:hover{transform:scale(1.08);background:var(--midnight-2);}
-.float-btn .float-badge{position:absolute;top:-3px;right:-3px;width:18px;height:18px;background:var(--red);border-radius:50%;font-size:0.45rem;font-weight:700;color:white;display:flex;align-items:center;justify-content:center;border:2px solid white;}
+/* Resultado simulação */
+.sim-result{display:none;}
+.sim-result.show{display:block;}
+.sim-result-header{background:var(--midnight);border-radius:var(--r-lg);padding:20px;color:white;margin-bottom:14px;}
+.sim-result-title{font-family:'Lora',serif;font-weight:700;font-size:1rem;margin-bottom:4px;}
+.sim-result-sub{font-size:0.55rem;color:rgba(255,255,255,0.5);}
+.sim-result-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:0.58rem;font-weight:700;margin-top:10px;}
+.sim-result-badge.green{background:rgba(34,197,94,0.2);color:#4ade80;}
+.sim-result-badge.red{background:rgba(239,68,68,0.2);color:#f87171;}
+.sim-result-badge.amber{background:rgba(245,158,11,0.2);color:#fbbf24;}
 
-.float-chat{position:fixed;bottom:100px;right:28px;width:360px;background:white;border-radius:20px;box-shadow:var(--shadow-lg);z-index:999;display:none;flex-direction:column;overflow:hidden;border:1px solid var(--border);max-height:520px;}
-.float-chat.open{display:flex;}
+.sim-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;}
+.sim-metric{background:white;border:1px solid var(--border);border-radius:var(--r);padding:14px;}
+.sim-metric-label{font-size:0.48rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:5px;}
+.sim-metric-val{font-family:'Lora',serif;font-weight:700;font-size:1rem;letter-spacing:-0.5px;}
 
-.float-header{background:var(--midnight);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;}
-.float-header-left{display:flex;align-items:center;gap:10px;}
-.float-avatar{width:34px;height:34px;border-radius:50%;background:var(--growth);display:flex;align-items:center;justify-content:center;font-size:1rem;}
-.float-name{font-size:0.7rem;font-weight:700;color:white;}
-.float-status{font-size:0.5rem;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:4px;margin-top:1px;}
-.float-status-dot{width:5px;height:5px;background:var(--growth);border-radius:50%;animation:blink 2s infinite;}
-.float-close{background:none;border:none;color:rgba(255,255,255,0.6);cursor:pointer;font-size:1.1rem;transition:color 0.1s;}
-.float-close:hover{color:white;}
+.sim-impact{background:white;border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:14px;}
+.sim-impact-title{font-size:0.6rem;font-weight:700;margin-bottom:10px;}
+.sim-before-after{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-bottom:12px;}
+.sim-side{padding:10px;border-radius:10px;}
+.sim-side.before{background:var(--bg);}
+.sim-side.after{background:var(--growth-light);}
+.sim-side-label{font-size:0.45rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-3);margin-bottom:4px;}
+.sim-side-val{font-family:'Lora',serif;font-weight:700;font-size:0.9rem;}
+.sim-arrow{font-size:1.2rem;color:var(--text-3);}
 
-.float-messages{flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:10px;background:#f8fafc;min-height:200px;}
-.float-messages::-webkit-scrollbar{width:3px;}
-.float-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.sim-chart{margin-top:10px;}
+.sim-chart-title{font-size:0.52rem;font-weight:600;color:var(--text-3);margin-bottom:8px;}
+.sim-bars{display:flex;align-items:flex-end;gap:3px;height:60px;}
+.sim-bar-item{flex:1;border-radius:3px 3px 0 0;min-height:4px;transition:height 0.8s ease;}
+.sim-bar-labels{display:flex;gap:3px;margin-top:4px;}
+.sim-bar-label{flex:1;font-size:0.38rem;color:var(--text-3);text-align:center;}
 
-.float-bub{max-width:85%;padding:8px 12px;border-radius:12px;font-size:0.62rem;line-height:1.55;}
-.float-bub.ai{align-self:flex-start;background:white;border:1px solid var(--border);border-radius:4px 12px 12px 12px;color:var(--text);}
-.float-bub.user{align-self:flex-end;background:var(--midnight);color:white;border-radius:12px 4px 12px 12px;}
-.float-bub-time{font-size:0.42rem;color:var(--text-3);margin-top:3px;}
-.float-bub.user .float-bub-time{color:rgba(255,255,255,0.5);text-align:right;}
-
-.float-quick{display:flex;flex-wrap:wrap;gap:5px;padding:8px 12px;background:white;border-top:1px solid var(--border);}
-.float-quick-btn{font-size:0.5rem;font-weight:600;padding:4px 9px;border-radius:20px;border:1px solid var(--border);background:var(--bg);color:var(--text-2);cursor:pointer;transition:all 0.1s;}
-.float-quick-btn:hover{border-color:var(--midnight);color:var(--midnight);}
-
-.float-input-row{display:flex;align-items:center;gap:7px;padding:10px 12px;border-top:1px solid var(--border);background:white;}
-.float-input{flex:1;border:1.5px solid var(--border);border-radius:20px;padding:7px 12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.62rem;color:var(--text);outline:none;transition:border-color 0.12s;}
-.float-input:focus{border-color:var(--midnight);}
-.float-mic{width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.85rem;background:var(--bg);transition:all 0.12s;}
-.float-mic:hover{background:var(--midnight);color:white;}
-.float-mic.rec{background:var(--red);color:white;animation:recPulse 1s infinite;}
-.float-send{width:32px;height:32px;border-radius:50%;background:var(--midnight);color:white;border:none;cursor:pointer;font-size:0.8rem;display:flex;align-items:center;justify-content:center;transition:all 0.12s;}
-.float-send:hover{background:var(--midnight-2);}
-
-/* Expand button */
-.float-expand{position:absolute;top:12px;right:48px;background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.8rem;}
-.float-expand:hover{color:white;}
+.sim-analysis-box{background:white;border:1px solid var(--border);border-radius:var(--r);padding:16px;}
+.sim-analysis-title{font-size:0.6rem;font-weight:700;margin-bottom:8px;}
+.sim-analysis-text{font-size:0.62rem;color:var(--text-2);line-height:1.7;margin-bottom:8px;}
+.sim-suggestion{background:var(--blue-bg);border-radius:8px;padding:10px;font-size:0.6rem;color:var(--blue);display:flex;gap:6px;}
+.sim-warning{background:var(--red-bg);border-radius:8px;padding:10px;font-size:0.6rem;color:var(--red);display:flex;gap:6px;margin-top:8px;}
+.sim-success{background:var(--growth-light);border-radius:8px;padding:10px;font-size:0.6rem;color:var(--growth-mid);display:flex;gap:6px;margin-top:8px;}
 </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════
-     PÁGINA PRINCIPAL DE CHAT
-══════════════════════════════════ -->
-<div class="chat-page">
+<!-- NAV -->
+<nav class="nav">
+  <a href="/" class="nav-back">← Dashboard</a>
+  <div class="nav-divider"></div>
+  <div class="nav-logo">
+    <div class="nav-logomark" style="position:relative">
+      <div class="fmark"><div class="fmark-mid"></div></div>
+      <div class="fdot"></div>
+    </div>
+    <span class="nav-wordmark">finia <span>IA</span></span>
+  </div>
+  <div class="nav-status">
+    <div class="status-dot"></div>
+    online · modelo claude haiku
+  </div>
+  <button class="nav-clear" onclick="clearChat()">🗑️ Limpar chat</button>
+</nav>
 
-  <!-- Header -->
-  <div class="chat-header">
-    <div class="chat-header-left">
-      <div class="chat-avatar">🤖</div>
-      <div>
-        <div class="chat-title">finia IA</div>
-        <div class="chat-sub"><div class="online-dot"></div> Online · registra por texto ou voz</div>
+<div class="chat-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="chat-sidebar">
+    <div class="sidebar-ctx">
+      <div class="ctx-title">Resumo do mês</div>
+      <div class="ctx-grid">
+        <div class="ctx-item"><div class="ctx-item-label">Saldo</div><div class="ctx-item-val" id="ctx-saldo">—</div></div>
+        <div class="ctx-item"><div class="ctx-item-label">Receitas</div><div class="ctx-item-val green" id="ctx-rec">—</div></div>
+        <div class="ctx-item"><div class="ctx-item-label">Gastos</div><div class="ctx-item-val red" id="ctx-gas">—</div></div>
+        <div class="ctx-item"><div class="ctx-item-label">A pagar</div><div class="ctx-item-val amber" id="ctx-pag">—</div></div>
       </div>
     </div>
-    <div class="chat-header-right">
-      <button class="header-btn" onclick="clearHistory()">🗑️ Limpar</button>
-      <button class="header-btn" onclick="window.location.href='/'">← Dashboard</button>
+
+    <div class="sidebar-section">Funcionalidades</div>
+
+    <button class="feature-btn active" onclick="switchMode('chat',this)">
+      <div class="feature-icon" style="background:#f1f5f9">💬</div>
+      <div><div class="feature-name">Chat IA</div><div class="feature-desc">Registre por texto ou voz</div></div>
+    </button>
+    <button class="feature-btn" onclick="switchMode('nota',this)">
+      <div class="feature-icon" style="background:#eff6ff">📸</div>
+      <div><div class="feature-name">Nota Fiscal</div><div class="feature-desc">Foto → registro automático</div></div>
+    </button>
+    <button class="feature-btn" onclick="switchMode('sim',this)">
+      <div class="feature-icon" style="background:#f5f3ff">🔮</div>
+      <div><div class="feature-name">Simulador</div><div class="feature-desc">Simule decisões financeiras</div></div>
+    </button>
+
+    <div class="sidebar-section">Sugestões rápidas</div>
+    <div class="suggestion-list">
+      <div class="suggestion-item" onclick="sendMsg('quanto gastei esse mês?')">📊 Quanto gastei esse mês?</div>
+      <div class="suggestion-item" onclick="sendMsg('quais minhas maiores despesas?')">📉 Maiores despesas</div>
+      <div class="suggestion-item" onclick="sendMsg('estou no azul esse mês?')">💰 Estou no azul?</div>
+      <div class="suggestion-item" onclick="sendMsg('resumo financeiro completo')">📋 Resumo completo</div>
+      <div class="suggestion-item" onclick="sendMsg('dicas para economizar mais')">💡 Dicas de economia</div>
+      <div class="suggestion-item" onclick="switchMode('sim');document.getElementById('sim-desc').value='comprar um carro'">🚗 Simular compra de carro</div>
+      <div class="suggestion-item" onclick="switchMode('sim');document.getElementById('sim-desc').value='fazer uma viagem'">✈️ Simular viagem</div>
     </div>
-  </div>
+  </aside>
 
-  <!-- Context strip -->
-  <div class="context-strip" id="ctx-strip">
-    <div class="ctx-card"><div class="ctx-card-label">Saldo</div><div class="ctx-card-val" id="ctx-saldo">—</div></div>
-    <div class="ctx-card"><div class="ctx-card-label">Receitas</div><div class="ctx-card-val green" id="ctx-rec">—</div></div>
-    <div class="ctx-card"><div class="ctx-card-label">Gastos</div><div class="ctx-card-val red" id="ctx-gas">—</div></div>
-    <div class="ctx-card"><div class="ctx-card-label">A pagar</div><div class="ctx-card-val amber" id="ctx-pag">—</div></div>
-    <div class="ctx-card" onclick="sendMsg('resumo')"><div class="ctx-card-label">Ação rápida</div><div class="ctx-card-val" style="font-size:0.75rem">📊 Resumo</div></div>
-    <div class="ctx-card" onclick="sendMsg('quais minhas maiores despesas?')"><div class="ctx-card-label">Ação rápida</div><div class="ctx-card-val" style="font-size:0.75rem">📉 Análise</div></div>
-  </div>
+  <!-- MAIN -->
+  <div class="chat-main">
 
-  <!-- Messages -->
-  <div class="messages-wrap" id="messages">
-    <!-- Mensagem de boas-vindas -->
-    <div class="msg ai">
-      <div class="msg-avatar ai">IA</div>
-      <div class="msg-content">
-        <div class="msg-name">finia IA</div>
-        <div class="msg-bubble">
-          Olá, Philip! 👋 Sou seu assistente financeiro inteligente.<br><br>
-          Posso te ajudar a <strong>registrar transações</strong>, <strong>consultar gastos</strong>, <strong>analisar seu orçamento</strong> e muito mais.<br><br>
-          Você pode digitar ou usar o <strong>🎤 microfone</strong> para falar!
-          <div class="suggestions">
-            <span class="suggestion" onclick="sendMsg('gastei 50 no mercado hoje')">🛒 gastei 50 no mercado</span>
-            <span class="suggestion" onclick="sendMsg('quanto gastei esse mês?')">📊 quanto gastei?</span>
-            <span class="suggestion" onclick="sendMsg('recebi salário de 3000')">💰 salário 3000</span>
-            <span class="suggestion" onclick="sendMsg('quais minhas maiores despesas?')">📉 maiores despesas</span>
+    <!-- MODE TABS -->
+    <div class="mode-tabs">
+      <button class="mode-tab active" id="tab-chat" onclick="switchMode('chat',null,this)">💬 Chat IA</button>
+      <button class="mode-tab" id="tab-nota" onclick="switchMode('nota',null,this)">📸 Nota Fiscal</button>
+      <button class="mode-tab" id="tab-sim" onclick="switchMode('sim',null,this)">🔮 Simulador</button>
+    </div>
+
+    <!-- ── CHAT PANEL ── -->
+    <div class="panel active" id="panel-chat">
+      <div class="messages" id="messages">
+        <div class="msg ai">
+          <div class="msg-av ai">IA</div>
+          <div class="msg-body">
+            <div class="msg-name">finia IA</div>
+            <div class="bubble ai">
+              Olá, Philip! 👋 Sou seu assistente financeiro.<br><br>
+              Você pode <strong>digitar</strong>, usar o <strong>🎤 microfone</strong> ou <strong>📸 tirar foto de uma nota fiscal</strong>!<br><br>
+              Como posso te ajudar hoje?
+            </div>
+            <div class="msg-time">agora</div>
           </div>
         </div>
-        <div class="msg-time">agora</div>
+      </div>
+
+      <div class="quick-pills" id="quick-pills">
+        <span class="pill" onclick="sendMsg('gastei 50 no mercado')">🛒 mercado 50</span>
+        <span class="pill" onclick="sendMsg('quanto gastei esse mês?')">📊 gastos do mês</span>
+        <span class="pill" onclick="sendMsg('recebi salário de 3000')">💰 salário</span>
+        <span class="pill" onclick="sendMsg('resumo')">📋 resumo</span>
+        <span class="pill" onclick="sendMsg('dicas para economizar')">💡 dicas</span>
+      </div>
+
+      <div class="input-wrap">
+        <div class="rec-indicator" id="rec-bar">
+          <div class="rec-dot"></div>
+          <span>Gravando...</span>
+          <span id="rec-timer" style="font-family:'Lora',serif;font-weight:700;min-width:28px">0:00</span>
+        </div>
+        <div class="input-box">
+          <textarea class="input-ta" id="chat-input" placeholder="Digite, fale ou envie uma nota fiscal..." rows="1"
+            onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+          <div class="input-btns">
+            <button class="ibtn img" onclick="document.getElementById('nota-file-hidden').click()" title="Enviar nota fiscal">📸</button>
+            <button class="ibtn mic" id="mic-btn" onclick="toggleMic()" title="Gravar voz">🎤</button>
+            <button class="ibtn send" onclick="sendFromInput()" title="Enviar">➤</button>
+          </div>
+        </div>
+        <input type="file" id="nota-file-hidden" accept="image/*" style="display:none" onchange="handleNotaFromChat(this)">
       </div>
     </div>
-  </div>
 
-  <!-- Recording bar -->
-  <div class="recording-bar" id="rec-bar">
-    <div class="rec-dot"></div>
-    <span>Gravando...</span>
-    <span class="rec-timer" id="rec-timer">0:00</span>
-    <span style="font-size:0.55rem;color:var(--text-3);margin-left:4px">solte para enviar</span>
-  </div>
+    <!-- ── NOTA FISCAL PANEL ── -->
+    <div class="panel" id="panel-nota">
+      <div class="nota-panel">
+        <div class="nota-upload-zone" id="upload-zone"
+          ondragover="event.preventDefault();this.classList.add('drag')"
+          ondragleave="this.classList.remove('drag')"
+          ondrop="handleDrop(event)"
+          onclick="document.getElementById('nota-file').click()">
+          <div class="upload-icon" id="upload-icon">📸</div>
+          <div class="upload-title" id="upload-title">Tire foto ou envie a nota fiscal</div>
+          <div class="upload-sub" id="upload-sub">Clique aqui ou arraste a imagem · JPG, PNG, WEBP</div>
+          <img id="nota-preview" class="nota-preview">
+        </div>
+        <input type="file" id="nota-file" accept="image/*" capture="environment" style="display:none" onchange="processNota(this)">
 
-  <!-- Input area -->
-  <div class="input-area">
-    <textarea class="input-textarea" id="chat-input" placeholder="Digite uma mensagem ou use o microfone..." rows="1"
-      onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-    <div class="input-actions">
-      <button class="mic-btn idle" id="mic-btn" onclick="toggleMic()">🎤</button>
-      <button class="send-btn" id="send-btn" onclick="sendFromInput()">➤</button>
-    </div>
-  </div>
+        <div id="nota-loading" style="display:none;text-align:center;padding:24px">
+          <div style="font-size:1.5rem;margin-bottom:8px;animation:spin 1s linear infinite;display:inline-block">🔍</div>
+          <div style="font-size:0.7rem;color:var(--text-2);font-weight:600">Lendo a nota fiscal com IA...</div>
+          <div style="font-size:0.58rem;color:var(--text-3);margin-top:4px">Isso pode levar alguns segundos</div>
+        </div>
 
-</div>
-
-<!-- ══════════════════════════════════
-     CHAT FLUTUANTE
-══════════════════════════════════ -->
-<button class="float-btn" onclick="toggleFloat()" id="float-toggle">
-  💬
-  <span class="float-badge" id="float-badge" style="display:none">1</span>
-</button>
-
-<div class="float-chat" id="float-chat">
-  <div class="float-header">
-    <div class="float-header-left">
-      <div class="float-avatar">🤖</div>
-      <div>
-        <div class="float-name">finia IA</div>
-        <div class="float-status"><div class="float-status-dot"></div> online</div>
+        <div class="nota-result" id="nota-result">
+          <div class="nota-result-title">✅ <span id="nr-estabelecimento">—</span></div>
+          <div id="nr-itens"></div>
+          <div class="nota-total">
+            <span>Total</span>
+            <span id="nr-total" style="color:var(--growth-mid)">—</span>
+          </div>
+          <div class="nota-actions">
+            <button class="nota-btn confirm" onclick="confirmarNota()">✅ Confirmar e registrar</button>
+            <button class="nota-btn retry" onclick="resetNota()">🔄 Enviar outra foto</button>
+          </div>
+        </div>
       </div>
     </div>
-    <button class="float-expand" onclick="window.location.href='/chat.html'" title="Abrir em tela cheia">⤢</button>
-    <button class="float-close" onclick="toggleFloat()">✕</button>
-  </div>
 
-  <div class="float-messages" id="float-messages">
-    <div class="float-bub ai">
-      Oi! 👋 Me diga um gasto ou receita pra registrar. Pode falar também! 🎤
-      <div class="float-bub-time">agora</div>
+    <!-- ── SIMULADOR PANEL ── -->
+    <div class="panel" id="panel-sim">
+      <div class="sim-panel">
+        <div class="sim-form">
+          <div class="sim-form-title">🔮 Simulador de Decisão Financeira</div>
+          <div class="form-group">
+            <label class="form-label">O que você quer comprar / fazer?</label>
+            <input class="form-input" id="sim-desc" placeholder="Ex: comprar um carro, fazer uma viagem, assinar academia...">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Custo mensal (R$)</label>
+              <input class="form-input" id="sim-valor" type="number" placeholder="1500.00" step="0.01">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Por quantos meses?</label>
+              <input class="form-input" id="sim-meses" type="number" placeholder="12" value="12">
+            </div>
+          </div>
+          <button class="sim-run-btn" id="sim-run-btn" onclick="rodarSimulacao()">🔮 Simular impacto no meu orçamento</button>
+
+          <div class="sim-or">ou</div>
+
+          <button class="sim-voice-btn" id="sim-voice-btn" onclick="toggleSimVoz()">
+            🎤 Falar a decisão — "se eu comprar um carro de 1500 por mês"
+          </button>
+        </div>
+
+        <!-- Resultado -->
+        <div class="sim-result" id="sim-result">
+          <div class="sim-result-header">
+            <div class="sim-result-title" id="sr-title">—</div>
+            <div class="sim-result-sub" id="sr-sub">—</div>
+            <div class="sim-result-badge" id="sr-badge">—</div>
+          </div>
+
+          <div class="sim-metrics">
+            <div class="sim-metric">
+              <div class="sim-metric-label">Custo mensal</div>
+              <div class="sim-metric-val" id="sr-mensal" style="color:var(--red)">—</div>
+            </div>
+            <div class="sim-metric">
+              <div class="sim-metric-label">Custo total</div>
+              <div class="sim-metric-val" id="sr-total" style="color:var(--text)">—</div>
+            </div>
+            <div class="sim-metric">
+              <div class="sim-metric-label">Novo saldo</div>
+              <div class="sim-metric-val" id="sr-novo-saldo">—</div>
+            </div>
+          </div>
+
+          <div class="sim-impact">
+            <div class="sim-impact-title">Impacto no orçamento mensal</div>
+            <div class="sim-before-after">
+              <div class="sim-side before">
+                <div class="sim-side-label">Saldo atual</div>
+                <div class="sim-side-val" id="sr-antes">—</div>
+              </div>
+              <div class="sim-arrow">→</div>
+              <div class="sim-side after">
+                <div class="sim-side-label">Saldo com gasto</div>
+                <div class="sim-side-val" id="sr-depois">—</div>
+              </div>
+            </div>
+            <div style="font-size:0.52rem;color:var(--text-3);margin-bottom:6px">% do orçamento comprometido</div>
+            <div class="sim-bar"><div class="sim-bar-fill" id="sr-bar" style="background:var(--growth)"></div></div>
+            <div style="font-size:0.55rem;color:var(--text-2)" id="sr-pct">—</div>
+          </div>
+
+          <div class="sim-analysis-box">
+            <div class="sim-analysis-title">💡 Análise da IA</div>
+            <div class="sim-analysis-text" id="sr-analise">—</div>
+            <div class="sim-suggestion" id="sr-sugestao">💡 <span id="sr-sugestao-txt">—</span></div>
+            <div id="sr-alerta-wrap"></div>
+          </div>
+
+          <div style="margin-top:14px;display:flex;gap:10px;">
+            <button class="sim-run-btn" style="flex:1" onclick="resetSim()">🔄 Nova simulação</button>
+            <button class="sim-run-btn" style="flex:1;background:var(--growth)" onclick="sendMsg('quero fazer '+document.getElementById('sim-desc').value+' de '+document.getElementById('sim-valor').value+' por mês. O que você acha?')">💬 Discutir no chat</button>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <div class="float-quick">
-    <span class="float-quick-btn" onclick="floatSend('gastei 50 no mercado')">🛒 mercado</span>
-    <span class="float-quick-btn" onclick="floatSend('resumo')">📊 resumo</span>
-    <span class="float-quick-btn" onclick="floatSend('quanto gastei?')">💸 gastos</span>
-    <span class="float-quick-btn" onclick="floatSend('recebi salário')">💰 salário</span>
-  </div>
-
-  <div class="float-input-row">
-    <input class="float-input" id="float-input" placeholder="Digite ou fale..." onkeydown="if(event.key==='Enter')floatSendInput()">
-    <button class="float-mic" id="float-mic" onclick="toggleFloatMic()">🎤</button>
-    <button class="float-send" onclick="floatSendInput()">➤</button>
   </div>
 </div>
 
 <script>
-const API = window.location.hostname === 'localhost'
-  ? 'http://localhost:8000'
-  : 'https://financeiro-bot-production-571e.up.railway.app';
-
+const API = 'https://financeiro-bot-production-571e.up.railway.app';
 const fmt = v => 'R$ ' + Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 
-// ── HISTÓRICO DE CONVERSA ──
-let history = JSON.parse(localStorage.getItem('finia_chat_history') || '[]');
-let floatHistory = [];
-let recTimer, recSeconds = 0;
-let recognition = null;
+let chatHistory = JSON.parse(localStorage.getItem('finia_chat') || '[]');
 let isRecording = false;
-let floatIsRecording = false;
-let floatUnread = 0;
-let floatOpen = false;
+let recognition = null;
+let recInterval = null;
+let recSecs = 0;
+let notaData = null;
+let simRecording = false;
 
-// ── CARREGAR CONTEXTO FINANCEIRO ──
+// ── CONTEXTO ──
 async function loadContext() {
   try {
-    const res = await fetch(`${API}/dashboard/resumo`);
-    const d = await res.json();
+    const r = await fetch(`${API}/dashboard/resumo`);
+    const d = await r.json();
     document.getElementById('ctx-saldo').textContent = fmt(d.saldo);
     document.getElementById('ctx-rec').textContent = fmt(d.receitas);
     document.getElementById('ctx-gas').textContent = fmt(d.gastos);
     document.getElementById('ctx-pag').textContent = fmt(d.a_pagar);
-    window._finiaContext = d;
+    window._ctx = d;
   } catch(e) {}
 }
 
-// ── SYSTEM PROMPT PARA A IA ──
-function getSystemPrompt() {
-  const ctx = window._finiaContext || {};
-  return `Você é o finia, um assistente financeiro pessoal inteligente e amigável do Philip Bicudo.
-
-CONTEXTO FINANCEIRO ATUAL (${new Date().toLocaleDateString('pt-BR')}):
-- Saldo líquido: ${fmt(ctx.saldo || 0)}
-- Receitas do mês: ${fmt(ctx.receitas || 0)}
-- Gastos do mês: ${fmt(ctx.gastos || 0)}
-- A pagar: ${fmt(ctx.a_pagar || 0)}
-- Total de transações: ${ctx.total_transacoes || 0}
-
-SUAS CAPACIDADES:
-1. Registrar transações: quando o usuário diz "gastei X em Y" ou "recebi X de Y", extraia os dados e responda com REGISTRAR_TX:{...}
-2. Consultar finanças: responda com base no contexto financeiro acima
-3. Dar conselhos: análise de gastos, sugestões de economia
-4. Resumo: apresente o resumo financeiro de forma clara
-
-FORMATO PARA REGISTRAR TRANSAÇÃO:
-Quando identificar uma transação, responda EXATAMENTE assim (JSON no final):
-"✅ Entendido! Vou registrar isso para você.
-REGISTRAR_TX:{"descricao":"nome","valor":0.00,"tipo":"despesa|receita","categoria":"categoria","metodo":"PIX|Cartão|etc","status":"pago|nao_pago"}"
-
-CATEGORIAS DISPONÍVEIS: Alimentação, Moradia, Transporte, Saúde, Lazer, Educação, Outros
-
-REGRAS:
-- Responda SEMPRE em português brasileiro informal
-- Seja curto e direto — máximo 3 linhas normalmente
-- Use emojis moderadamente
-- Se não entender, peça para repetir
-- Quando o usuário fala de dinheiro, sempre tente registrar`;
+function getSystem() {
+  const c = window._ctx || {};
+  return `Você é o finia, assistente financeiro pessoal do Philip.
+Dados financeiros AGORA: Saldo R$ ${c.saldo||0}, Receitas R$ ${c.receitas||0}, Gastos R$ ${c.gastos||0}, A pagar R$ ${c.a_pagar||0}.
+Quando identificar transação, responda: REGISTRAR_TX:{"descricao":"X","valor":0,"tipo":"despesa|receita","categoria":"Alimentação|Moradia|Transporte|Saúde|Lazer|Educação|Outros","metodo":"PIX","status":"pago|nao_pago"}
+Seja direto, informal, max 3 linhas. Use emojis com moderação.`;
 }
 
-// ── ENVIAR MENSAGEM ──
+// ── NAVIGATION ──
+function switchMode(mode, sideBtn, tabBtn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.feature-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + mode).classList.add('active');
+  document.getElementById('tab-' + mode)?.classList.add('active');
+  if(sideBtn) sideBtn.classList.add('active');
+  if(tabBtn) tabBtn.classList.add('active');
+}
+
+// ── CHAT ──
 async function sendMsg(text) {
   if(!text.trim()) return;
-
-  addMessage('user', text);
-  history.push({role:'user', content: text});
-  saveHistory();
-
+  addMsg('user', text);
+  chatHistory.push({role:'user', content: text});
+  localStorage.setItem('finia_chat', JSON.stringify(chatHistory.slice(-20)));
   showTyping();
 
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 400,
-        system: getSystemPrompt(),
-        messages: history.slice(-10),
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:400,
+        system: getSystem(),
+        messages: chatHistory.slice(-10),
       })
     });
-
     const data = await resp.json();
-    const reply = data.content?.[0]?.text || 'Desculpe, não consegui processar.';
-
+    const reply = data.content?.[0]?.text || 'Desculpe, tente novamente.';
     hideTyping();
 
-    // Verifica se tem transação para registrar
     if(reply.includes('REGISTRAR_TX:')) {
       const parts = reply.split('REGISTRAR_TX:');
-      const msgText = parts[0].trim();
-      const jsonStr = parts[1]?.trim();
-
-      addMessage('ai', msgText);
-
+      if(parts[0].trim()) addMsg('ai', parts[0].trim());
       try {
-        const txData = JSON.parse(jsonStr);
-        await registrarTransacao(txData);
-      } catch(e) {
-        addMessage('ai', '⚠️ Entendi a transação mas tive um problema ao salvar. Tente novamente!');
-      }
+        const txData = JSON.parse(parts[1].trim());
+        const res = await fetch(`${API}/transacoes/`, {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(txData)
+        });
+        addTxMsg(txData);
+        await loadContext();
+      } catch(e) { addMsg('ai', '⚠️ Entendi mas tive problema ao salvar. Tente novamente!'); }
     } else {
-      addMessage('ai', reply);
+      addMsg('ai', reply);
     }
 
-    history.push({role:'assistant', content: reply.replace(/REGISTRAR_TX:\{.*\}/s, '').trim()});
-    saveHistory();
-    await loadContext();
-
+    chatHistory.push({role:'assistant', content: reply.replace(/REGISTRAR_TX:\{.*?\}/s,'').trim()});
+    localStorage.setItem('finia_chat', JSON.stringify(chatHistory.slice(-20)));
   } catch(e) {
     hideTyping();
-    addMessage('ai', '❌ Erro de conexão. Verifique sua internet e tente novamente.');
+    addMsg('ai', '❌ Erro de conexão. Verifique sua internet.');
   }
 }
 
-// ── REGISTRAR TRANSAÇÃO NA API ──
-async function registrarTransacao(txData) {
-  try {
-    const res = await fetch(`${API}/transacoes/`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(txData)
-    });
-
-    if(res.ok) {
-      const tx = await res.json();
-      const msgEl = document.createElement('div');
-      msgEl.className = 'msg ai';
-      msgEl.innerHTML = `
-        <div class="msg-avatar ai">IA</div>
-        <div class="msg-content">
-          <div class="msg-name">finia IA</div>
-          <div class="msg-bubble">
-            <div class="tx-registered">
-              <div class="tx-registered-title">✅ Transação registrada!</div>
-              📝 ${txData.descricao}<br>
-              💵 ${fmt(txData.valor)}<br>
-              🏷️ ${txData.categoria} · ${txData.metodo || 'PIX'}<br>
-              ${txData.status === 'pago' ? '✅ Pago' : '⏳ A pagar'}
-            </div>
-          </div>
-          <div class="msg-time">${getTime()}</div>
-        </div>`;
-      document.getElementById('messages').appendChild(msgEl);
-      scrollMessages();
-      await loadContext();
-    } else {
-      addMessage('ai', '⚠️ Não consegui salvar a transação. O servidor pode estar ocupado.');
-    }
-  } catch(e) {
-    addMessage('ai', '❌ Erro ao salvar no banco. Tente novamente.');
-  }
-}
-
-// ── DOM HELPERS ──
-function addMessage(role, text) {
+function addMsg(role, text) {
+  const t = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
   const el = document.createElement('div');
-  el.className = `msg ${role === 'user' ? 'user' : 'ai'}`;
+  el.className = `msg ${role}`;
   el.innerHTML = `
-    <div class="msg-avatar ${role === 'user' ? 'user' : 'ai'}">${role === 'user' ? 'PB' : 'IA'}</div>
-    <div class="msg-content">
-      <div class="msg-name">${role === 'user' ? 'Você' : 'finia IA'}</div>
-      <div class="msg-bubble">${text.replace(/\n/g,'<br>')}</div>
-      <div class="msg-time">${getTime()}</div>
+    <div class="msg-av ${role}">${role==='user'?'PB':'IA'}</div>
+    <div class="msg-body">
+      <div class="msg-name">${role==='user'?'Você':'finia IA'}</div>
+      <div class="bubble ${role}">${text.replace(/\n/g,'<br>')}</div>
+      <div class="msg-time">${t}</div>
     </div>`;
   document.getElementById('messages').appendChild(el);
-  scrollMessages();
+  document.getElementById('messages').scrollTop = 99999;
+}
+
+function addTxMsg(tx) {
+  const t = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const el = document.createElement('div');
+  el.className = 'msg ai';
+  el.innerHTML = `
+    <div class="msg-av ai">IA</div>
+    <div class="msg-body">
+      <div class="msg-name">finia IA</div>
+      <div class="bubble ai">
+        <div class="tx-card">
+          <div class="tx-card-title">✅ Transação registrada!</div>
+          <div class="tx-card-row">📝 ${tx.descricao}</div>
+          <div class="tx-card-row">💵 ${fmt(tx.valor)}</div>
+          <div class="tx-card-row">🏷️ ${tx.categoria} · ${tx.metodo||'PIX'}</div>
+          <div class="tx-card-row">${tx.status==='pago'?'✅ Pago':'⏳ A pagar'}</div>
+        </div>
+      </div>
+      <div class="msg-time">${t}</div>
+    </div>`;
+  document.getElementById('messages').appendChild(el);
+  document.getElementById('messages').scrollTop = 99999;
 }
 
 function showTyping() {
   const el = document.createElement('div');
-  el.className = 'msg ai'; el.id = 'typing-msg';
-  el.innerHTML = `<div class="msg-avatar ai">IA</div><div class="msg-content"><div class="msg-name">finia IA</div><div class="typing-bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  el.className = 'msg ai'; el.id = 'typing';
+  el.innerHTML = `<div class="msg-av ai">IA</div><div class="msg-body"><div class="msg-name">finia IA</div><div class="typing-wrap"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
   document.getElementById('messages').appendChild(el);
-  scrollMessages();
+  document.getElementById('messages').scrollTop = 99999;
 }
+function hideTyping() { document.getElementById('typing')?.remove(); }
 
-function hideTyping() {
-  document.getElementById('typing-msg')?.remove();
-}
-
-function scrollMessages() {
-  const m = document.getElementById('messages');
-  m.scrollTop = m.scrollHeight;
-}
-
-function getTime() {
-  return new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-}
-
-function saveHistory() {
-  localStorage.setItem('finia_chat_history', JSON.stringify(history.slice(-20)));
-}
-
-function clearHistory() {
-  if(!confirm('Limpar todo o histórico de conversa?')) return;
-  history = [];
-  localStorage.removeItem('finia_chat_history');
-  document.getElementById('messages').innerHTML = '';
-  addMessage('ai', 'Histórico limpo! Como posso te ajudar? 😊');
-}
-
-// ── INPUT ──
 function sendFromInput() {
   const inp = document.getElementById('chat-input');
-  const txt = inp.value.trim();
-  if(!txt) return;
-  inp.value = '';
-  autoResize(inp);
-  sendMsg(txt);
+  const txt = inp.value.trim(); if(!txt) return;
+  inp.value = ''; autoResize(inp); sendMsg(txt);
+}
+function handleKey(e) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendFromInput();} }
+function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
+function clearChat() {
+  if(!confirm('Limpar histórico?')) return;
+  chatHistory=[]; localStorage.removeItem('finia_chat');
+  document.getElementById('messages').innerHTML='';
+  addMsg('ai','Histórico limpo! Como posso ajudar? 😊');
 }
 
-function handleKey(e) {
-  if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendFromInput(); }
-}
-
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
-}
-
-// ── MICROFONE (Web Speech API) ──
+// ── MICROFONE ──
 function toggleMic() {
-  if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    alert('Seu navegador não suporta reconhecimento de voz. Use Chrome ou Edge.');
-    return;
+  if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){
+    alert('Use Chrome ou Edge para reconhecimento de voz.'); return;
   }
-
-  if(isRecording) {
-    stopRecording();
-  } else {
-    startRecording();
-  }
+  isRecording ? stopRec() : startRec();
 }
 
-function startRecording() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SR();
-  recognition.lang = 'pt-BR';
-  recognition.continuous = false;
-  recognition.interimResults = true;
-
+function startRec() {
+  const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
+  recognition = new SR(); recognition.lang='pt-BR'; recognition.continuous=false; recognition.interimResults=true;
   recognition.onstart = () => {
-    isRecording = true;
-    document.getElementById('mic-btn').className = 'mic-btn recording';
-    document.getElementById('mic-btn').textContent = '⏹️';
+    isRecording=true;
+    document.getElementById('mic-btn').className='ibtn mic rec';
+    document.getElementById('mic-btn').textContent='⏹️';
     document.getElementById('rec-bar').classList.add('show');
-    startTimer();
+    recSecs=0;
+    recInterval=setInterval(()=>{ recSecs++; const m=Math.floor(recSecs/60),s=recSecs%60; document.getElementById('rec-timer').textContent=`${m}:${s.toString().padStart(2,'0')}`; },1000);
   };
-
-  recognition.onresult = (e) => {
-    const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
-    document.getElementById('chat-input').value = transcript;
-    autoResize(document.getElementById('chat-input'));
-  };
-
-  recognition.onend = () => {
-    stopRecording();
-    const txt = document.getElementById('chat-input').value.trim();
-    if(txt) sendFromInput();
-  };
-
-  recognition.onerror = (e) => {
-    stopRecording();
-    if(e.error !== 'aborted') addMessage('ai', '❌ Não consegui ouvir. Tente falar mais perto do microfone.');
-  };
-
+  recognition.onresult = e => { document.getElementById('chat-input').value=Array.from(e.results).map(r=>r[0].transcript).join(''); autoResize(document.getElementById('chat-input')); };
+  recognition.onend = () => { stopRec(); const txt=document.getElementById('chat-input').value.trim(); if(txt) sendFromInput(); };
+  recognition.onerror = () => stopRec();
   recognition.start();
 }
 
-function stopRecording() {
-  isRecording = false;
-  recognition?.stop();
-  document.getElementById('mic-btn').className = 'mic-btn idle';
-  document.getElementById('mic-btn').textContent = '🎤';
+function stopRec() {
+  isRecording=false; recognition?.stop();
+  document.getElementById('mic-btn').className='ibtn mic';
+  document.getElementById('mic-btn').textContent='🎤';
   document.getElementById('rec-bar').classList.remove('show');
-  stopTimer();
+  clearInterval(recInterval);
 }
 
-function startTimer() {
-  recSeconds = 0;
-  recTimer = setInterval(() => {
-    recSeconds++;
-    const m = Math.floor(recSeconds/60);
-    const s = recSeconds%60;
-    document.getElementById('rec-timer').textContent = `${m}:${s.toString().padStart(2,'0')}`;
-  }, 1000);
+// ── NOTA FISCAL ──
+function handleNotaFromChat(input) {
+  if(!input.files[0]) return;
+  switchMode('nota');
+  processNotaFile(input.files[0]);
 }
 
-function stopTimer() {
-  clearInterval(recTimer);
-  recSeconds = 0;
-  document.getElementById('rec-timer').textContent = '0:00';
+function processNota(input) { if(input.files[0]) processNotaFile(input.files[0]); }
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if(file && file.type.startsWith('image/')) processNotaFile(file);
 }
 
-// ── FLOAT CHAT ──
-function toggleFloat() {
-  floatOpen = !floatOpen;
-  const chat = document.getElementById('float-chat');
-  const btn = document.getElementById('float-toggle');
-  chat.classList.toggle('open', floatOpen);
-  btn.textContent = floatOpen ? '✕' : '💬';
-  if(floatOpen) {
-    floatUnread = 0;
-    document.getElementById('float-badge').style.display = 'none';
-    document.getElementById('float-input').focus();
-  }
-}
+async function processNotaFile(file) {
+  // Preview
+  const reader = new FileReader();
+  reader.onload = e => {
+    const prev = document.getElementById('nota-preview');
+    prev.src = e.target.result; prev.classList.add('show');
+    document.getElementById('upload-zone').classList.add('has-image');
+    document.getElementById('upload-icon').textContent = '✅';
+    document.getElementById('upload-title').textContent = file.name;
+    document.getElementById('upload-sub').textContent = 'Processando com IA...';
+  };
+  reader.readAsDataURL(file);
 
-async function floatSend(text) {
-  if(!text.trim()) return;
-  addFloatMsg('user', text);
-  floatHistory.push({role:'user', content: text});
-  showFloatTyping();
+  document.getElementById('nota-loading').style.display = 'block';
+  document.getElementById('nota-result').classList.remove('show');
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 300,
-        system: getSystemPrompt(),
-        messages: floatHistory.slice(-8),
-      })
-    });
+    const formData = new FormData();
+    formData.append('file', file);
 
-    const data = await resp.json();
-    const reply = data.content?.[0]?.text || 'Desculpe, tente novamente.';
+    const res = await fetch(`${API}/ia/nota-fiscal`, { method:'POST', body: formData });
+    const data = await res.json();
 
-    hideFloatTyping();
+    document.getElementById('nota-loading').style.display = 'none';
 
-    if(reply.includes('REGISTRAR_TX:')) {
-      const parts = reply.split('REGISTRAR_TX:');
-      addFloatMsg('ai', parts[0].trim());
-      try {
-        const txData = JSON.parse(parts[1].trim());
-        await registrarTransacao(txData);
-        addFloatMsg('ai', `✅ ${txData.descricao} — ${fmt(txData.valor)} registrado!`);
-      } catch(e) {}
-    } else {
-      addFloatMsg('ai', reply);
+    if(!data.ok) {
+      alert('Não consegui ler a nota: ' + (data.erro || 'tente uma foto mais nítida'));
+      resetNota(); return;
     }
 
-    floatHistory.push({role:'assistant', content: reply.replace(/REGISTRAR_TX:\{.*\}/s, '').trim()});
+    notaData = data;
+    document.getElementById('nr-estabelecimento').textContent = data.estabelecimento || 'Estabelecimento';
+    document.getElementById('nr-total').textContent = fmt(data.total || 0);
 
-    if(!floatOpen) {
-      floatUnread++;
-      const badge = document.getElementById('float-badge');
-      badge.textContent = floatUnread;
-      badge.style.display = 'flex';
-    }
+    const itens = data.itens || [];
+    document.getElementById('nr-itens').innerHTML = itens.slice(0,8).map(it =>
+      `<div class="nota-item"><span class="nota-item-name">${it.descricao}</span><span class="nota-item-val">${fmt(it.valor)}</span></div>`
+    ).join('') + (itens.length > 8 ? `<div class="nota-item"><span class="nota-item-name" style="color:var(--text-3)">+${itens.length-8} itens...</span></div>` : '');
+
+    document.getElementById('nota-result').classList.add('show');
   } catch(e) {
-    hideFloatTyping();
-    addFloatMsg('ai', '❌ Erro de conexão.');
+    document.getElementById('nota-loading').style.display = 'none';
+    alert('Erro ao processar. Tente novamente.');
+    resetNota();
   }
 }
 
-function addFloatMsg(role, text) {
-  const el = document.createElement('div');
-  el.className = `float-bub ${role}`;
-  el.innerHTML = `${text.replace(/\n/g,'<br>')}<div class="float-bub-time">${getTime()}</div>`;
-  const msgs = document.getElementById('float-messages');
-  msgs.appendChild(el);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-function showFloatTyping() {
-  const el = document.createElement('div');
-  el.id = 'float-typing'; el.className = 'float-bub ai';
-  el.innerHTML = '<div style="display:flex;gap:3px;align-items:center"><div class="typing-dot" style="width:6px;height:6px"></div><div class="typing-dot" style="width:6px;height:6px;animation-delay:0.2s"></div><div class="typing-dot" style="width:6px;height:6px;animation-delay:0.4s"></div></div>';
-  document.getElementById('float-messages').appendChild(el);
-  document.getElementById('float-messages').scrollTop = 99999;
-}
-
-function hideFloatTyping() { document.getElementById('float-typing')?.remove(); }
-
-function floatSendInput() {
-  const inp = document.getElementById('float-input');
-  const txt = inp.value.trim();
-  if(!txt) return;
-  inp.value = '';
-  floatSend(txt);
-}
-
-// ── FLOAT MICROFONE ──
-function toggleFloatMic() {
-  if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    alert('Use Chrome ou Edge para reconhecimento de voz.');
-    return;
-  }
-
-  if(floatIsRecording) {
-    floatRec?.stop();
-    return;
-  }
-
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const floatRec = new SR();
-  floatRec.lang = 'pt-BR';
-  floatRec.continuous = false;
-  floatRec.interimResults = false;
-
-  floatRec.onstart = () => {
-    floatIsRecording = true;
-    document.getElementById('float-mic').className = 'float-mic rec';
-    document.getElementById('float-mic').textContent = '⏹️';
-  };
-
-  floatRec.onresult = (e) => {
-    document.getElementById('float-input').value = e.results[0][0].transcript;
-  };
-
-  floatRec.onend = () => {
-    floatIsRecording = false;
-    document.getElementById('float-mic').className = 'float-mic';
-    document.getElementById('float-mic').textContent = '🎤';
-    const txt = document.getElementById('float-input').value.trim();
-    if(txt) floatSendInput();
-  };
-
-  floatRec.onerror = () => {
-    floatIsRecording = false;
-    document.getElementById('float-mic').className = 'float-mic';
-    document.getElementById('float-mic').textContent = '🎤';
-  };
-
-  floatRec.start();
-}
-
-// ── RESTAURAR HISTÓRICO ──
-function restoreHistory() {
-  if(!history.length) return;
-  history.slice(-10).forEach(msg => {
-    if(msg.role === 'user' || msg.role === 'assistant') {
-      addMessage(msg.role === 'user' ? 'user' : 'ai', msg.content);
-    }
+function confirmarNota() {
+  if(!notaData) return;
+  switchMode('chat');
+  addTxMsg({
+    descricao: notaData.estabelecimento || 'Nota Fiscal',
+    valor: notaData.total,
+    categoria: notaData.categoria || 'Alimentação',
+    metodo: notaData.forma_pagamento || 'PIX',
+    status: 'pago',
   });
+  addMsg('ai', `🎉 Nota da ${notaData.estabelecimento} registrada com sucesso! ${(notaData.itens||[]).length} itens totalizando ${fmt(notaData.total)}.`);
+  loadContext();
+  resetNota();
+}
+
+function resetNota() {
+  notaData = null;
+  document.getElementById('nota-preview').classList.remove('show');
+  document.getElementById('upload-zone').classList.remove('has-image');
+  document.getElementById('upload-icon').textContent = '📸';
+  document.getElementById('upload-title').textContent = 'Tire foto ou envie a nota fiscal';
+  document.getElementById('upload-sub').textContent = 'Clique aqui ou arraste a imagem · JPG, PNG, WEBP';
+  document.getElementById('nota-result').classList.remove('show');
+  document.getElementById('nota-loading').style.display = 'none';
+  document.getElementById('nota-file').value = '';
+}
+
+// ── SIMULADOR ──
+async function rodarSimulacao() {
+  const desc = document.getElementById('sim-desc').value.trim();
+  const valor = parseFloat(document.getElementById('sim-valor').value);
+  const meses = parseInt(document.getElementById('sim-meses').value) || 12;
+
+  if(!desc || !valor) { alert('Preencha a descrição e o valor mensal!'); return; }
+
+  const btn = document.getElementById('sim-run-btn');
+  btn.disabled = true; btn.textContent = '🔮 Simulando...';
+
+  try {
+    const res = await fetch(`${API}/ia/simular?descricao=${encodeURIComponent(desc)}&valor_mensal=${valor}&meses=${meses}`, {method:'POST'});
+    const data = await res.json();
+    btn.disabled = false; btn.textContent = '🔮 Simular impacto no meu orçamento';
+    renderSimResult(data);
+  } catch(e) {
+    btn.disabled = false; btn.textContent = '🔮 Simular impacto no meu orçamento';
+    alert('Erro ao simular. Verifique a conexão.');
+  }
+}
+
+function renderSimResult(data) {
+  const s = data.simulacao || {};
+  const fi = data.financeiro_atual || {};
+  const novoSaldo = s.novo_saldo_mensal ?? (fi.saldo - data.valor_mensal);
+  const pct = Math.min(s.percentual_comprometido || 0, 100);
+  const viavel = s.viavel !== false;
+
+  document.getElementById('sr-title').textContent = data.descricao;
+  document.getElementById('sr-sub').textContent = `R$ ${data.valor_mensal}/mês · ${data.meses} meses · Total: ${fmt(data.custo_total)}`;
+
+  const badge = document.getElementById('sr-badge');
+  badge.className = `sim-result-badge ${viavel ? 'green' : 'red'}`;
+  badge.textContent = viavel ? '✓ Financeiramente viável' : '⚠ Risco ao orçamento';
+
+  document.getElementById('sr-mensal').textContent = fmt(data.valor_mensal);
+  document.getElementById('sr-total').textContent = fmt(data.custo_total);
+  document.getElementById('sr-novo-saldo').textContent = fmt(novoSaldo);
+  document.getElementById('sr-novo-saldo').style.color = novoSaldo >= 0 ? 'var(--growth-mid)' : 'var(--red)';
+  document.getElementById('sr-antes').textContent = fmt(fi.saldo || 0);
+  document.getElementById('sr-depois').textContent = fmt(novoSaldo);
+  document.getElementById('sr-bar').style.width = pct + '%';
+  document.getElementById('sr-bar').style.background = pct > 70 ? 'var(--red)' : pct > 40 ? 'var(--amber)' : 'var(--growth)';
+  document.getElementById('sr-pct').textContent = `${pct.toFixed(1)}% da receita comprometida`;
+  document.getElementById('sr-analise').textContent = s.analise || '—';
+  document.getElementById('sr-sugestao-txt').textContent = s.sugestao || '—';
+
+  const alertWrap = document.getElementById('sr-alerta-wrap');
+  if(s.alerta && s.alerta !== 'null') {
+    alertWrap.innerHTML = `<div class="sim-warning">⚠️ <span>${s.alerta}</span></div>`;
+  } else if(viavel) {
+    alertWrap.innerHTML = `<div class="sim-success">✅ <span>Seu orçamento suporta este gasto!</span></div>`;
+  } else { alertWrap.innerHTML = ''; }
+
+  document.getElementById('sim-result').classList.add('show');
+  document.getElementById('sim-result').scrollIntoView({behavior:'smooth'});
+}
+
+function resetSim() {
+  document.getElementById('sim-result').classList.remove('show');
+  document.getElementById('sim-desc').value = '';
+  document.getElementById('sim-valor').value = '';
+  document.getElementById('sim-meses').value = '12';
+  window.scrollTo(0,0);
+}
+
+// ── SIMULADOR VIA VOZ ──
+function toggleSimVoz() {
+  if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){
+    alert('Use Chrome ou Edge para reconhecimento de voz.'); return;
+  }
+  if(simRecording) return;
+  simRecording = true;
+  const btn = document.getElementById('sim-voice-btn');
+  btn.className = 'sim-voice-btn rec'; btn.textContent = '⏹️ Gravando... fale sua decisão';
+  const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
+  const rec = new SR(); rec.lang='pt-BR'; rec.continuous=false; rec.interimResults=false;
+  rec.onresult = async e => {
+    const text = e.results[0][0].transcript;
+    simRecording = false;
+    btn.className = 'sim-voice-btn'; btn.textContent = '🎤 Falar a decisão';
+    btn.textContent = '🔮 Processando fala...'; btn.disabled = true;
+    try {
+      const res = await fetch(`${API}/ia/simular-texto?mensagem=${encodeURIComponent(text)}`, {method:'POST'});
+      const data = await res.json();
+      btn.disabled = false; btn.textContent = '🎤 Falar a decisão';
+      if(!data.ok){ alert(data.erro); return; }
+      document.getElementById('sim-desc').value = data.descricao || text;
+      document.getElementById('sim-valor').value = data.valor_mensal || '';
+      document.getElementById('sim-meses').value = data.meses || 12;
+      renderSimResult(data);
+    } catch(e) { btn.disabled=false; btn.textContent='🎤 Falar a decisão'; alert('Erro ao processar.'); }
+  };
+  rec.onerror = () => { simRecording=false; btn.className='sim-voice-btn'; btn.textContent='🎤 Falar a decisão'; };
+  rec.start();
 }
 
 // ── INIT ──
 loadContext();
-if(history.length > 0) restoreHistory();
 </script>
 </body>
 </html>
