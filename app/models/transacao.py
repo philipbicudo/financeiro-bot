@@ -26,7 +26,6 @@ class Transacao(Base):
     data       = Column(DateTime(timezone=True), server_default=func.now())
     criado_em  = Column(DateTime(timezone=True), server_default=func.now())
 
-    # Multiusuário — liga a transação ao dono
     usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=True, index=True)
     usuario    = relationship("Usuario", back_populates="transacoes")
 
