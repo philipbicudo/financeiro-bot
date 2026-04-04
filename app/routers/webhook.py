@@ -24,12 +24,10 @@ def _extrair_numero_e_texto(body: dict) -> tuple:
         if key.get("fromMe"):
             return "", ""
         numero = key.get("remoteJid", "")
-        # Se vier @lid, tenta pegar o número real do campo 'owner'
+        # Se vier @lid, pega o número real do campo 'sender'
         if "@lid" in numero:
-            owner = data.get("owner", "")
-            if owner:
-                numero = owner
-            else:
+            numero = body.get("sender", "")
+            if not numero:
                 return "", ""
         if "@g.us" in numero:
             return "", ""
