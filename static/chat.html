@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>finia — Chat IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --midnight: #111827; --midnight-2: #1e293b;
+  --growth: #22c55e; --growth-light: #dcfce7; --growth-mid: #16a34a;
+  --bg: #f1f5f9; --surface: #ffffff; --border: #e2e8f0;
+  --text: #0f172a; --text-2: #475569; --text-3: #94a3b8;
+  --red: #ef4444; --amber: #f59e0b;
+  --shadow: 0 4px 24px rgba(0,0,0,0.12);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.18);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;}
+
+/* ── PAGE LAYOUT ── */
+.chat-page{flex:1;display:flex;flex-direction:column;max-width:860px;margin:0 auto;width:100%;padding:24px 20px 0;}
+
+/* ── HEADER ── */
+.chat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.chat-header-left{display:flex;align-items:center;gap:12px;}
+.chat-avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--midnight) 0%,var(--midnight-2) 100%);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;box-shadow:0 4px 12px rgba(17,24,39,0.3);}
+.chat-title{font-family:'Lora',serif;font-weight:700;font-size:1.2rem;letter-spacing:-0.5px;}
+.chat-sub{font-size:0.65rem;color:var(--text-3);display:flex;align-items:center;gap:6px;margin-top:2px;}
+.online-dot{width:7px;height:7px;background:var(--growth);border-radius:50%;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.chat-header-right{display:flex;gap:8px;}
+.header-btn{padding:8px 16px;border-radius:10px;font-size:0.65rem;font-weight:600;border:1.5px solid var(--border);background:white;color:var(--text-2);cursor:pointer;transition:all 0.12s;display:flex;align-items:center;gap:6px;}
+.header-btn:hover{border-color:var(--midnight);color:var(--midnight);}
+.header-btn.danger:hover{border-color:var(--red);color:var(--red);}
+
+/* ── CONTEXT CARDS ── */
+.context-strip{display:flex;gap:10px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;}
+.ctx-card{background:white;border:1px solid var(--border);border-radius:12px;padding:10px 14px;flex-shrink:0;cursor:pointer;transition:all 0.12s;min-width:120px;}
+.ctx-card:hover{border-color:var(--midnight);box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.ctx-card-label{font-size:0.48rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-3);margin-bottom:4px;}
+.ctx-card-val{font-family:'Lora',serif;font-weight:700;font-size:0.9rem;letter-spacing:-0.3px;}
+.ctx-card-val.green{color:var(--growth-mid);}
+.ctx-card-val.red{color:var(--red);}
+.ctx-card-val.amber{color:var(--amber);}
+
+/* ── MESSAGES ── */
+.messages-wrap{flex:1;overflow-y:auto;padding:4px 0 16px;display:flex;flex-direction:column;gap:12px;min-height:0;}
+.messages-wrap::-webkit-scrollbar{width:4px;}
+.messages-wrap::-webkit-scrollbar-track{background:transparent;}
+.messages-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* Message bubbles */
+.msg{display:flex;gap:10px;animation:msgIn 0.25s ease both;}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{flex-direction:row-reverse;}
+
+.msg-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;margin-top:2px;}
+.msg-avatar.ai{background:var(--midnight);color:white;font-size:0.7rem;font-weight:800;}
+.msg-avatar.user{background:linear-gradient(135deg,var(--growth),var(--growth-mid));color:white;font-size:0.6rem;font-weight:800;}
+
+.msg-content{max-width:72%;}
+.msg-name{font-size:0.5rem;font-weight:600;color:var(--text-3);margin-bottom:4px;}
+.msg.user .msg-name{text-align:right;}
+
+.msg-bubble{padding:10px 14px;border-radius:16px;font-size:0.7rem;line-height:1.65;word-break:break-word;}
+.msg.ai .msg-bubble{background:white;border:1px solid var(--border);border-radius:4px 16px 16px 16px;color:var(--text);}
+.msg.user .msg-bubble{background:var(--midnight);color:white;border-radius:16px 4px 16px 16px;}
+
+.msg-bubble strong{font-weight:700;}
+.msg-bubble .tx-registered{background:var(--growth-light);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:8px 12px;margin-top:8px;font-size:0.65rem;color:var(--growth-mid);}
+.msg-bubble .tx-registered-title{font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px;}
+
+.msg-time{font-size:0.45rem;color:var(--text-3);margin-top:4px;}
+.msg.user .msg-time{text-align:right;}
+
+/* Voice message bubble */
+.voice-bubble{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--midnight);border-radius:16px 4px 16px 16px;min-width:160px;}
+.voice-wave{display:flex;align-items:center;gap:2px;flex:1;}
+.voice-bar{width:3px;border-radius:2px;background:rgba(255,255,255,0.5);}
+.voice-duration{font-size:0.55rem;color:rgba(255,255,255,0.6);white-space:nowrap;}
+
+/* Typing indicator */
+.typing-bubble{display:flex;align-items:center;gap:4px;padding:10px 14px;background:white;border:1px solid var(--border);border-radius:4px 16px 16px 16px;width:fit-content;}
+.typing-dot{width:7px;height:7px;border-radius:50%;background:var(--text-3);animation:typingBounce 1.4s infinite;}
+.typing-dot:nth-child(2){animation-delay:0.2s;}
+.typing-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes typingBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+
+/* Quick suggestions */
+.suggestions{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px;}
+.suggestion{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:white;font-size:0.6rem;font-weight:600;color:var(--text-2);cursor:pointer;transition:all 0.12s;}
+.suggestion:hover{border-color:var(--midnight);color:var(--midnight);background:var(--bg);}
+
+/* ── INPUT AREA ── */
+.input-area{background:white;border:1.5px solid var(--border);border-radius:20px;padding:10px 10px 10px 16px;display:flex;align-items:flex-end;gap:8px;margin-bottom:20px;box-shadow:var(--shadow);transition:border-color 0.15s;}
+.input-area:focus-within{border-color:var(--midnight);}
+.input-textarea{flex:1;border:none;outline:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.78rem;color:var(--text);resize:none;max-height:120px;min-height:24px;line-height:1.5;background:transparent;}
+.input-textarea::placeholder{color:var(--text-3);}
+
+.input-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+
+.mic-btn{width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all 0.15s;flex-shrink:0;}
+.mic-btn.idle{background:var(--bg);color:var(--text-2);}
+.mic-btn.idle:hover{background:var(--midnight);color:white;}
+.mic-btn.recording{background:var(--red);color:white;animation:recPulse 1s infinite;}
+@keyframes recPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.4)}50%{box-shadow:0 0 0 8px rgba(239,68,68,0)}}
+
+.send-btn{width:40px;height:40px;border-radius:50%;background:var(--midnight);color:white;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.9rem;transition:all 0.15s;flex-shrink:0;}
+.send-btn:hover{background:var(--midnight-2);transform:scale(1.05);}
+.send-btn:disabled{background:var(--border);cursor:default;transform:none;}
+
+/* Recording indicator */
+.recording-bar{display:flex;align-items:center;gap:8px;padding:6px 14px;background:rgba(239,68,68,0.08);border-radius:20px;font-size:0.62rem;font-weight:600;color:var(--red);display:none;}
+.recording-bar.show{display:flex;}
+.rec-dot{width:8px;height:8px;background:var(--red);border-radius:50%;animation:recPulse 1s infinite;}
+.rec-timer{font-family:'Lora',serif;font-weight:700;min-width:32px;}
+
+/* ══════════════════════════════════
+   FLOATING CHAT WIDGET
+══════════════════════════════════ */
+.float-btn{position:fixed;bottom:28px;right:28px;width:56px;height:56px;border-radius:50%;background:var(--midnight);color:white;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:var(--shadow-lg);transition:all 0.2s;z-index:1000;}
+.float-btn:hover{transform:scale(1.08);background:var(--midnight-2);}
+.float-btn .float-badge{position:absolute;top:-3px;right:-3px;width:18px;height:18px;background:var(--red);border-radius:50%;font-size:0.45rem;font-weight:700;color:white;display:flex;align-items:center;justify-content:center;border:2px solid white;}
+
+.float-chat{position:fixed;bottom:100px;right:28px;width:360px;background:white;border-radius:20px;box-shadow:var(--shadow-lg);z-index:999;display:none;flex-direction:column;overflow:hidden;border:1px solid var(--border);max-height:520px;}
+.float-chat.open{display:flex;}
+
+.float-header{background:var(--midnight);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;}
+.float-header-left{display:flex;align-items:center;gap:10px;}
+.float-avatar{width:34px;height:34px;border-radius:50%;background:var(--growth);display:flex;align-items:center;justify-content:center;font-size:1rem;}
+.float-name{font-size:0.7rem;font-weight:700;color:white;}
+.float-status{font-size:0.5rem;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:4px;margin-top:1px;}
+.float-status-dot{width:5px;height:5px;background:var(--growth);border-radius:50%;animation:blink 2s infinite;}
+.float-close{background:none;border:none;color:rgba(255,255,255,0.6);cursor:pointer;font-size:1.1rem;transition:color 0.1s;}
+.float-close:hover{color:white;}
+
+.float-messages{flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:10px;background:#f8fafc;min-height:200px;}
+.float-messages::-webkit-scrollbar{width:3px;}
+.float-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+.float-bub{max-width:85%;padding:8px 12px;border-radius:12px;font-size:0.62rem;line-height:1.55;}
+.float-bub.ai{align-self:flex-start;background:white;border:1px solid var(--border);border-radius:4px 12px 12px 12px;color:var(--text);}
+.float-bub.user{align-self:flex-end;background:var(--midnight);color:white;border-radius:12px 4px 12px 12px;}
+.float-bub-time{font-size:0.42rem;color:var(--text-3);margin-top:3px;}
+.float-bub.user .float-bub-time{color:rgba(255,255,255,0.5);text-align:right;}
+
+.float-quick{display:flex;flex-wrap:wrap;gap:5px;padding:8px 12px;background:white;border-top:1px solid var(--border);}
+.float-quick-btn{font-size:0.5rem;font-weight:600;padding:4px 9px;border-radius:20px;border:1px solid var(--border);background:var(--bg);color:var(--text-2);cursor:pointer;transition:all 0.1s;}
+.float-quick-btn:hover{border-color:var(--midnight);color:var(--midnight);}
+
+.float-input-row{display:flex;align-items:center;gap:7px;padding:10px 12px;border-top:1px solid var(--border);background:white;}
+.float-input{flex:1;border:1.5px solid var(--border);border-radius:20px;padding:7px 12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.62rem;color:var(--text);outline:none;transition:border-color 0.12s;}
+.float-input:focus{border-color:var(--midnight);}
+.float-mic{width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.85rem;background:var(--bg);transition:all 0.12s;}
+.float-mic:hover{background:var(--midnight);color:white;}
+.float-mic.rec{background:var(--red);color:white;animation:recPulse 1s infinite;}
+.float-send{width:32px;height:32px;border-radius:50%;background:var(--midnight);color:white;border:none;cursor:pointer;font-size:0.8rem;display:flex;align-items:center;justify-content:center;transition:all 0.12s;}
+.float-send:hover{background:var(--midnight-2);}
+
+/* Expand button */
+.float-expand{position:absolute;top:12px;right:48px;background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.8rem;}
+.float-expand:hover{color:white;}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     PÁGINA PRINCIPAL DE CHAT
+══════════════════════════════════ -->
+<div class="chat-page">
+
+  <!-- Header -->
+  <div class="chat-header">
+    <div class="chat-header-left">
+      <div class="chat-avatar">🤖</div>
+      <div>
+        <div class="chat-title">finia IA</div>
+        <div class="chat-sub"><div class="online-dot"></div> Online · registra por texto ou voz</div>
+      </div>
+    </div>
+    <div class="chat-header-right">
+      <button class="header-btn" onclick="clearHistory()">🗑️ Limpar</button>
+      <button class="header-btn" onclick="window.location.href='/'">← Dashboard</button>
+    </div>
+  </div>
+
+  <!-- Context strip -->
+  <div class="context-strip" id="ctx-strip">
+    <div class="ctx-card"><div class="ctx-card-label">Saldo</div><div class="ctx-card-val" id="ctx-saldo">—</div></div>
+    <div class="ctx-card"><div class="ctx-card-label">Receitas</div><div class="ctx-card-val green" id="ctx-rec">—</div></div>
+    <div class="ctx-card"><div class="ctx-card-label">Gastos</div><div class="ctx-card-val red" id="ctx-gas">—</div></div>
+    <div class="ctx-card"><div class="ctx-card-label">A pagar</div><div class="ctx-card-val amber" id="ctx-pag">—</div></div>
+    <div class="ctx-card" onclick="sendMsg('resumo')"><div class="ctx-card-label">Ação rápida</div><div class="ctx-card-val" style="font-size:0.75rem">📊 Resumo</div></div>
+    <div class="ctx-card" onclick="sendMsg('quais minhas maiores despesas?')"><div class="ctx-card-label">Ação rápida</div><div class="ctx-card-val" style="font-size:0.75rem">📉 Análise</div></div>
+  </div>
+
+  <!-- Messages -->
+  <div class="messages-wrap" id="messages">
+    <!-- Mensagem de boas-vindas -->
+    <div class="msg ai">
+      <div class="msg-avatar ai">IA</div>
+      <div class="msg-content">
+        <div class="msg-name">finia IA</div>
+        <div class="msg-bubble">
+          Olá, Philip! 👋 Sou seu assistente financeiro inteligente.<br><br>
+          Posso te ajudar a <strong>registrar transações</strong>, <strong>consultar gastos</strong>, <strong>analisar seu orçamento</strong> e muito mais.<br><br>
+          Você pode digitar ou usar o <strong>🎤 microfone</strong> para falar!
+          <div class="suggestions">
+            <span class="suggestion" onclick="sendMsg('gastei 50 no mercado hoje')">🛒 gastei 50 no mercado</span>
+            <span class="suggestion" onclick="sendMsg('quanto gastei esse mês?')">📊 quanto gastei?</span>
+            <span class="suggestion" onclick="sendMsg('recebi salário de 3000')">💰 salário 3000</span>
+            <span class="suggestion" onclick="sendMsg('quais minhas maiores despesas?')">📉 maiores despesas</span>
+          </div>
+        </div>
+        <div class="msg-time">agora</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recording bar -->
+  <div class="recording-bar" id="rec-bar">
+    <div class="rec-dot"></div>
+    <span>Gravando...</span>
+    <span class="rec-timer" id="rec-timer">0:00</span>
+    <span style="font-size:0.55rem;color:var(--text-3);margin-left:4px">solte para enviar</span>
+  </div>
+
+  <!-- Input area -->
+  <div class="input-area">
+    <textarea class="input-textarea" id="chat-input" placeholder="Digite uma mensagem ou use o microfone..." rows="1"
+      onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <div class="input-actions">
+      <button class="mic-btn idle" id="mic-btn" onclick="toggleMic()">🎤</button>
+      <button class="send-btn" id="send-btn" onclick="sendFromInput()">➤</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════
+     CHAT FLUTUANTE
+══════════════════════════════════ -->
+<button class="float-btn" onclick="toggleFloat()" id="float-toggle">
+  💬
+  <span class="float-badge" id="float-badge" style="display:none">1</span>
+</button>
+
+<div class="float-chat" id="float-chat">
+  <div class="float-header">
+    <div class="float-header-left">
+      <div class="float-avatar">🤖</div>
+      <div>
+        <div class="float-name">finia IA</div>
+        <div class="float-status"><div class="float-status-dot"></div> online</div>
+      </div>
+    </div>
+    <button class="float-expand" onclick="window.location.href='/chat.html'" title="Abrir em tela cheia">⤢</button>
+    <button class="float-close" onclick="toggleFloat()">✕</button>
+  </div>
+
+  <div class="float-messages" id="float-messages">
+    <div class="float-bub ai">
+      Oi! 👋 Me diga um gasto ou receita pra registrar. Pode falar também! 🎤
+      <div class="float-bub-time">agora</div>
+    </div>
+  </div>
+
+  <div class="float-quick">
+    <span class="float-quick-btn" onclick="floatSend('gastei 50 no mercado')">🛒 mercado</span>
+    <span class="float-quick-btn" onclick="floatSend('resumo')">📊 resumo</span>
+    <span class="float-quick-btn" onclick="floatSend('quanto gastei?')">💸 gastos</span>
+    <span class="float-quick-btn" onclick="floatSend('recebi salário')">💰 salário</span>
+  </div>
+
+  <div class="float-input-row">
+    <input class="float-input" id="float-input" placeholder="Digite ou fale..." onkeydown="if(event.key==='Enter')floatSendInput()">
+    <button class="float-mic" id="float-mic" onclick="toggleFloatMic()">🎤</button>
+    <button class="float-send" onclick="floatSendInput()">➤</button>
+  </div>
+</div>
+
+<script>
+const API = window.location.hostname === 'localhost'
+  ? 'http://localhost:8000'
+  : 'https://financeiro-bot-production-571e.up.railway.app';
+
+const fmt = v => 'R$ ' + Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+// ── HISTÓRICO DE CONVERSA ──
+let history = JSON.parse(localStorage.getItem('finia_chat_history') || '[]');
+let floatHistory = [];
+let recTimer, recSeconds = 0;
+let recognition = null;
+let isRecording = false;
+let floatIsRecording = false;
+let floatUnread = 0;
+let floatOpen = false;
+
+// ── CARREGAR CONTEXTO FINANCEIRO ──
+async function loadContext() {
+  try {
+    const res = await fetch(`${API}/dashboard/resumo`);
+    const d = await res.json();
+    document.getElementById('ctx-saldo').textContent = fmt(d.saldo);
+    document.getElementById('ctx-rec').textContent = fmt(d.receitas);
+    document.getElementById('ctx-gas').textContent = fmt(d.gastos);
+    document.getElementById('ctx-pag').textContent = fmt(d.a_pagar);
+    window._finiaContext = d;
+  } catch(e) {}
+}
+
+// ── SYSTEM PROMPT PARA A IA ──
+function getSystemPrompt() {
+  const ctx = window._finiaContext || {};
+  return `Você é o finia, um assistente financeiro pessoal inteligente e amigável do Philip Bicudo.
+
+CONTEXTO FINANCEIRO ATUAL (${new Date().toLocaleDateString('pt-BR')}):
+- Saldo líquido: ${fmt(ctx.saldo || 0)}
+- Receitas do mês: ${fmt(ctx.receitas || 0)}
+- Gastos do mês: ${fmt(ctx.gastos || 0)}
+- A pagar: ${fmt(ctx.a_pagar || 0)}
+- Total de transações: ${ctx.total_transacoes || 0}
+
+SUAS CAPACIDADES:
+1. Registrar transações: quando o usuário diz "gastei X em Y" ou "recebi X de Y", extraia os dados e responda com REGISTRAR_TX:{...}
+2. Consultar finanças: responda com base no contexto financeiro acima
+3. Dar conselhos: análise de gastos, sugestões de economia
+4. Resumo: apresente o resumo financeiro de forma clara
+
+FORMATO PARA REGISTRAR TRANSAÇÃO:
+Quando identificar uma transação, responda EXATAMENTE assim (JSON no final):
+"✅ Entendido! Vou registrar isso para você.
+REGISTRAR_TX:{"descricao":"nome","valor":0.00,"tipo":"despesa|receita","categoria":"categoria","metodo":"PIX|Cartão|etc","status":"pago|nao_pago"}"
+
+CATEGORIAS DISPONÍVEIS: Alimentação, Moradia, Transporte, Saúde, Lazer, Educação, Outros
+
+REGRAS:
+- Responda SEMPRE em português brasileiro informal
+- Seja curto e direto — máximo 3 linhas normalmente
+- Use emojis moderadamente
+- Se não entender, peça para repetir
+- Quando o usuário fala de dinheiro, sempre tente registrar`;
+}
+
+// ── ENVIAR MENSAGEM ──
+async function sendMsg(text) {
+  if(!text.trim()) return;
+
+  addMessage('user', text);
+  history.push({role:'user', content: text});
+  saveHistory();
+
+  showTyping();
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 400,
+        system: getSystemPrompt(),
+        messages: history.slice(-10),
+      })
+    });
+
+    const data = await resp.json();
+    const reply = data.content?.[0]?.text || 'Desculpe, não consegui processar.';
+
+    hideTyping();
+
+    // Verifica se tem transação para registrar
+    if(reply.includes('REGISTRAR_TX:')) {
+      const parts = reply.split('REGISTRAR_TX:');
+      const msgText = parts[0].trim();
+      const jsonStr = parts[1]?.trim();
+
+      addMessage('ai', msgText);
+
+      try {
+        const txData = JSON.parse(jsonStr);
+        await registrarTransacao(txData);
+      } catch(e) {
+        addMessage('ai', '⚠️ Entendi a transação mas tive um problema ao salvar. Tente novamente!');
+      }
+    } else {
+      addMessage('ai', reply);
+    }
+
+    history.push({role:'assistant', content: reply.replace(/REGISTRAR_TX:\{.*\}/s, '').trim()});
+    saveHistory();
+    await loadContext();
+
+  } catch(e) {
+    hideTyping();
+    addMessage('ai', '❌ Erro de conexão. Verifique sua internet e tente novamente.');
+  }
+}
+
+// ── REGISTRAR TRANSAÇÃO NA API ──
+async function registrarTransacao(txData) {
+  try {
+    const res = await fetch(`${API}/transacoes/`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(txData)
+    });
+
+    if(res.ok) {
+      const tx = await res.json();
+      const msgEl = document.createElement('div');
+      msgEl.className = 'msg ai';
+      msgEl.innerHTML = `
+        <div class="msg-avatar ai">IA</div>
+        <div class="msg-content">
+          <div class="msg-name">finia IA</div>
+          <div class="msg-bubble">
+            <div class="tx-registered">
+              <div class="tx-registered-title">✅ Transação registrada!</div>
+              📝 ${txData.descricao}<br>
+              💵 ${fmt(txData.valor)}<br>
+              🏷️ ${txData.categoria} · ${txData.metodo || 'PIX'}<br>
+              ${txData.status === 'pago' ? '✅ Pago' : '⏳ A pagar'}
+            </div>
+          </div>
+          <div class="msg-time">${getTime()}</div>
+        </div>`;
+      document.getElementById('messages').appendChild(msgEl);
+      scrollMessages();
+      await loadContext();
+    } else {
+      addMessage('ai', '⚠️ Não consegui salvar a transação. O servidor pode estar ocupado.');
+    }
+  } catch(e) {
+    addMessage('ai', '❌ Erro ao salvar no banco. Tente novamente.');
+  }
+}
+
+// ── DOM HELPERS ──
+function addMessage(role, text) {
+  const el = document.createElement('div');
+  el.className = `msg ${role === 'user' ? 'user' : 'ai'}`;
+  el.innerHTML = `
+    <div class="msg-avatar ${role === 'user' ? 'user' : 'ai'}">${role === 'user' ? 'PB' : 'IA'}</div>
+    <div class="msg-content">
+      <div class="msg-name">${role === 'user' ? 'Você' : 'finia IA'}</div>
+      <div class="msg-bubble">${text.replace(/\n/g,'<br>')}</div>
+      <div class="msg-time">${getTime()}</div>
+    </div>`;
+  document.getElementById('messages').appendChild(el);
+  scrollMessages();
+}
+
+function showTyping() {
+  const el = document.createElement('div');
+  el.className = 'msg ai'; el.id = 'typing-msg';
+  el.innerHTML = `<div class="msg-avatar ai">IA</div><div class="msg-content"><div class="msg-name">finia IA</div><div class="typing-bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  document.getElementById('messages').appendChild(el);
+  scrollMessages();
+}
+
+function hideTyping() {
+  document.getElementById('typing-msg')?.remove();
+}
+
+function scrollMessages() {
+  const m = document.getElementById('messages');
+  m.scrollTop = m.scrollHeight;
+}
+
+function getTime() {
+  return new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+}
+
+function saveHistory() {
+  localStorage.setItem('finia_chat_history', JSON.stringify(history.slice(-20)));
+}
+
+function clearHistory() {
+  if(!confirm('Limpar todo o histórico de conversa?')) return;
+  history = [];
+  localStorage.removeItem('finia_chat_history');
+  document.getElementById('messages').innerHTML = '';
+  addMessage('ai', 'Histórico limpo! Como posso te ajudar? 😊');
+}
+
+// ── INPUT ──
+function sendFromInput() {
+  const inp = document.getElementById('chat-input');
+  const txt = inp.value.trim();
+  if(!txt) return;
+  inp.value = '';
+  autoResize(inp);
+  sendMsg(txt);
+}
+
+function handleKey(e) {
+  if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendFromInput(); }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+// ── MICROFONE (Web Speech API) ──
+function toggleMic() {
+  if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('Seu navegador não suporta reconhecimento de voz. Use Chrome ou Edge.');
+    return;
+  }
+
+  if(isRecording) {
+    stopRecording();
+  } else {
+    startRecording();
+  }
+}
+
+function startRecording() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = 'pt-BR';
+  recognition.continuous = false;
+  recognition.interimResults = true;
+
+  recognition.onstart = () => {
+    isRecording = true;
+    document.getElementById('mic-btn').className = 'mic-btn recording';
+    document.getElementById('mic-btn').textContent = '⏹️';
+    document.getElementById('rec-bar').classList.add('show');
+    startTimer();
+  };
+
+  recognition.onresult = (e) => {
+    const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
+    document.getElementById('chat-input').value = transcript;
+    autoResize(document.getElementById('chat-input'));
+  };
+
+  recognition.onend = () => {
+    stopRecording();
+    const txt = document.getElementById('chat-input').value.trim();
+    if(txt) sendFromInput();
+  };
+
+  recognition.onerror = (e) => {
+    stopRecording();
+    if(e.error !== 'aborted') addMessage('ai', '❌ Não consegui ouvir. Tente falar mais perto do microfone.');
+  };
+
+  recognition.start();
+}
+
+function stopRecording() {
+  isRecording = false;
+  recognition?.stop();
+  document.getElementById('mic-btn').className = 'mic-btn idle';
+  document.getElementById('mic-btn').textContent = '🎤';
+  document.getElementById('rec-bar').classList.remove('show');
+  stopTimer();
+}
+
+function startTimer() {
+  recSeconds = 0;
+  recTimer = setInterval(() => {
+    recSeconds++;
+    const m = Math.floor(recSeconds/60);
+    const s = recSeconds%60;
+    document.getElementById('rec-timer').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(recTimer);
+  recSeconds = 0;
+  document.getElementById('rec-timer').textContent = '0:00';
+}
+
+// ── FLOAT CHAT ──
+function toggleFloat() {
+  floatOpen = !floatOpen;
+  const chat = document.getElementById('float-chat');
+  const btn = document.getElementById('float-toggle');
+  chat.classList.toggle('open', floatOpen);
+  btn.textContent = floatOpen ? '✕' : '💬';
+  if(floatOpen) {
+    floatUnread = 0;
+    document.getElementById('float-badge').style.display = 'none';
+    document.getElementById('float-input').focus();
+  }
+}
+
+async function floatSend(text) {
+  if(!text.trim()) return;
+  addFloatMsg('user', text);
+  floatHistory.push({role:'user', content: text});
+  showFloatTyping();
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 300,
+        system: getSystemPrompt(),
+        messages: floatHistory.slice(-8),
+      })
+    });
+
+    const data = await resp.json();
+    const reply = data.content?.[0]?.text || 'Desculpe, tente novamente.';
+
+    hideFloatTyping();
+
+    if(reply.includes('REGISTRAR_TX:')) {
+      const parts = reply.split('REGISTRAR_TX:');
+      addFloatMsg('ai', parts[0].trim());
+      try {
+        const txData = JSON.parse(parts[1].trim());
+        await registrarTransacao(txData);
+        addFloatMsg('ai', `✅ ${txData.descricao} — ${fmt(txData.valor)} registrado!`);
+      } catch(e) {}
+    } else {
+      addFloatMsg('ai', reply);
+    }
+
+    floatHistory.push({role:'assistant', content: reply.replace(/REGISTRAR_TX:\{.*\}/s, '').trim()});
+
+    if(!floatOpen) {
+      floatUnread++;
+      const badge = document.getElementById('float-badge');
+      badge.textContent = floatUnread;
+      badge.style.display = 'flex';
+    }
+  } catch(e) {
+    hideFloatTyping();
+    addFloatMsg('ai', '❌ Erro de conexão.');
+  }
+}
+
+function addFloatMsg(role, text) {
+  const el = document.createElement('div');
+  el.className = `float-bub ${role}`;
+  el.innerHTML = `${text.replace(/\n/g,'<br>')}<div class="float-bub-time">${getTime()}</div>`;
+  const msgs = document.getElementById('float-messages');
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showFloatTyping() {
+  const el = document.createElement('div');
+  el.id = 'float-typing'; el.className = 'float-bub ai';
+  el.innerHTML = '<div style="display:flex;gap:3px;align-items:center"><div class="typing-dot" style="width:6px;height:6px"></div><div class="typing-dot" style="width:6px;height:6px;animation-delay:0.2s"></div><div class="typing-dot" style="width:6px;height:6px;animation-delay:0.4s"></div></div>';
+  document.getElementById('float-messages').appendChild(el);
+  document.getElementById('float-messages').scrollTop = 99999;
+}
+
+function hideFloatTyping() { document.getElementById('float-typing')?.remove(); }
+
+function floatSendInput() {
+  const inp = document.getElementById('float-input');
+  const txt = inp.value.trim();
+  if(!txt) return;
+  inp.value = '';
+  floatSend(txt);
+}
+
+// ── FLOAT MICROFONE ──
+function toggleFloatMic() {
+  if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('Use Chrome ou Edge para reconhecimento de voz.');
+    return;
+  }
+
+  if(floatIsRecording) {
+    floatRec?.stop();
+    return;
+  }
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const floatRec = new SR();
+  floatRec.lang = 'pt-BR';
+  floatRec.continuous = false;
+  floatRec.interimResults = false;
+
+  floatRec.onstart = () => {
+    floatIsRecording = true;
+    document.getElementById('float-mic').className = 'float-mic rec';
+    document.getElementById('float-mic').textContent = '⏹️';
+  };
+
+  floatRec.onresult = (e) => {
+    document.getElementById('float-input').value = e.results[0][0].transcript;
+  };
+
+  floatRec.onend = () => {
+    floatIsRecording = false;
+    document.getElementById('float-mic').className = 'float-mic';
+    document.getElementById('float-mic').textContent = '🎤';
+    const txt = document.getElementById('float-input').value.trim();
+    if(txt) floatSendInput();
+  };
+
+  floatRec.onerror = () => {
+    floatIsRecording = false;
+    document.getElementById('float-mic').className = 'float-mic';
+    document.getElementById('float-mic').textContent = '🎤';
+  };
+
+  floatRec.start();
+}
+
+// ── RESTAURAR HISTÓRICO ──
+function restoreHistory() {
+  if(!history.length) return;
+  history.slice(-10).forEach(msg => {
+    if(msg.role === 'user' || msg.role === 'assistant') {
+      addMessage(msg.role === 'user' ? 'user' : 'ai', msg.content);
+    }
+  });
+}
+
+// ── INIT ──
+loadContext();
+if(history.length > 0) restoreHistory();
+</script>
+</body>
+</html>
