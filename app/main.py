@@ -40,11 +40,13 @@ def index():
         return FileResponse("static/index.html")
     return {"status": "online", "versao": "2.0.0"}
 
+@app.get("/chat.html", include_in_schema=False)
+def chat():
+    return FileResponse("static/chat.html")
+
 @app.get("/landing.html", include_in_schema=False)
 def landing():
-    if os.path.exists("static/landing.html"):
-        return FileResponse("static/landing.html")
-    return {"detail": "Not Found"}
+    return FileResponse("static/landing.html")
 
 @app.get("/health", include_in_schema=False)
 def health():
