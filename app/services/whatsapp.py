@@ -20,16 +20,46 @@ def _get_headers():
 
 
 def _limpar_numero(numero: str) -> str:
-    # Se vier com @lid ou @s.whatsapp.net, mantém o formato completo
-    if "@lid" in numero or "@s.whatsapp.net" in numero:
+    if "@lid" in numero:
         return numero
-    # Remove caracteres não numéricos
+    if "@" in numero:
+        numero = numero.split("@")[0]
     numero = re.sub(r"[^\d]", "", numero)
     return numero
 
 
+async def _resolver_lid(lid: str) -> str:
+    """Resolve um @lid para o número real usando a Evolution API."""
+    try:
+        url = f"{EVOLUTION_URL}/chat/findContacts/{EVOLUTION_INSTANCE}"
+        payload = {"where": {"id": lid}}
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.post(url, json=payload, headers=_get_headers())
+            data = resp.json()
+            if isinstance(data, list) and len(data) > 0:
+                numero = data[0].get("phoneNumber") or data[0].get("number") or data[0].get("id", "")
+                if numero and "@" in numero:
+                    numero = numero.split("@")[0]
+                numero = re.sub(r"[^\d]", "", numero)
+                if numero:
+                    return numero
+    except Exception as e:
+        print(f"⚠️ Erro ao resolver lid {lid}: {e}")
+    return ""
+
+
 async def enviar_texto(numero: str, mensagem: str) -> dict:
-    numero = _limpar_numero(numero)
+    if "@lid" in numero:
+        numero_real = await _resolver_lid(numero)
+        if numero_real:
+            numero = numero_real
+            print(f"✅ LID resolvido para: {numero}")
+        else:
+            print(f"⚠️ Não foi possível resolver LID: {numero}")
+            return {}
+    else:
+        numero = _limpar_numero(numero)
+    
     print(f"📤 Enviando para: {numero}")
     url    = f"{EVOLUTION_URL}/message/sendText/{EVOLUTION_INSTANCE}"
     payload = {
