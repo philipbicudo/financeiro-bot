@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>finia — Controle financeiro pelo WhatsApp</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --midnight: #111827;
+  --midnight-2: #1e293b;
+  --growth: #22c55e;
+  --growth-light: #dcfce7;
+  --growth-mid: #16a34a;
+  --text: #0f172a;
+  --text-2: #475569;
+  --text-3: #94a3b8;
+  --border: #e2e8f0;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --amber: #f59e0b;
+  --blue: #3b82f6;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body { font-family:'Plus Jakarta Sans',sans-serif; color:var(--text); background:var(--surface); }
+
+/* ── NAV ── */
+nav {
+  position: sticky; top:0; z-index:100;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 5%;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo { display:flex; align-items:center; gap:10px; text-decoration:none; }
+.nav-logomark { width:32px; height:32px; background:var(--midnight); border-radius:9px; display:flex; align-items:center; justify-content:center; }
+.fmark { width:13px; height:20px; position:relative; }
+.fmark::before { content:''; position:absolute; left:0; top:0; width:3.5px; height:20px; background:white; border-radius:2px; }
+.fmark::after  { content:''; position:absolute; left:0; top:0; width:13px; height:3.5px; background:white; border-radius:2px; box-shadow:0 8px 0 0 white; }
+.fmark-mid { position:absolute; left:3.5px; top:8px; width:8px; height:3.5px; background:white; border-radius:1px; }
+.fdot { position:absolute; right:-2px; bottom:-2px; width:6px; height:6px; background:var(--growth); border-radius:50%; border:1.5px solid var(--midnight); }
+.nav-wordmark { font-family:'Lora',serif; font-weight:700; font-size:1.2rem; color:var(--midnight); letter-spacing:-0.5px; }
+.nav-links { display:flex; align-items:center; gap:28px; }
+.nav-link { font-size:0.85rem; font-weight:500; color:var(--text-2); text-decoration:none; transition:color 0.15s; }
+.nav-link:hover { color:var(--text); }
+.nav-cta { padding:9px 22px; background:var(--midnight); color:white; border-radius:10px; font-size:0.85rem; font-weight:700; text-decoration:none; transition:all 0.15s; }
+.nav-cta:hover { background:var(--midnight-2); transform:translateY(-1px); }
+
+/* ── HERO ── */
+.hero {
+  padding: 100px 5% 80px;
+  text-align: center;
+  background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+}
+.hero-badge {
+  display: inline-flex; align-items:center; gap:8px;
+  background: var(--growth-light);
+  color: var(--growth-mid);
+  font-size: 0.8rem; font-weight: 700;
+  padding: 6px 16px; border-radius: 20px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(34,197,94,0.2);
+}
+.hero-badge-dot { width:7px; height:7px; background:var(--growth); border-radius:50%; animation:blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.hero h1 {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  color: var(--midnight);
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  max-width: 720px;
+  margin-left: auto; margin-right: auto;
+}
+.hero h1 span { color: var(--growth); }
+.hero p {
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  color: var(--text-2);
+  max-width: 520px;
+  margin: 0 auto 36px;
+  line-height: 1.7;
+}
+.hero-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.btn-primary {
+  padding: 14px 32px; background:var(--midnight); color:white;
+  border-radius:12px; font-size:0.95rem; font-weight:700;
+  text-decoration:none; transition:all 0.15s;
+  box-shadow: 0 4px 20px rgba(17,24,39,0.25);
+}
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(17,24,39,0.3); }
+.btn-secondary {
+  padding: 14px 32px; background:white; color:var(--text);
+  border-radius:12px; font-size:0.95rem; font-weight:600;
+  text-decoration:none; border:1.5px solid var(--border);
+  transition:all 0.15s;
+}
+.btn-secondary:hover { border-color:var(--midnight); }
+
+/* wpp mockup */
+.hero-mockup {
+  margin: 60px auto 0;
+  max-width: 340px;
+  background: #e5ddd5;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+.mock-top {
+  background: #128C7E;
+  padding: 14px 16px;
+  display: flex; align-items:center; gap:10px;
+}
+.mock-av { width:36px; height:36px; background:var(--growth); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; }
+.mock-name { font-size:0.8rem; font-weight:700; color:white; }
+.mock-sub { font-size:0.65rem; color:rgba(255,255,255,0.7); }
+.mock-body { padding:14px 12px; display:flex; flex-direction:column; gap:8px; }
+.mbub { max-width:85%; padding:8px 12px 6px; border-radius:10px; font-size:0.7rem; line-height:1.5; }
+.mbub.s { align-self:flex-end; background:#dcf8c6; color:#1a2332; border-radius:10px 10px 2px 10px; }
+.mbub.b { align-self:flex-end; background:#d1f5d3; color:#14532d; border-radius:10px 10px 2px 10px; font-size:0.65rem; border:1px solid rgba(34,197,94,0.2); }
+.mbub-t { font-size:0.5rem; color:rgba(0,0,0,0.35); text-align:right; margin-top:2px; }
+
+/* ── FEATURES ── */
+.features { padding:80px 5%; background:var(--bg); }
+.section-label { font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--growth-mid); margin-bottom:12px; text-align:center; }
+.section-title { font-family:'Lora',serif; font-size:clamp(1.6rem,3vw,2.4rem); font-weight:700; color:var(--midnight); text-align:center; letter-spacing:-0.5px; margin-bottom:48px; }
+.features-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:20px; max-width:1000px; margin:0 auto; }
+.feat-card {
+  background:white; border:1px solid var(--border); border-radius:16px;
+  padding:24px; transition:all 0.2s;
+}
+.feat-card:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,0.08); }
+.feat-icon { font-size:1.8rem; margin-bottom:14px; }
+.feat-title { font-size:0.9rem; font-weight:700; color:var(--midnight); margin-bottom:8px; }
+.feat-desc { font-size:0.8rem; color:var(--text-2); line-height:1.6; }
+
+/* ── PLANOS ── */
+.plans { padding:80px 5%; background:white; }
+.plans-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px; max-width:900px; margin:0 auto; }
+
+.plan-card {
+  background:white; border:1.5px solid var(--border);
+  border-radius:20px; padding:28px;
+  transition:all 0.2s; position:relative;
+}
+.plan-card:hover { transform:translateY(-3px); box-shadow:0 12px 40px rgba(0,0,0,0.1); }
+.plan-card.featured { border-color:var(--growth); border-width:2px; }
+
+.plan-popular {
+  position:absolute; top:-13px; left:50%; transform:translateX(-50%);
+  background:var(--growth); color:white;
+  font-size:0.65rem; font-weight:700;
+  padding:4px 14px; border-radius:20px;
+  white-space:nowrap; letter-spacing:0.5px;
+}
+
+.plan-name { font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-3); margin-bottom:10px; }
+.plan-price { font-family:'Lora',serif; font-size:2.4rem; font-weight:700; color:var(--midnight); letter-spacing:-1.5px; line-height:1; }
+.plan-period { font-size:0.8rem; color:var(--text-3); margin-bottom:6px; }
+.plan-desc { font-size:0.78rem; color:var(--text-2); margin-bottom:20px; line-height:1.5; }
+
+.plan-divider { height:1px; background:var(--border); margin-bottom:18px; }
+
+.plan-features { display:flex; flex-direction:column; gap:10px; margin-bottom:24px; }
+.plan-feat { display:flex; align-items:center; gap:10px; font-size:0.78rem; color:var(--text-2); }
+.plan-feat.off { color:var(--text-3); text-decoration:line-through; }
+.pf-check { width:18px; height:18px; border-radius:50%; background:var(--growth-light); color:var(--growth-mid); display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:700; flex-shrink:0; }
+.pf-x { width:18px; height:18px; border-radius:50%; background:#f1f5f9; color:var(--text-3); display:flex; align-items:center; justify-content:center; font-size:0.6rem; flex-shrink:0; }
+
+.plan-btn {
+  width:100%; padding:12px; border-radius:12px;
+  font-size:0.85rem; font-weight:700; cursor:pointer;
+  border:none; transition:all 0.15s;
+}
+.plan-btn.dark { background:var(--midnight); color:white; }
+.plan-btn.dark:hover { background:var(--midnight-2); transform:translateY(-1px); }
+.plan-btn.outline { background:white; color:var(--text); border:1.5px solid var(--border); }
+.plan-btn.outline:hover { border-color:var(--midnight); }
+.plan-btn.green { background:var(--growth); color:white; box-shadow:0 4px 14px rgba(34,197,94,0.3); }
+.plan-btn.green:hover { background:var(--growth-mid); transform:translateY(-1px); }
+
+/* ── FAQ ── */
+.faq { padding:80px 5%; background:var(--bg); }
+.faq-list { max-width:640px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
+.faq-item { background:white; border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+.faq-q {
+  padding:18px 20px; font-size:0.88rem; font-weight:600;
+  cursor:pointer; display:flex; justify-content:space-between; align-items:center;
+  transition:background 0.1s;
+}
+.faq-q:hover { background:var(--bg); }
+.faq-arrow { font-size:0.7rem; color:var(--text-3); transition:transform 0.2s; }
+.faq-a { padding:0 20px 16px; font-size:0.8rem; color:var(--text-2); line-height:1.7; display:none; }
+.faq-item.open .faq-arrow { transform:rotate(180deg); }
+.faq-item.open .faq-a { display:block; }
+
+/* ── CTA FINAL ── */
+.cta-final {
+  padding:80px 5%;
+  background:var(--midnight);
+  text-align:center;
+}
+.cta-final h2 {
+  font-family:'Lora',serif; font-size:clamp(1.6rem,3vw,2.4rem);
+  font-weight:700; color:white; letter-spacing:-0.5px;
+  margin-bottom:16px;
+}
+.cta-final p { font-size:0.95rem; color:rgba(255,255,255,0.6); margin-bottom:32px; }
+.cta-final .btn-primary { background:var(--growth); color:white; box-shadow:0 4px 20px rgba(34,197,94,0.4); }
+.cta-final .btn-primary:hover { background:var(--growth-mid); }
+
+/* ── FOOTER ── */
+footer {
+  background:var(--midnight); border-top:1px solid rgba(255,255,255,0.08);
+  padding:24px 5%; display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:12px;
+}
+.footer-logo { font-family:'Lora',serif; font-weight:700; font-size:1rem; color:white; }
+.footer-logo span { color:var(--growth); }
+.footer-text { font-size:0.75rem; color:rgba(255,255,255,0.35); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="nav-logomark" style="position:relative">
+      <div class="fmark"><div class="fmark-mid"></div></div>
+      <div class="fdot"></div>
+    </div>
+    <span class="nav-wordmark">finia</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="#features">Funcionalidades</a>
+    <a class="nav-link" href="#planos">Planos</a>
+    <a class="nav-link" href="#faq">FAQ</a>
+    <a class="nav-cta" href="#planos">Começar grátis</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <div class="hero-badge-dot"></div>
+    Controle financeiro via WhatsApp
+  </div>
+  <h1>Suas finanças organizadas <span>pelo WhatsApp</span></h1>
+  <p>Mande uma mensagem, o finia registra, categoriza e te mostra onde seu dinheiro está indo. Sem planilha, sem app complicado.</p>
+  <div class="hero-btns">
+    <a href="#planos" class="btn-primary">Começar grátis</a>
+    <a href="#features" class="btn-secondary">Ver como funciona</a>
+  </div>
+
+  <!-- Mock WhatsApp -->
+  <div class="hero-mockup">
+    <div class="mock-top">
+      <div class="mock-av">🤖</div>
+      <div>
+        <div class="mock-name">finia bot</div>
+        <div class="mock-sub">online agora</div>
+      </div>
+    </div>
+    <div class="mock-body">
+      <div class="mbub s">gastei 50 no mercado<div class="mbub-t">agora ✓✓</div></div>
+      <div class="mbub b">✅ <strong>Registrado!</strong><br>🛒 Mercado — R$ 50,00<br>📁 Alimentação · PIX · ✅ Pago<div class="mbub-t">agora ✓✓</div></div>
+      <div class="mbub s">paguei 180 de luz<div class="mbub-t">agora ✓✓</div></div>
+      <div class="mbub b">✅ <strong>Registrado!</strong><br>💡 Conta de Luz — R$ 180,00<br>📁 Moradia · Cartão · ⏳ A pagar<div class="mbub-t">agora ✓✓</div></div>
+      <div class="mbub s">resumo<div class="mbub-t">agora ✓✓</div></div>
+      <div class="mbub b">📊 <strong>Resumo de Abril</strong><br>💰 Receitas: R$ 3.500<br>💸 Gastos: R$ 1.247<br>✅ Saldo: R$ 2.253<div class="mbub-t">agora ✓✓</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-label">funcionalidades</div>
+  <h2 class="section-title">Tudo que você precisa, direto no zap</h2>
+  <div class="features-grid">
+    <div class="feat-card">
+      <div class="feat-icon">💬</div>
+      <div class="feat-title">Registra por mensagem</div>
+      <div class="feat-desc">Escreve do jeito que você fala — "gastei 50 no mercado" — e o finia entende, categoriza e salva automaticamente.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📊</div>
+      <div class="feat-title">Dashboard web</div>
+      <div class="feat-desc">Visualize seus gastos por categoria, evolução mensal e contas a pagar num painel limpo e bonito.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🏷️</div>
+      <div class="feat-title">Categorias automáticas</div>
+      <div class="feat-desc">A IA detecta se é mercado, luz, uber, farmácia — sem você precisar selecionar nada.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">⏳</div>
+      <div class="feat-title">Contas a pagar</div>
+      <div class="feat-desc">Registre contas pendentes e receba alertas antes do vencimento direto no WhatsApp.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">👨‍👩‍👧</div>
+      <div class="feat-title">Gestão familiar</div>
+      <div class="feat-desc">No plano Família, cada membro tem seu próprio bot mas as finanças ficam num dashboard compartilhado.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📄</div>
+      <div class="feat-title">Relatório mensal</div>
+      <div class="feat-desc">Receba um resumo completo em PDF todo início de mês com seus gastos, receitas e saldo.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PLANOS -->
+<section class="plans" id="planos">
+  <div class="section-label">planos e preços</div>
+  <h2 class="section-title">Simples, sem surpresa</h2>
+  <div class="plans-grid">
+
+    <!-- GRÁTIS -->
+    <div class="plan-card">
+      <div class="plan-name">Grátis</div>
+      <div class="plan-price">R$ 0</div>
+      <div class="plan-period">para sempre</div>
+      <div class="plan-desc">Perfeito pra conhecer o finia e ver como funciona antes de assinar.</div>
+      <div class="plan-divider"></div>
+      <div class="plan-features">
+        <div class="plan-feat"><div class="pf-check">✓</div> 50 transações por mês</div>
+        <div class="plan-feat"><div class="pf-check">✓</div> 1 conta bancária</div>
+        <div class="plan-feat"><div class="pf-check">✓</div> Resumo mensal no zap</div>
+        <div class="plan-feat off"><div class="pf-x">✕</div> Bot WhatsApp</div>
+        <div class="plan-feat off"><div class="pf-x">✕</div> Dashboard web</div>
+        <div class="plan-feat off"><div class="pf-x">✕</div> Relatório PDF</div>
+      </div>
+      <button class="plan-btn outline" onclick="assinar('gratis')">Começar grátis</button>
+    </div>
+
+    <!-- PRO -->
+    <div class="plan-card featured">
+      <div class="plan-popular">✦ Mais popular</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">R$ 19,90</div>
+      <div class="plan-period">por mês · cancele quando quiser</div>
+      <div class="plan-desc">Para quem quer controle total das finanças com bot personalizado.</div>
+      <div class="plan-divider"></div>
+      <div class="plan-features">
+        <div class="plan-feat"><div class="pf-check">✓</div> Transações ilimitadas</div>
+        <div class="plan-feat"><div class="pf-check">✓</div> 3 contas bancárias</div>
+        <div class="plan-feat"><div class="pf-check">✓</div> Bot WhatsApp dedicado</div>
+        <div class="plan-feat"><div class="pf-check">✓</div> Dashboard web completo</div>
+        <div class="plan-feat"><div class="pf-check">✓</div> Relatório PDF mensal</div>
+        <div class="plan-feat off"><div class="pf-x">✕</div> Gestão familiar</div>
+      </div>
+      <button class="plan-btn green" onclick="assinar('pro')">Assinar Pro — R$ 19,90/mês</button>
+    </div>
+
+    <!-- FAMÍLIA -->
+    <div class="plan-card">
+      <div class="plan-name">Família</div>
+      <div class="plan-price">R$ 34,90</div>
+      <div class="plan-period">por mês · até 5 membros</div>
+      <div class="plan-desc">Para casais e famílias que querem organizar as finanças juntos.</div>
+      <div class="plan-divider"></div>
+      <div class="plan-features">
+        <div class="plan-feat"><div class="pf-check">✓</div> Tudo do plano Pro</div>
+        <div class="plan-feat"><div class="pf-check">✓</div> Até 5 membros</div>
+        <div class="plan-feat"><div class="pf-check">✓</div> Bot para cada membro</div>
+        <div class="plan-feat"><div class="pf-check">✓</div> Dashboard compartilhado</div>
+        <div class="plan-feat"><div class="pf-check">✓</div> Alertas de gastos</div>
+        <div class="plan-feat"><div class="pf-check">✓</div> Contas ilimitadas</div>
+      </div>
+      <button class="plan-btn dark" onclick="assinar('familia')">Assinar Família — R$ 34,90/mês</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="section-label">dúvidas frequentes</div>
+  <h2 class="section-title">Perguntas e respostas</h2>
+  <div class="faq-list">
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Preciso baixar algum app? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">Não! O finia funciona 100% pelo WhatsApp que você já usa. Basta adicionar o número do bot nos seus contatos e começar a mandar mensagem.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Como funciona o plano Grátis? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">No plano grátis você pode registrar até 50 transações por mês e receber um resumo pelo WhatsApp. Quando quiser o bot dedicado e o dashboard, é só assinar o Pro.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Posso cancelar quando quiser? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">Sim, sem multa e sem burocracia. Cancela pelo próprio WhatsApp com o bot ou pelo dashboard web.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Meus dados financeiros ficam seguros? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">Sim. Seus dados ficam em banco de dados criptografado, nunca são compartilhados com terceiros e você pode exportar ou deletar tudo a qualquer momento.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Como funciona o plano Família? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">Cada membro da família tem seu próprio número de WhatsApp conectado ao bot. As transações de todos ficam visíveis num dashboard compartilhado, mas cada um mantém sua privacidade individual.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <h2>Comece a controlar<br>suas finanças hoje</h2>
+  <p>Grátis para sempre. Sem cartão de crédito.</p>
+  <a href="#planos" class="btn-primary">Criar minha conta grátis</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">fin<span>ia</span></div>
+  <div class="footer-text">© 2026 finia · Gestão Financeira via WhatsApp</div>
+  <div class="footer-text">Feito com 💚 no Brasil</div>
+</footer>
+
+<script>
+function toggleFaq(el) {
+  el.classList.toggle('open');
+}
+
+function assinar(plano) {
+  const msgs = {
+    gratis:  'Ótimo! Para começar gratuitamente, adicione o número do finia bot no seu WhatsApp:\n\n📱 +55 XX XXXXX-XXXX\n\nMande "oi" para começar!',
+    pro:     'Você escolheu o plano Pro — R$ 19,90/mês.\n\nVou te redirecionar para o pagamento via Mercado Pago.\n\n[Em breve — integração sendo configurada]',
+    familia: 'Você escolheu o plano Família — R$ 34,90/mês.\n\nVou te redirecionar para o pagamento via Mercado Pago.\n\n[Em breve — integração sendo configurada]',
+  };
+  alert(msgs[plano]);
+}
+</script>
+</body>
+</html>
