@@ -135,6 +135,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .tx-status{font-size:0.45rem;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap;}
 .tx-status.pago{background:var(--growth-light);color:var(--growth-mid);}
 .tx-status.nao_pago,.tx-status.pendente{background:var(--amber-bg);color:var(--amber);}
+.tx-status-btn{cursor:pointer;border:none;font-family:inherit;transition:all 0.15s;user-select:none;}
+.tx-status-btn:hover{opacity:0.75;transform:scale(0.97);}
+.tx-status-btn.pago:hover{background:var(--amber-bg);color:var(--amber);}
+.tx-status-btn.nao_pago:hover,.tx-status-btn.pendente:hover{background:var(--growth-light);color:var(--growth-mid);}
 
 /* GRIDS */
 .content-grid{display:grid;grid-template-columns:1fr 320px;gap:18px;margin-bottom:18px;}
@@ -983,12 +987,15 @@ function renderTx(filter, listId='txList') {
   if(!filtered.length){ document.getElementById(listId).innerHTML='<div class="empty-msg">Nenhuma transação encontrada.</div>'; return; }
   document.getElementById(listId).innerHTML = filtered.map((t,i) => {
     const icon = CAT_ICONS[(t.categoria||'').toLowerCase()]||'📦';
-    return `<div class="tx-item" style="animation-delay:${i*15}ms">
+    const isPago = t.status === 'pago';
+    return `<div class="tx-item" style="animation-delay:${i*15}ms" id="tx-row-${t.id}">
       <div class="tx-ico ${t.tipo}">${icon}</div>
       <div><div class="tx-name">${t.descricao}</div><div class="tx-meta"><span>${t.data}</span><span class="tx-cat">${t.categoria||'Outros'}</span><span style="color:var(--text-4)">${t.forma_pag||'PIX'}</span></div></div>
       <div class="tx-date">${t.data}</div>
       <div class="tx-amt ${t.tipo}">${t.tipo==='receita'?'+':'−'} ${fmt(t.valor)}</div>
-      <span class="tx-status ${t.status}">${t.status==='pago'?'✓ Pago':'⏳ A pagar'}</span>
+      <button class="tx-status tx-status-btn ${t.status}" onclick="toggleStatus(${t.id}, '${t.status}', this)" title="Clique para alterar status">
+        ${isPago ? '✓ Pago' : '⏳ A pagar'}
+      </button>
     </div>`;
   }).join('');
 }
@@ -1163,12 +1170,15 @@ function renderTxPage(filter) {
   if(!filtered.length){ el.innerHTML='<div class="empty-msg">Nenhuma transação encontrada.</div>'; return; }
   el.innerHTML = filtered.map((t,i) => {
     const icon = CAT_ICONS[(t.categoria||'').toLowerCase()]||'📦';
-    return `<div class="tx-item" style="animation-delay:${i*10}ms">
+    const isPago = t.status === 'pago';
+    return `<div class="tx-item" style="animation-delay:${i*10}ms" id="tx-row-${t.id}">
       <div class="tx-ico ${t.tipo}">${icon}</div>
       <div><div class="tx-name">${t.descricao}</div><div class="tx-meta"><span>${t.data}</span><span class="tx-cat">${t.categoria||'Outros'}</span><span style="color:var(--text-4)">${t.forma_pag||'PIX'}</span></div></div>
       <div class="tx-date">${t.data}</div>
       <div class="tx-amt ${t.tipo}">${t.tipo==='receita'?'+':'−'} ${fmt(t.valor)}</div>
-      <span class="tx-status ${t.status}">${t.status==='pago'?'✓ Pago':'⏳ A pagar'}</span>
+      <button class="tx-status tx-status-btn ${t.status}" onclick="toggleStatus(${t.id}, '${t.status}', this)" title="Clique para alterar status">
+        ${isPago ? '✓ Pago' : '⏳ A pagar'}
+      </button>
     </div>`;
   }).join('');
 }
@@ -1286,6 +1296,45 @@ function simWppInput() {
 function selectColor(el,color) {
   document.querySelectorAll('.modal [onclick^="selectColor"]').forEach(e=>e.style.borderColor='transparent');
   el.style.borderColor=color;
+}
+
+// ── TOGGLE STATUS ──
+async function toggleStatus(id, currentStatus, btn) {
+  const newStatus = currentStatus === 'pago' ? 'nao_pago' : 'pago';
+  btn.disabled = true;
+  btn.textContent = '...';
+
+  try {
+    const res = await fetch(`${API}/transacoes/${id}`, {
+      method: 'PATCH',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({status: newStatus})
+    });
+
+    if(res.ok || res.status === 422) {
+      // Tenta endpoint de pagar do dashboard
+      if(newStatus === 'pago') {
+        await fetch(`${API}/dashboard/transacoes/${id}/pagar`, {method: 'PATCH'});
+      }
+    }
+
+    // Atualiza visual imediatamente
+    btn.className = `tx-status tx-status-btn ${newStatus}`;
+    btn.textContent = newStatus === 'pago' ? '✓ Pago' : '⏳ A pagar';
+    btn.disabled = false;
+    btn.setAttribute('onclick', `toggleStatus(${id}, '${newStatus}', this)`);
+
+    // Atualiza no array local
+    const tx = allTx.find(t => t.id === id);
+    if(tx) tx.status = newStatus;
+
+    // Recarrega resumo
+    loadResumo();
+
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = currentStatus === 'pago' ? '✓ Pago' : '⏳ A pagar';
+  }
 }
 
 // ── INIT ──
