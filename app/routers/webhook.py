@@ -155,6 +155,7 @@ async def processar_acao(acao_dict: dict, numero: str, db: Session, responder: b
 @router.post("/whatsapp")
 async def webhook_whatsapp(request: Request, db: Session = Depends(get_db)):
     body           = await request.json()
+    print(f"📦 BODY: {body}")
     numero, texto  = _extrair_numero_e_texto(body)
 
     if not texto:
