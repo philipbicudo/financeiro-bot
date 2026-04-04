@@ -6,7 +6,7 @@ import os
 
 from app.database import engine, Base
 from app.models import usuario, transacao
-from app.routers import transacoes, resumo, webhook, dashboard_router, usuarios
+from app.routers import transacoes, resumo, webhook, dashboard_router, usuarios, pagamentos, bot_vendas
 
 Base.metadata.create_all(bind=engine)
 
@@ -28,6 +28,8 @@ app.include_router(resumo.router,          prefix="/resumo",     tags=["Resumo"]
 app.include_router(webhook.router,         prefix="/webhook",    tags=["WhatsApp"])
 app.include_router(dashboard_router.router)
 app.include_router(usuarios.router)
+app.include_router(pagamentos.router)
+app.include_router(bot_vendas.router)
 
 if os.path.exists("static"):
     app.mount("/static", StaticFiles(directory="static"), name="static")
