@@ -1,7 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
+
 from app.database import engine, Base
-from app.routers import transacoes, resumo, webhook
+from app.routers import transacoes, resumo, webhook, dashboard_router
 
 # Cria todas as tabelas no banco ao iniciar
 Base.metadata.create_all(bind=engine)
@@ -20,10 +24,23 @@ app.add_middleware(
 )
 
 # Rotas da API
-app.include_router(transacoes.router, prefix="/transacoes", tags=["Transações"])
-app.include_router(resumo.router,     prefix="/resumo",     tags=["Resumo"])
-app.include_router(webhook.router,    prefix="/webhook",    tags=["WhatsApp"])
+app.include_router(transacoes.router,     prefix="/transacoes", tags=["Transações"])
+app.include_router(resumo.router,         prefix="/resumo",     tags=["Resumo"])
+app.include_router(webhook.router,        prefix="/webhook",    tags=["WhatsApp"])
+app.include_router(dashboard_router.router)  # prefixo /dashboard já definido no arquivo
 
-@app.get("/")
-def root():
+# Serve arquivos estáticos (CSS, JS, imagens futuras)
+if os.path.exists("static"):
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Dashboard finia — abre na raiz
+@app.get("/", include_in_schema=False)
+def index():
+    if os.path.exists("static/index.html"):
+        return FileResponse("static/index.html")
     return {"status": "online", "mensagem": "Assistente Financeiro rodando!"}
+
+# Health check (Railway usa isso)
+@app.get("/health", include_in_schema=False)
+def health():
+    return {"status": "ok"}
