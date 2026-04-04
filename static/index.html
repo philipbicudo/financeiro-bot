@@ -1292,7 +1292,23 @@ function selectColor(el,color) {
 Promise.all([loadResumo(), loadTransacoes(), loadCats(), loadHistorico()]);
 setInterval(()=>{ loadResumo(); loadTransacoes(); },30000);
 </script>
-<!-- Botão Chat IA Flutuante -->
-<a href="/chat.html" style="position:fixed;bottom:28px;right:28px;width:58px;height:58px;background:#111827;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;text-decoration:none;box-shadow:0 8px 28px rgba(0,0,0,0.22);z-index:999;transition:all 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">🤖<span style="position:absolute;top:-3px;right:-3px;width:20px;height:20px;background:#22c55e;border-radius:50%;font-size:0.38rem;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid white;color:white;">IA</span></a>
+<!-- Botão finia IA Flutuante -->
+<a href="/chat.html" id="finia-ia-fab" style="position:fixed;bottom:28px;right:28px;z-index:999;text-decoration:none;display:flex;align-items:center;gap:0;" onmouseover="document.getElementById('finia-ia-fab').style.transform='translateY(-2px)'" onmouseout="document.getElementById('finia-ia-fab').style.transform='translateY(0)'">
+  <div style="display:flex;align-items:center;background:#111827;border-radius:28px;padding:0 18px 0 6px;height:48px;box-shadow:0 8px 28px rgba(0,0,0,0.25);transition:all 0.2s;gap:10px;">
+    <!-- Logomark -->
+    <div style="width:36px;height:36px;background:#22c55e;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <div style="position:relative;width:13px;height:20px;">
+        <div style="position:absolute;left:0;top:0;width:3.5px;height:20px;background:white;border-radius:2px;"></div>
+        <div style="position:absolute;left:0;top:0;width:13px;height:3.5px;background:white;border-radius:2px;"></div>
+        <div style="position:absolute;left:3.5px;top:8px;width:8px;height:3.5px;background:white;border-radius:1px;"></div>
+      </div>
+    </div>
+    <!-- Texto -->
+    <div style="display:flex;flex-direction:column;line-height:1.1;">
+      <span style="font-family:Georgia,serif;font-weight:700;font-size:0.78rem;color:white;letter-spacing:-0.3px;">finia <span style="color:#22c55e;">IA</span></span>
+      <span style="font-size:0.42rem;color:rgba(255,255,255,0.5);font-weight:500;">chat + voz</span>
+    </div>
+  </div>
+</a>
 </body>
 </html>
