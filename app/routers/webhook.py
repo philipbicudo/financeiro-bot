@@ -16,10 +16,6 @@ from app.routers.resumo import resumo_em_texto
 router = APIRouter()
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  HELPERS
-# ══════════════════════════════════════════════════════════════════════════════
-
 def _extrair_numero_e_texto(body: dict) -> tuple:
     """Extrai número do remetente e texto da mensagem (formato Evolution API)."""
     try:
@@ -28,6 +24,8 @@ def _extrair_numero_e_texto(body: dict) -> tuple:
         if key.get("fromMe"):
             return "", ""
         numero = key.get("remoteJid", "")
+        if "@g.us" in numero or "@lid" in numero:
+            return "", ""
         msg    = data.get("message", {})
         texto  = (
             msg.get("conversation")
@@ -72,10 +70,6 @@ def _mensagem_ajuda() -> str:
         "  • _paguei o aluguel_"
     )
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  PROCESSADOR CENTRAL
-# ══════════════════════════════════════════════════════════════════════════════
 
 async def processar_acao(acao_dict: dict, numero: str, db: Session, responder: bool = True) -> str:
     acao     = acao_dict.get("acao", "ajuda")
@@ -158,13 +152,8 @@ async def processar_acao(acao_dict: dict, numero: str, db: Session, responder: b
     return resposta
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  ENDPOINTS PRINCIPAIS
-# ══════════════════════════════════════════════════════════════════════════════
-
 @router.post("/whatsapp")
 async def webhook_whatsapp(request: Request, db: Session = Depends(get_db)):
-    """Recebe mensagens da Evolution API e responde automaticamente."""
     body           = await request.json()
     numero, texto  = _extrair_numero_e_texto(body)
 
@@ -188,7 +177,6 @@ async def webhook_whatsapp(request: Request, db: Session = Depends(get_db)):
 
 @router.post("/testar", summary="Testa o bot sem precisar do WhatsApp")
 async def testar_bot(mensagem: str, db: Session = Depends(get_db)):
-    """Envie qualquer texto e veja como o bot responderia — sem WhatsApp."""
     acao_dict = interpretar_mensagem(mensagem)
     resposta  = await processar_acao(acao_dict, numero="", db=db, responder=False)
     return {
@@ -197,10 +185,6 @@ async def testar_bot(mensagem: str, db: Session = Depends(get_db)):
         "resposta_do_bot"    : resposta,
     }
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  SETUP — configura Evolution API
-# ══════════════════════════════════════════════════════════════════════════════
 
 @router.get("/setup/status", summary="Status da conexão WhatsApp")
 async def status_whatsapp():
@@ -221,7 +205,6 @@ async def criar_instancia():
 
 @router.get("/setup/qrcode", summary="QR Code para conectar o WhatsApp")
 async def obter_qrcode():
-    """Abra esta URL no navegador e escaneie com o celular."""
     try:
         return await wp.obter_qrcode()
     except Exception as e:
@@ -230,10 +213,6 @@ async def obter_qrcode():
 
 @router.post("/setup/configurar-webhook", summary="Registra URL pública na Evolution API")
 async def configurar_webhook(url_publica: str):
-    """
-    Rode isso depois de fazer o deploy.
-    url_publica: https://meu-app.railway.app/webhook/whatsapp
-    """
     try:
         resultado = await wp.configurar_webhook(url_publica)
         return {"status": "configurado", "url": url_publica, "detalhes": resultado}
