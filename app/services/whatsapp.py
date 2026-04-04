@@ -28,6 +28,7 @@ def _limpar_numero(numero: str) -> str:
 
 async def enviar_texto(numero: str, mensagem: str) -> dict:
     numero = _limpar_numero(numero)
+    print(f"📤 Enviando para: {numero}")
     url    = f"{EVOLUTION_URL}/message/sendText/{EVOLUTION_INSTANCE}"
     payload = {
         "number": numero,
