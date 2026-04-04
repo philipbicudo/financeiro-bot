@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import func, extract
+from sqlalchemy import func
 from datetime import datetime
 from app.database import get_db
 from app.models.transacao import Transacao
@@ -14,13 +14,15 @@ def mes_atual():
 @router.get("/resumo")
 def get_resumo(db: Session = Depends(get_db)):
     mes, ano = mes_atual()
+    mes_str = f"{mes:02d}"
+    ano_str = str(ano)
     txs = db.query(Transacao).filter(
-        extract('month', Transacao.data) == mes,
-        extract('year',  Transacao.data) == ano
+        func.strftime('%m', Transacao.data) == mes_str,
+        func.strftime('%Y', Transacao.data) == ano_str
     ).all()
-    receitas = sum(t.valor for t in txs if t.tipo == "receita")
-    gastos   = sum(t.valor for t in txs if t.tipo == "despesa")
-    a_pagar  = sum(t.valor for t in txs if t.tipo == "despesa" and str(t.status) in ("pendente", "nao_pago"))
+    receitas = sum(t.valor for t in txs if str(t.tipo) == "receita")
+    gastos   = sum(t.valor for t in txs if str(t.tipo) == "despesa")
+    a_pagar  = sum(t.valor for t in txs if str(t.tipo) == "despesa" and str(t.status) in ("pendente", "nao_pago", "StatusTransacao.nao_pago"))
     saldo    = receitas - gastos
     return {
         "mes": mes, "ano": ano,
@@ -39,9 +41,11 @@ def get_transacoes(
     db: Session = Depends(get_db)
 ):
     mes, ano = mes_atual()
+    mes_str = f"{mes:02d}"
+    ano_str = str(ano)
     q = db.query(Transacao).filter(
-        extract('month', Transacao.data) == mes,
-        extract('year',  Transacao.data) == ano
+        func.strftime('%m', Transacao.data) == mes_str,
+        func.strftime('%Y', Transacao.data) == ano_str
     )
     if tipo:   q = q.filter(Transacao.tipo == tipo)
     if status: q = q.filter(Transacao.status == status)
@@ -51,10 +55,10 @@ def get_transacoes(
             "id":        t.id,
             "descricao": t.descricao,
             "valor":     round(t.valor, 2),
-            "tipo":      str(t.tipo),
+            "tipo":      str(t.tipo).replace("TipoTransacao.", ""),
             "categoria": t.categoria,
             "forma_pag": t.metodo or "PIX",
-            "status":    str(t.status),
+            "status":    str(t.status).replace("StatusTransacao.", ""),
             "data":      t.data.strftime("%d/%m") if t.data else "",
         }
         for t in txs
@@ -63,30 +67,30 @@ def get_transacoes(
 @router.get("/categorias")
 def get_categorias(db: Session = Depends(get_db)):
     mes, ano = mes_atual()
-    rows = (
-        db.query(Transacao.categoria, func.sum(Transacao.valor).label("total"))
-        .filter(
-            Transacao.tipo == "despesa",
-            extract('month', Transacao.data) == mes,
-            extract('year',  Transacao.data) == ano
-        )
-        .group_by(Transacao.categoria)
-        .order_by(func.sum(Transacao.valor).desc())
-        .all()
-    )
-    total = sum(r.total for r in rows) or 1
+    mes_str = f"{mes:02d}"
+    ano_str = str(ano)
+    txs = db.query(Transacao).filter(
+        func.strftime('%m', Transacao.data) == mes_str,
+        func.strftime('%Y', Transacao.data) == ano_str,
+        Transacao.tipo == "despesa"
+    ).all()
+    cats = {}
+    for t in txs:
+        cat = t.categoria or "Outros"
+        cats[cat] = cats.get(cat, 0) + t.valor
+    total = sum(cats.values()) or 1
     CAT_ICONS = {
         "alimentação":"🛒","moradia":"🏠","transporte":"🚗","lazer":"🎬",
         "saúde":"💊","educação":"📚","renda":"💰","outros":"📦","casa":"🏠",
     }
     return [
         {
-            "categoria":  r.categoria or "Outros",
-            "total":      round(r.total, 2),
-            "percentual": round(r.total / total * 100, 1),
-            "icone":      CAT_ICONS.get((r.categoria or "").lower(), "📦"),
+            "categoria":  cat,
+            "total":      round(val, 2),
+            "percentual": round(val / total * 100, 1),
+            "icone":      CAT_ICONS.get(cat.lower(), "📦"),
         }
-        for r in rows
+        for cat, val in sorted(cats.items(), key=lambda x: x[1], reverse=True)
     ]
 
 @router.get("/historico")
@@ -98,22 +102,22 @@ def get_historico(meses: int = 6, db: Session = Depends(get_db)):
         m = (now.month - i - 1) % 12 + 1
         a = now.year - ((now.month - i - 1) // 12 + (1 if (now.month - i - 1) < 0 else 0))
         txs = db.query(Transacao).filter(
-            extract('month', Transacao.data) == m,
-            extract('year',  Transacao.data) == a
+            func.strftime('%m', Transacao.data) == f"{m:02d}",
+            func.strftime('%Y', Transacao.data) == str(a)
         ).all()
         resultado.append({
             "mes":      MESES_PT[m - 1],
-            "receitas": round(sum(t.valor for t in txs if t.tipo == "receita"), 2),
-            "gastos":   round(sum(t.valor for t in txs if t.tipo == "despesa"), 2),
+            "receitas": round(sum(t.valor for t in txs if str(t.tipo) == "receita"), 2),
+            "gastos":   round(sum(t.valor for t in txs if str(t.tipo) == "despesa"), 2),
         })
     return resultado
 
 @router.patch("/transacoes/{tx_id}/pagar")
 def marcar_pago(tx_id: int, db: Session = Depends(get_db)):
     from app.models.transacao import StatusTransacao
+    from fastapi import HTTPException
     tx = db.query(Transacao).filter(Transacao.id == tx_id).first()
     if not tx:
-        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Transação não encontrada")
     tx.status = StatusTransacao.pago
     db.commit()
