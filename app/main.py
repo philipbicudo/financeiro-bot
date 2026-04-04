@@ -24,23 +24,23 @@ app.add_middleware(
 )
 
 # Rotas da API
-app.include_router(transacoes.router,     prefix="/transacoes", tags=["Transações"])
-app.include_router(resumo.router,         prefix="/resumo",     tags=["Resumo"])
-app.include_router(webhook.router,        prefix="/webhook",    tags=["WhatsApp"])
-app.include_router(dashboard_router.router)  # prefixo /dashboard já definido no arquivo
+app.include_router(transacoes.router,      prefix="/transacoes", tags=["Transações"])
+app.include_router(resumo.router,          prefix="/resumo",     tags=["Resumo"])
+app.include_router(webhook.router,         prefix="/webhook",    tags=["WhatsApp"])
+app.include_router(dashboard_router.router)
 
-# Serve arquivos estáticos (CSS, JS, imagens futuras)
+# Serve arquivos estáticos
 if os.path.exists("static"):
     app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Dashboard finia — abre na raiz
+# Dashboard finia
 @app.get("/", include_in_schema=False)
 def index():
     if os.path.exists("static/index.html"):
         return FileResponse("static/index.html")
     return {"status": "online", "mensagem": "Assistente Financeiro rodando!"}
 
-# Health check (Railway usa isso)
+# Health check
 @app.get("/health", include_in_schema=False)
 def health():
     return {"status": "ok"}
