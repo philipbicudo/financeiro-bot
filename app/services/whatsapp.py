@@ -32,7 +32,7 @@ async def enviar_texto(numero: str, mensagem: str) -> dict:
     url    = f"{EVOLUTION_URL}/message/sendText/{EVOLUTION_INSTANCE}"
     payload = {
         "number": numero,
-        "text": mensagem,
+        "textMessage": {"text": mensagem},
     }
     async with httpx.AsyncClient(timeout=15) as client:
         resp = await client.post(url, json=payload, headers=_get_headers())
