@@ -20,11 +20,14 @@ def _extrair_numero_e_texto(body: dict) -> tuple:
     try:
         data = body.get("data", {})
         key  = data.get("key", {})
-        if key.get("fromMe"):
+        from_me = key.get("fromMe", False)
+        if from_me:
             return "", ""
-        numero = body.get("sender", "") or key.get("remoteJid", "")
-        if "@g.us" in numero:
-            return "", ""
+        remote_jid = key.get("remoteJid", "")
+        if "@g.us" in remote_jid or "@lid" in remote_jid:
+            numero = body.get("sender", "")
+        else:
+            numero = remote_jid
         if not numero:
             return "", ""
         msg = data.get("message", {})
