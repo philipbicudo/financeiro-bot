@@ -22,12 +22,10 @@ def _extrair_numero_e_texto(body: dict) -> tuple:
         key  = data.get("key", {})
         if key.get("fromMe"):
             return "", ""
-        numero = key.get("remoteJid", "")
-        if "@lid" in numero:
-            numero = body.get("sender", "")
-            if not numero:
-                return "", ""
+        numero = body.get("sender", "") or key.get("remoteJid", "")
         if "@g.us" in numero:
+            return "", ""
+        if not numero:
             return "", ""
         msg = data.get("message", {})
         texto = (
