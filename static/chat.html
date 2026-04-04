@@ -530,18 +530,16 @@ async function sendMsg(text) {
   showTyping();
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch(`${API}/ia/chat`, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-haiku-4-5-20251001',
-        max_tokens:400,
         system: getSystem(),
         messages: chatHistory.slice(-10),
       })
     });
     const data = await resp.json();
-    const reply = data.content?.[0]?.text || 'Desculpe, tente novamente.';
+    const reply = data.text || 'Desculpe, tente novamente.';
     hideTyping();
 
     if(reply.includes('REGISTRAR_TX:')) {
