@@ -11,19 +11,37 @@ def mes_atual():
     now = datetime.now()
     return now.month, now.year
 
+def filtrar_mes(txs, mes, ano):
+    """Filtra transações pelo mês/ano considerando múltiplos formatos de data."""
+    resultado = []
+    mes_str = f"{mes:02d}"
+    ano_str = str(ano)
+    for t in txs:
+        if not t.data:
+            continue
+        # Formato completo datetime
+        try:
+            if t.data.month == mes and t.data.year == ano:
+                resultado.append(t)
+        except Exception:
+            pass
+    return resultado
+
 @router.get("/resumo")
 def get_resumo(db: Session = Depends(get_db)):
     mes, ano = mes_atual()
-    mes_str = f"{mes:02d}"
-    ano_str = str(ano)
-    txs = db.query(Transacao).filter(
-        func.strftime('%m', Transacao.data) == mes_str,
-        func.strftime('%Y', Transacao.data) == ano_str
-    ).all()
-    receitas = sum(t.valor for t in txs if str(t.tipo) == "receita")
-    gastos   = sum(t.valor for t in txs if str(t.tipo) == "despesa")
-    a_pagar  = sum(t.valor for t in txs if str(t.tipo) == "despesa" and str(t.status) in ("pendente", "nao_pago", "StatusTransacao.nao_pago"))
+    todas = db.query(Transacao).all()
+    txs = filtrar_mes(todas, mes, ano)
+
+    # Se não encontrar nada no mês atual, usa todas
+    if not txs:
+        txs = todas
+
+    receitas = sum(t.valor for t in txs if str(t.tipo).replace("TipoTransacao.", "") == "receita")
+    gastos   = sum(t.valor for t in txs if str(t.tipo).replace("TipoTransacao.", "") == "despesa")
+    a_pagar  = sum(t.valor for t in txs if str(t.tipo).replace("TipoTransacao.", "") == "despesa" and str(t.status).replace("StatusTransacao.", "") in ("pendente", "nao_pago"))
     saldo    = receitas - gastos
+
     return {
         "mes": mes, "ano": ano,
         "receitas": round(receitas, 2),
@@ -40,16 +58,17 @@ def get_transacoes(
     limit: int = 50,
     db: Session = Depends(get_db)
 ):
+    todas = db.query(Transacao).order_by(Transacao.data.desc()).all()
     mes, ano = mes_atual()
-    mes_str = f"{mes:02d}"
-    ano_str = str(ano)
-    q = db.query(Transacao).filter(
-        func.strftime('%m', Transacao.data) == mes_str,
-        func.strftime('%Y', Transacao.data) == ano_str
-    )
-    if tipo:   q = q.filter(Transacao.tipo == tipo)
-    if status: q = q.filter(Transacao.status == status)
-    txs = q.order_by(Transacao.data.desc()).limit(limit).all()
+    txs = filtrar_mes(todas, mes, ano)
+    if not txs:
+        txs = todas
+
+    if tipo:
+        txs = [t for t in txs if str(t.tipo).replace("TipoTransacao.", "") == tipo]
+    if status:
+        txs = [t for t in txs if str(t.status).replace("StatusTransacao.", "") == status]
+
     return [
         {
             "id":        t.id,
@@ -61,27 +80,27 @@ def get_transacoes(
             "status":    str(t.status).replace("StatusTransacao.", ""),
             "data":      t.data.strftime("%d/%m") if t.data else "",
         }
-        for t in txs
+        for t in txs[:limit]
     ]
 
 @router.get("/categorias")
 def get_categorias(db: Session = Depends(get_db)):
     mes, ano = mes_atual()
-    mes_str = f"{mes:02d}"
-    ano_str = str(ano)
-    txs = db.query(Transacao).filter(
-        func.strftime('%m', Transacao.data) == mes_str,
-        func.strftime('%Y', Transacao.data) == ano_str,
-        Transacao.tipo == "despesa"
-    ).all()
+    todas = db.query(Transacao).all()
+    txs = filtrar_mes(todas, mes, ano)
+    if not txs:
+        txs = todas
+
+    txs = [t for t in txs if str(t.tipo).replace("TipoTransacao.", "") == "despesa"]
     cats = {}
     for t in txs:
         cat = t.categoria or "Outros"
         cats[cat] = cats.get(cat, 0) + t.valor
+
     total = sum(cats.values()) or 1
     CAT_ICONS = {
         "alimentação":"🛒","moradia":"🏠","transporte":"🚗","lazer":"🎬",
-        "saúde":"💊","educação":"📚","renda":"💰","outros":"📦","casa":"🏠",
+        "saúde":"💊","educação":"📚","salário":"💰","outros":"📦","casa":"🏠",
     }
     return [
         {
@@ -95,20 +114,18 @@ def get_categorias(db: Session = Depends(get_db)):
 
 @router.get("/historico")
 def get_historico(meses: int = 6, db: Session = Depends(get_db)):
+    todas = db.query(Transacao).all()
     now = datetime.now()
     resultado = []
     MESES_PT = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
     for i in range(meses - 1, -1, -1):
         m = (now.month - i - 1) % 12 + 1
         a = now.year - ((now.month - i - 1) // 12 + (1 if (now.month - i - 1) < 0 else 0))
-        txs = db.query(Transacao).filter(
-            func.strftime('%m', Transacao.data) == f"{m:02d}",
-            func.strftime('%Y', Transacao.data) == str(a)
-        ).all()
+        txs = filtrar_mes(todas, m, a)
         resultado.append({
             "mes":      MESES_PT[m - 1],
-            "receitas": round(sum(t.valor for t in txs if str(t.tipo) == "receita"), 2),
-            "gastos":   round(sum(t.valor for t in txs if str(t.tipo) == "despesa"), 2),
+            "receitas": round(sum(t.valor for t in txs if str(t.tipo).replace("TipoTransacao.", "") == "receita"), 2),
+            "gastos":   round(sum(t.valor for t in txs if str(t.tipo).replace("TipoTransacao.", "") == "despesa"), 2),
         })
     return resultado
 
