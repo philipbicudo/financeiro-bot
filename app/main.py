@@ -6,7 +6,7 @@ import os
 
 from app.database import engine, Base
 from app.models import usuario, transacao
-from app.routers import transacoes, resumo, webhook, dashboard_router, usuarios, pagamentos, bot_vendas, ia_features
+from app.routers import transacoes, resumo, webhook, dashboard_router, usuarios, pagamentos, bot_vendas, ia_features, boas_vindas
 
 Base.metadata.create_all(bind=engine)
 
@@ -31,6 +31,7 @@ app.include_router(usuarios.router)
 app.include_router(pagamentos.router)
 app.include_router(bot_vendas.router)
 app.include_router(ia_features.router)
+app.include_router(boas_vindas.router)
 
 if os.path.exists("static"):
     app.mount("/static", StaticFiles(directory="static"), name="static")
