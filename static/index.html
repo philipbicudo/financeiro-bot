@@ -452,6 +452,12 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
           <button class="chip" onclick="filterTx('pendente',this)">Pendentes</button>
         </div>
       </div>
+      <div style="padding:10px 20px 8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--bg);">
+        <span style="font-size:0.48rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;flex-shrink:0;">🏷️ Categoria:</span>
+        <div class="cat-chips" id="cat-filter-chips">
+          <button class="cat-chip active" onclick="filterCat('all',this)">Todas</button>
+        </div>
+      </div>
       <div id="txList"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
     </div>
     <div class="right-col">
@@ -596,11 +602,15 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
         <button class="chip" onclick="filterTxPage('pendente',this)">Pendentes</button>
       </div>
     </div>
+    <div style="padding:10px 20px 8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--bg);">
+      <span style="font-size:0.48rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;flex-shrink:0;">🏷️ Categoria:</span>
+      <div class="cat-chips" id="cat-filter-chips-page">
+        <button class="cat-chip active" onclick="filterCatPage('all',this)">Todas</button>
+      </div>
+    </div>
     <div id="txPageList"><div class="loading"><div class="spinner"></div></div></div>
   </div>
 </div>
-
-<!-- ══ CARTÃO ══ -->
 <div id="page-cartao" class="page">
   <div class="page-head">
     <div><div class="page-greeting">Controle de crédito</div><div class="page-title">💳 Cartão de Crédito</div></div>
