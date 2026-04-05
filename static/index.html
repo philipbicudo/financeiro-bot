@@ -346,6 +346,26 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
 .tag.amber{background:var(--amber-bg);color:var(--amber);}
 .tag.blue{background:var(--blue-bg);color:var(--blue);}
 .tag.purple{background:var(--purple-bg);color:var(--purple);}
+
+/* ── CATEGORIAS CUSTOMIZADAS ── */
+.cat-custom-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:16px 20px;}
+.cat-custom-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:16px;position:relative;transition:all 0.15s;cursor:pointer;}
+.cat-custom-card:hover{border-color:var(--border-2);box-shadow:var(--shadow);}
+.cat-custom-card.active-filter{border-color:var(--midnight);background:var(--growth-light);}
+.cat-custom-icon{font-size:1.6rem;margin-bottom:8px;}
+.cat-custom-name{font-size:0.68rem;font-weight:700;color:var(--text);margin-bottom:3px;}
+.cat-custom-val{font-size:0.58rem;color:var(--text-3);}
+.cat-custom-actions{position:absolute;top:8px;right:8px;display:flex;gap:4px;opacity:0;transition:opacity 0.1s;}
+.cat-custom-card:hover .cat-custom-actions{opacity:1;}
+.cat-action-btn{width:22px;height:22px;border-radius:6px;border:none;cursor:pointer;font-size:0.6rem;display:flex;align-items:center;justify-content:center;transition:all 0.1s;}
+.cat-action-btn.edit{background:var(--blue-bg);color:var(--blue);}
+.cat-action-btn.del{background:var(--red-bg);color:var(--red);}
+.cat-action-btn:hover{transform:scale(1.1);}
+
+/* emoji picker */
+.emoji-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.emoji-opt{width:32px;height:32px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.1s;}
+.emoji-opt:hover,.emoji-opt.selected{border-color:var(--midnight);background:var(--growth-light);}
 </style>
 </head>
 <body>
@@ -536,29 +556,42 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
 <div id="page-categorias" class="page">
   <div class="page-head">
     <div><div class="page-greeting">Organização</div><div class="page-title">🏷️ Categorias</div></div>
-    <button class="add-btn green" onclick="openModal('modal-cat')">+ Nova categoria</button>
+    <button class="add-btn green" onclick="openModalCat()">+ Nova categoria</button>
   </div>
+
   <div class="stats" style="grid-template-columns:repeat(3,1fr)">
     <div class="stat"><div class="stat-top"><div class="stat-ico r">💸</div><span class="stat-delta ne">este mês</span></div><div class="stat-lbl">Maior gasto</div><div class="stat-val" id="cat-maior-nome" style="font-size:1rem">—</div><div class="stat-sub" id="cat-maior-val">—</div></div>
-    <div class="stat"><div class="stat-top"><div class="stat-ico b">📦</div><span class="stat-delta ne">categorias</span></div><div class="stat-lbl">Total usadas</div><div class="stat-val" id="cat-total">—</div><div class="stat-sub">categorias ativas</div></div>
+    <div class="stat"><div class="stat-top"><div class="stat-ico b">📦</div><span class="stat-delta ne">categorias</span></div><div class="stat-lbl">Total cadastradas</div><div class="stat-val" id="cat-total">—</div><div class="stat-sub">padrão + personalizadas</div></div>
     <div class="stat"><div class="stat-top"><div class="stat-ico a">📊</div><span class="stat-delta ne">média</span></div><div class="stat-lbl">Média por categoria</div><div class="stat-val" id="cat-media">—</div><div class="stat-sub">gasto médio</div></div>
   </div>
-  <div class="two-col">
-    <div class="panel">
-      <div class="panel-head"><div class="panel-title">Gastos por categoria</div><span class="panel-count">mês atual</span></div>
-      <div class="cats" id="cat-list-full"><div class="loading"><div class="spinner"></div></div></div>
+
+  <!-- Cards de categorias com gastos -->
+  <div class="panel" style="margin-bottom:18px">
+    <div class="panel-head">
+      <div class="panel-title">💰 Gastos do mês por categoria</div>
+      <span class="panel-count">clique para filtrar transações</span>
     </div>
+    <div class="cat-custom-grid" id="cat-cards-gastos"></div>
+  </div>
+
+  <div class="two-col">
+    <!-- Categorias cadastradas -->
     <div class="panel">
-      <div class="panel-head"><div class="panel-title">Distribuição visual</div></div>
+      <div class="panel-head">
+        <div class="panel-title">📋 Todas as categorias</div>
+        <button class="add-btn" style="font-size:0.55rem;padding:6px 14px" onclick="openModalCat()">+ Nova</button>
+      </div>
+      <div id="cat-table"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+
+    <!-- Donut chart -->
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">📊 Distribuição visual</div></div>
       <div class="donut-wrap">
         <svg id="donut-svg" width="120" height="120" viewBox="0 0 120 120"></svg>
         <div class="donut-legend" id="donut-legend"></div>
       </div>
     </div>
-  </div>
-  <div class="panel">
-    <div class="panel-head"><div class="panel-title">Categorias cadastradas</div><button class="add-btn" style="font-size:0.55rem;padding:6px 14px" onclick="openModal('modal-cat')">+ Nova</button></div>
-    <div id="cat-table"><div class="loading"><div class="spinner"></div></div></div>
   </div>
 </div>
 
@@ -820,9 +853,80 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
       <div class="form-group">
         <label class="form-label">Categoria</label>
         <select class="form-select" id="tx-cat">
-          <option>Alimentação</option><option>Moradia</option><option>Transporte</option>
-          <option>Saúde</option><option>Lazer</option><option>Educação</option>
-          <option>Salário</option><option>Outros</option>
+          <optgroup label="🍽️ Alimentação">
+            <option>Alimentação</option>
+            <option>Restaurante</option>
+            <option>Delivery</option>
+            <option>Padaria / Café</option>
+          </optgroup>
+          <optgroup label="🏠 Moradia">
+            <option>Moradia</option>
+            <option>Aluguel</option>
+            <option>Condomínio</option>
+            <option>Energia Elétrica</option>
+            <option>Água / Gás</option>
+            <option>Internet / TV</option>
+            <option>Reforma / Manutenção</option>
+          </optgroup>
+          <optgroup label="🚗 Transporte">
+            <option>Transporte</option>
+            <option>Combustível</option>
+            <option>Uber / Táxi</option>
+            <option>Ônibus / Metrô</option>
+            <option>Estacionamento</option>
+            <option>Manutenção do Carro</option>
+            <option>Seguro do Carro</option>
+          </optgroup>
+          <optgroup label="💊 Saúde">
+            <option>Saúde</option>
+            <option>Farmácia</option>
+            <option>Médico / Consulta</option>
+            <option>Plano de Saúde</option>
+            <option>Academia / Esporte</option>
+            <option>Dentista</option>
+            <option>Psicólogo / Terapia</option>
+          </optgroup>
+          <optgroup label="🎬 Lazer">
+            <option>Lazer</option>
+            <option>Streaming</option>
+            <option>Cinema / Teatro</option>
+            <option>Viagem</option>
+            <option>Jogos</option>
+            <option>Hobbies</option>
+          </optgroup>
+          <optgroup label="📚 Educação">
+            <option>Educação</option>
+            <option>Faculdade / Escola</option>
+            <option>Curso Online</option>
+            <option>Livros / Material</option>
+            <option>Idiomas</option>
+          </optgroup>
+          <optgroup label="👗 Pessoal">
+            <option>Roupas / Calçados</option>
+            <option>Beleza / Estética</option>
+            <option>Cuidados Pessoais</option>
+            <option>Pet / Animal</option>
+          </optgroup>
+          <optgroup label="💰 Finanças">
+            <option>Salário</option>
+            <option>Freelance / Renda Extra</option>
+            <option>Investimentos</option>
+            <option>Cartão de Crédito</option>
+            <option>Empréstimo / Financiamento</option>
+            <option>Seguro</option>
+            <option>Imposto / Taxa</option>
+          </optgroup>
+          <optgroup label="👶 Família">
+            <option>Filhos / Escola</option>
+            <option>Mesada</option>
+            <option>Presente / Doação</option>
+          </optgroup>
+          <optgroup label="📦 Outros">
+            <option>Compras Online</option>
+            <option>Eletrônicos</option>
+            <option>Assinatura</option>
+            <option>Outros</option>
+          </optgroup>
         </select>
       </div>
       <div class="form-group">
@@ -855,15 +959,70 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
 
 <!-- Modal Nova Categoria -->
 <div class="modal-overlay" id="modal-cat">
-  <div class="modal">
-    <div class="modal-title">+ Nova Categoria <button class="modal-close" onclick="closeModal('modal-cat')">✕</button></div>
-    <div class="form-group"><label class="form-label">Nome da categoria</label><input class="form-input" placeholder="Ex: Pets, Academia, Streaming..."></div>
+  <div class="modal" style="max-width:520px">
+    <div class="modal-title" id="modal-cat-title">+ Nova Categoria <button class="modal-close" onclick="closeModal('modal-cat')">✕</button></div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">Ícone</label><input class="form-input" placeholder="Emoji, ex: 🐕"></div>
-      <div class="form-group"><label class="form-label">Tipo</label><select class="form-select"><option>Despesa</option><option>Receita</option><option>Ambos</option></select></div>
+      <div class="form-group">
+        <label class="form-label">Nome da categoria</label>
+        <input class="form-input" id="cat-nome" placeholder="Ex: Pets, Academia, Streaming...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tipo</label>
+        <select class="form-select" id="cat-tipo">
+          <option value="despesa">💸 Despesa</option>
+          <option value="receita">💰 Receita</option>
+          <option value="ambos">🔄 Ambos</option>
+        </select>
+      </div>
     </div>
-    <div class="form-group"><label class="form-label">Limite mensal (opcional)</label><input class="form-input" type="number" placeholder="R$ 0,00"></div>
-    <div class="modal-btns"><button class="btn-cancel" onclick="closeModal('modal-cat')">Cancelar</button><button class="btn-save green">Criar categoria</button></div>
+    <div class="form-group">
+      <label class="form-label">Ícone — escolha ou digite</label>
+      <input class="form-input" id="cat-icone" placeholder="🐕" maxlength="4" style="font-size:1.2rem;text-align:center;width:80px">
+      <div class="emoji-grid" style="margin-top:8px">
+        <span class="emoji-opt" onclick="selectEmoji(this,'🛒')">🛒</span>
+        <span class="emoji-opt" onclick="selectEmoji(this,'🏠')">🏠</span>
+        <span class="emoji-opt" onclick="selectEmoji(this,'🚗')">🚗</span>
+        <span class="emoji-opt" onclick="selectEmoji(this,'💊')">💊</span>
+        <span class="emoji-opt" onclick="selectEmoji(this,'🎬')">🎬</span>
+        <span class="emoji-opt" onclick="selectEmoji(this,'📚')">📚</span>
+        <span class="emoji-opt" onclick="selectEmoji(this,'🐕')">🐕</span>
+        <span class="emoji-opt" onclick="selectEmoji(this,'💪')">💪</span>
+        <span class="emoji-opt" onclick="selectEmoji(this,'✈️')">✈️</span>
+        <span class="emoji-opt" onclick="selectEmoji(this,'🎮')">🎮</span>
+        <span class="emoji-opt" onclick="selectEmoji(this,'👗')">👗</span>
+        <span class="emoji-opt" onclick="selectEmoji(this,'🍕')">🍕</span>
+        <span class="emoji-opt" onclick="selectEmoji(this,'☕')">☕</span>
+        <span class="emoji-opt" onclick="selectEmoji(this,'🎵')">🎵</span>
+        <span class="emoji-opt" onclick="selectEmoji(this,'🏋️')">🏋️</span>
+        <span class="emoji-opt" onclick="selectEmoji(this,'💈')">💈</span>
+        <span class="emoji-opt" onclick="selectEmoji(this,'👶')">👶</span>
+        <span class="emoji-opt" onclick="selectEmoji(this,'🌱')">🌱</span>
+        <span class="emoji-opt" onclick="selectEmoji(this,'💻')">💻</span>
+        <span class="emoji-opt" onclick="selectEmoji(this,'📦')">📦</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Cor</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap" id="cat-cores">
+        <div class="color-opt" onclick="selectColor2(this,'#22c55e')" style="width:28px;height:28px;border-radius:50%;background:#22c55e;cursor:pointer;border:2px solid transparent;"></div>
+        <div class="color-opt" onclick="selectColor2(this,'#3b82f6')" style="width:28px;height:28px;border-radius:50%;background:#3b82f6;cursor:pointer;border:2px solid transparent;"></div>
+        <div class="color-opt" onclick="selectColor2(this,'#a855f7')" style="width:28px;height:28px;border-radius:50%;background:#a855f7;cursor:pointer;border:2px solid transparent;"></div>
+        <div class="color-opt" onclick="selectColor2(this,'#f59e0b')" style="width:28px;height:28px;border-radius:50%;background:#f59e0b;cursor:pointer;border:2px solid transparent;"></div>
+        <div class="color-opt" onclick="selectColor2(this,'#ef4444')" style="width:28px;height:28px;border-radius:50%;background:#ef4444;cursor:pointer;border:2px solid transparent;"></div>
+        <div class="color-opt" onclick="selectColor2(this,'#06b6d4')" style="width:28px;height:28px;border-radius:50%;background:#06b6d4;cursor:pointer;border:2px solid transparent;"></div>
+        <div class="color-opt" onclick="selectColor2(this,'#111827')" style="width:28px;height:28px;border-radius:50%;background:#111827;cursor:pointer;border:2px solid transparent;"></div>
+        <div class="color-opt" onclick="selectColor2(this,'#64748b')" style="width:28px;height:28px;border-radius:50%;background:#64748b;cursor:pointer;border:2px solid transparent;"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Limite mensal (opcional)</label>
+      <input class="form-input" id="cat-limite" type="number" placeholder="R$ 0,00 — deixe vazio se não quiser limite">
+    </div>
+    <input type="hidden" id="cat-edit-nome">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-cat')">Cancelar</button>
+      <button class="btn-save green" onclick="salvarCategoria()">Salvar categoria</button>
+    </div>
   </div>
 </div>
 
@@ -909,7 +1068,26 @@ const API = 'https://financeiro-bot-production-571e.up.railway.app';
 const fmt = v => 'R$ ' + Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const DIAS  = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
-const CAT_ICONS = {'alimentação':'🛒','moradia':'🏠','transporte':'🚗','lazer':'🎬','saúde':'💊','educação':'📚','salário':'💼','outros':'📦','casa':'🏠','renda':'💰'};
+const CAT_ICONS = {
+  'alimentação':'🛒','restaurante':'🍽️','delivery':'🛵','padaria / café':'☕',
+  'moradia':'🏠','aluguel':'🏠','condomínio':'🏢','energia elétrica':'💡',
+  'água / gás':'🚿','internet / tv':'📡','reforma / manutenção':'🔧',
+  'transporte':'🚗','combustível':'⛽','uber / táxi':'🚕','ônibus / metrô':'🚌',
+  'estacionamento':'🅿️','manutenção do carro':'🔧','seguro do carro':'🚘',
+  'saúde':'💊','farmácia':'💊','médico / consulta':'👨‍⚕️','plano de saúde':'🏥',
+  'academia / esporte':'💪','dentista':'🦷','psicólogo / terapia':'🧠',
+  'lazer':'🎬','streaming':'📺','cinema / teatro':'🎭','viagem':'✈️',
+  'jogos':'🎮','hobbies':'🎨',
+  'educação':'📚','faculdade / escola':'🎓','curso online':'💻',
+  'livros / material':'📖','idiomas':'🌎',
+  'roupas / calçados':'👗','beleza / estética':'💄','cuidados pessoais':'🧴','pet / animal':'🐾',
+  'salário':'💼','freelance / renda extra':'💻','investimentos':'📈',
+  'cartão de crédito':'💳','empréstimo / financiamento':'🏦',
+  'seguro':'🛡️','imposto / taxa':'📋',
+  'filhos / escola':'👶','mesada':'💰','presente / doação':'🎁',
+  'compras online':'🛍️','eletrônicos':'📱','assinatura':'🔄',
+  'casa':'🏠','renda':'💰','outros':'📦'
+};
 const CAT_COLORS = {'moradia':'#3b82f6','alimentação':'#22c55e','lazer':'#a855f7','saúde':'#f59e0b','transporte':'#64748b','educação':'#06b6d4','salário':'#22c55e','renda':'#22c55e','outros':'#94a3b8','casa':'#3b82f6'};
 
 let allTx = [];
@@ -1095,31 +1273,207 @@ async function loadRelatorios(mes) {
 }
 
 // ── CATEGORIAS PAGE ──
+// ── CATEGORIAS PERSONALIZADAS (localStorage) ──
+function getCatsCustom() {
+  return JSON.parse(localStorage.getItem('finia_cats') || '[]');
+}
+function saveCatsCustom(cats) {
+  localStorage.setItem('finia_cats', JSON.stringify(cats));
+}
+
+// Categorias padrão do sistema
+const CATS_PADRAO = [
+  { nome:'Alimentação', icone:'🛒', cor:'#22c55e', tipo:'despesa' },
+  { nome:'Moradia',     icone:'🏠', cor:'#3b82f6', tipo:'despesa' },
+  { nome:'Transporte',  icone:'🚗', cor:'#64748b', tipo:'despesa' },
+  { nome:'Saúde',       icone:'💊', cor:'#f59e0b', tipo:'despesa' },
+  { nome:'Lazer',       icone:'🎬', cor:'#a855f7', tipo:'despesa' },
+  { nome:'Educação',    icone:'📚', cor:'#06b6d4', tipo:'despesa' },
+  { nome:'Salário',     icone:'💼', cor:'#22c55e', tipo:'receita' },
+  { nome:'Outros',      icone:'📦', cor:'#94a3b8', tipo:'ambos'   },
+];
+
+function getAllCats() {
+  const custom = getCatsCustom();
+  return [...CATS_PADRAO, ...custom];
+}
+
+function getCatInfo(nome) {
+  const all = getAllCats();
+  return all.find(c => c.nome.toLowerCase() === nome.toLowerCase()) ||
+         { nome, icone:'📦', cor:'#94a3b8', tipo:'ambos' };
+}
+
 async function loadCategorias() {
-  const cats = await loadCats('cat-list-full') || [];
-  if(!cats.length) return;
-  const total = cats.reduce((s,c)=>s+c.total,0);
-  const maior = cats[0];
+  const catsGasto = await loadCats('cat-list-full') || [];
+  const allCats   = getAllCats();
+  const custom    = getCatsCustom();
+
+  const total = catsGasto.reduce((s,c)=>s+c.total,0);
+  const maior = catsGasto[0];
   document.getElementById('cat-maior-nome').textContent = maior?.categoria || '—';
-  document.getElementById('cat-maior-val').textContent = maior ? fmt(maior.total) : '—';
-  document.getElementById('cat-total').textContent = cats.length;
-  document.getElementById('cat-media').textContent = fmt(total / cats.length);
+  document.getElementById('cat-maior-val').textContent  = maior ? fmt(maior.total) : '—';
+  document.getElementById('cat-total').textContent  = allCats.length;
+  document.getElementById('cat-media').textContent  = catsGasto.length ? fmt(total / catsGasto.length) : '—';
 
-  // Donut
-  drawDonut(cats);
+  drawDonut(catsGasto);
+  renderCatCards(catsGasto);
+  renderCatTable(allCats, catsGasto);
+}
 
-  // Tabela
-  document.getElementById('cat-table').innerHTML = cats.map(c => {
-    const icon = CAT_ICONS[(c.categoria||'').toLowerCase()]||'📦';
-    const color = CAT_COLORS[(c.categoria||'').toLowerCase()]||'#94a3b8';
-    return `<div class="tx-item">
-      <div class="tx-ico" style="background:${color}20">${icon}</div>
-      <div><div class="tx-name">${c.categoria}</div><div class="tx-meta"><span>${c.percentual}% dos gastos</span></div></div>
-      <div></div>
-      <div class="tx-amt despesa">− ${fmt(c.total)}</div>
-      <span class="tag" style="background:${color}20;color:${color}">${c.percentual}%</span>
+function renderCatCards(catsGasto) {
+  const allCats = getAllCats();
+  const gastoMap = {};
+  catsGasto.forEach(c => { gastoMap[c.categoria.toLowerCase()] = c; });
+
+  const el = document.getElementById('cat-cards-gastos');
+  if(!catsGasto.length) {
+    el.innerHTML = '<div class="empty-msg">Nenhum gasto registrado este mês.</div>';
+    return;
+  }
+
+  el.innerHTML = catsGasto.map(c => {
+    const info = getCatInfo(c.categoria);
+    return `
+    <div class="cat-custom-card" onclick="filtrarPorCategoria('${c.categoria}')" title="Filtrar por ${c.categoria}">
+      <div class="cat-custom-icon">${info.icone}</div>
+      <div class="cat-custom-name">${c.categoria}</div>
+      <div class="cat-custom-val">${fmt(c.total)}</div>
+      <div style="margin-top:8px">
+        <div style="height:4px;background:var(--bg);border-radius:2px;overflow:hidden">
+          <div style="height:100%;width:${c.percentual}%;background:${info.cor};border-radius:2px"></div>
+        </div>
+        <div style="font-size:0.42rem;color:var(--text-3);margin-top:3px">${c.percentual}% dos gastos</div>
+      </div>
     </div>`;
   }).join('');
+}
+
+function renderCatTable(allCats, catsGasto) {
+  const custom  = getCatsCustom();
+  const gastoMap = {};
+  catsGasto.forEach(c => { gastoMap[c.categoria.toLowerCase()] = c; });
+
+  document.getElementById('cat-table').innerHTML = allCats.map(c => {
+    const gasto   = gastoMap[c.nome.toLowerCase()];
+    const isPadrao = CATS_PADRAO.some(p => p.nome === c.nome);
+    return `<div class="tx-item">
+      <div class="tx-ico" style="background:${c.cor}20">${c.icone}</div>
+      <div>
+        <div class="tx-name">${c.nome} ${isPadrao ? '<span style="font-size:0.42rem;color:var(--text-4);font-weight:400">padrão</span>' : '<span style="font-size:0.42rem;color:var(--growth-mid);font-weight:600">✦ personalizada</span>'}</div>
+        <div class="tx-meta">
+          <span style="text-transform:capitalize">${c.tipo}</span>
+          ${c.limite ? `<span>Limite: ${fmt(c.limite)}/mês</span>` : ''}
+        </div>
+      </div>
+      <div></div>
+      <div class="tx-amt despesa">${gasto ? '− '+fmt(gasto.total) : '—'}</div>
+      <div style="display:flex;gap:5px;align-items:center">
+        <button class="cat-action-btn edit" onclick="editarCat('${c.nome}')" title="Editar">✏️</button>
+        ${!isPadrao ? `<button class="cat-action-btn del" onclick="deletarCat('${c.nome}')" title="Excluir">🗑️</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filtrarPorCategoria(cat) {
+  showPage('transacoes-page');
+  currentCatPage = cat;
+  renderTxPage('all');
+  document.querySelectorAll('#cat-filter-chips-page .cat-chip').forEach(b => {
+    b.classList.toggle('active', b.textContent.includes(cat));
+  });
+}
+
+// ── MODAL CATEGORIA ──
+let catSelectedColor = '#22c55e';
+let catEditNome = null;
+
+function openModalCat(editNome=null) {
+  catEditNome = editNome;
+  catSelectedColor = '#22c55e';
+  document.getElementById('cat-nome').value   = '';
+  document.getElementById('cat-icone').value  = '';
+  document.getElementById('cat-limite').value = '';
+  document.getElementById('cat-edit-nome').value = '';
+  document.querySelectorAll('.emoji-opt').forEach(e => e.classList.remove('selected'));
+  document.querySelectorAll('.color-opt').forEach(e => e.style.borderColor = 'transparent');
+
+  if(editNome) {
+    const all = getAllCats();
+    const cat = all.find(c => c.nome === editNome);
+    if(cat) {
+      document.getElementById('cat-nome').value   = cat.nome;
+      document.getElementById('cat-icone').value  = cat.icone;
+      document.getElementById('cat-limite').value = cat.limite || '';
+      document.getElementById('cat-tipo').value   = cat.tipo || 'despesa';
+      document.getElementById('cat-edit-nome').value = cat.nome;
+      catSelectedColor = cat.cor;
+      document.getElementById('modal-cat-title').innerHTML = `✏️ Editar Categoria <button class="modal-close" onclick="closeModal('modal-cat')">✕</button>`;
+    }
+  } else {
+    document.getElementById('modal-cat-title').innerHTML = `+ Nova Categoria <button class="modal-close" onclick="closeModal('modal-cat')">✕</button>`;
+  }
+  openModal('modal-cat');
+}
+
+function editarCat(nome) {
+  const isPadrao = CATS_PADRAO.some(p => p.nome === nome);
+  if(isPadrao) { alert('As categorias padrão não podem ser editadas, mas você pode criar uma nova personalizada!'); return; }
+  openModalCat(nome);
+}
+
+function deletarCat(nome) {
+  if(!confirm(`Excluir a categoria "${nome}"? As transações com essa categoria não serão afetadas.`)) return;
+  const custom = getCatsCustom().filter(c => c.nome !== nome);
+  saveCatsCustom(custom);
+  loadCategorias();
+  buildCatChips();
+}
+
+function selectEmoji(el, emoji) {
+  document.querySelectorAll('.emoji-opt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('cat-icone').value = emoji;
+}
+
+function selectColor2(el, color) {
+  document.querySelectorAll('.color-opt').forEach(e => e.style.borderColor = 'transparent');
+  el.style.borderColor = color;
+  el.style.borderWidth = '3px';
+  catSelectedColor = color;
+}
+
+function salvarCategoria() {
+  const nome   = document.getElementById('cat-nome').value.trim();
+  const icone  = document.getElementById('cat-icone').value.trim() || '📦';
+  const tipo   = document.getElementById('cat-tipo').value;
+  const limite = parseFloat(document.getElementById('cat-limite').value) || null;
+  const editNome = document.getElementById('cat-edit-nome').value;
+
+  if(!nome) { alert('Informe o nome da categoria!'); return; }
+
+  const custom = getCatsCustom();
+  const isPadrao = CATS_PADRAO.some(p => p.nome.toLowerCase() === nome.toLowerCase());
+  if(isPadrao && !editNome) { alert('Já existe uma categoria padrão com esse nome!'); return; }
+
+  if(editNome) {
+    const idx = custom.findIndex(c => c.nome === editNome);
+    if(idx >= 0) {
+      custom[idx] = { nome, icone, cor: catSelectedColor, tipo, limite };
+    } else {
+      custom.push({ nome, icone, cor: catSelectedColor, tipo, limite });
+    }
+  } else {
+    const existeCustom = custom.some(c => c.nome.toLowerCase() === nome.toLowerCase());
+    if(existeCustom) { alert('Já existe uma categoria personalizada com esse nome!'); return; }
+    custom.push({ nome, icone, cor: catSelectedColor, tipo, limite });
+  }
+
+  saveCatsCustom(custom);
+  closeModal('modal-cat');
+  loadCategorias();
+  buildCatChips();
 }
 
 function drawDonut(cats) {
@@ -1357,18 +1711,16 @@ async function toggleStatus(id, currentStatus, btn) {
 
 // ── CATEGORY FILTER CHIPS ──
 function buildCatChips() {
-  const cats = [...new Set(allTx.map(t => t.categoria || 'Outros'))].sort();
-  const CAT_ICONS_MAP = {'alimentação':'🛒','moradia':'🏠','transporte':'🚗','lazer':'🎬','saúde':'💊','educação':'📚','salário':'💼','outros':'📦','casa':'🏠','renda':'💰'};
-  
-  const chipsEl = document.getElementById('cat-filter-chips');
+  const txCats = [...new Set(allTx.map(t => t.categoria || 'Outros'))].sort();
+  const chipsEl     = document.getElementById('cat-filter-chips');
   const chipsPageEl = document.getElementById('cat-filter-chips-page');
-  
+
   const buildHtml = (onClick) => `<button class="cat-chip active" onclick="${onClick}('all',this)">Todas</button>` +
-    cats.map(c => {
-      const icon = CAT_ICONS_MAP[c.toLowerCase()] || '📦';
-      return `<button class="cat-chip" onclick="${onClick}('${c}',this)">${icon} ${c}</button>`;
+    txCats.map(c => {
+      const info = getCatInfo(c);
+      return `<button class="cat-chip" onclick="${onClick}('${c}',this)">${info.icone} ${c}</button>`;
     }).join('');
-  
+
   if(chipsEl) chipsEl.innerHTML = buildHtml('filterCat');
   if(chipsPageEl) chipsPageEl.innerHTML = buildHtml('filterCatPage');
 }
