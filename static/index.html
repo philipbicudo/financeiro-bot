@@ -115,6 +115,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .panel-title{font-family:'Lora',serif;font-weight:700;font-size:0.82rem;color:var(--text);display:flex;align-items:center;gap:7px;}
 .panel-count{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.48rem;font-weight:600;color:var(--text-3);background:var(--bg);border:1px solid var(--border);padding:2px 8px;border-radius:20px;}
 .chips{display:flex;gap:4px;}
+.cat-chips{display:flex;gap:4px;flex-wrap:wrap;}
+.cat-chip{padding:4px 11px;border-radius:20px;font-size:0.5rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text-3);transition:all 0.1s;}
+.cat-chip.active{border-color:var(--midnight);color:var(--midnight);background:var(--slate-light);}
 .chip{padding:4px 11px;border-radius:20px;font-size:0.5rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text-3);transition:all 0.1s;}
 .chip.active{background:var(--midnight);border-color:var(--midnight);color:white;}
 
@@ -901,6 +904,8 @@ const CAT_COLORS = {'moradia':'#3b82f6','alimentação':'#22c55e','lazer':'#a855
 
 let allTx = [];
 let currentFilter = 'all';
+let currentCat = 'all';
+let currentCatPage = 'all';
 
 const now = new Date();
 document.getElementById('date-label').textContent = `${DIAS[now.getDay()]}, ${now.getDate()} de ${MESES[now.getMonth()]} de ${now.getFullYear()}`;
@@ -965,6 +970,7 @@ async function loadTransacoes() {
     const pendentes = allTx.filter(t => t.status === 'nao_pago' || t.status === 'pendente');
     document.getElementById('tx-count').textContent = `${allTx.length} registros`;
     document.getElementById('sb-badge-tx').textContent = allTx.length;
+    buildCatChips();
     document.getElementById('sb-badge-pend').textContent = pendentes.length;
     document.getElementById('pend-count').textContent = `${pendentes.length} pendente${pendentes.length!==1?'s':''} · ${fmt(pendentes.reduce((s,t)=>s+t.valor,0))}`;
     document.getElementById('txp-pend').textContent = pendentes.length;
@@ -978,12 +984,13 @@ async function loadTransacoes() {
 // ── RENDER TX ──
 function renderTx(filter, listId='txList') {
   currentFilter = filter;
-  const filtered = allTx.filter(t =>
+  let filtered = allTx.filter(t =>
     filter==='all' ? true :
     filter==='despesa' ? t.tipo==='despesa' :
     filter==='receita' ? t.tipo==='receita' :
     t.status==='nao_pago'||t.status==='pendente'
   );
+  if(currentCat !== 'all') filtered = filtered.filter(t => (t.categoria||'Outros').toLowerCase() === currentCat.toLowerCase());
   if(!filtered.length){ document.getElementById(listId).innerHTML='<div class="empty-msg">Nenhuma transação encontrada.</div>'; return; }
   document.getElementById(listId).innerHTML = filtered.map((t,i) => {
     const icon = CAT_ICONS[(t.categoria||'').toLowerCase()]||'📦';
@@ -1160,12 +1167,13 @@ function loadTxPage() {
 }
 
 function renderTxPage(filter) {
-  const filtered = allTx.filter(t =>
+  let filtered = allTx.filter(t =>
     filter==='all' ? true :
     filter==='despesa' ? t.tipo==='despesa' :
     filter==='receita' ? t.tipo==='receita' :
     t.status==='nao_pago'||t.status==='pendente'
   );
+  if(currentCatPage !== 'all') filtered = filtered.filter(t => (t.categoria||'Outros').toLowerCase() === currentCatPage.toLowerCase());
   const el = document.getElementById('txPageList');
   if(!filtered.length){ el.innerHTML='<div class="empty-msg">Nenhuma transação encontrada.</div>'; return; }
   el.innerHTML = filtered.map((t,i) => {
@@ -1335,6 +1343,38 @@ async function toggleStatus(id, currentStatus, btn) {
     btn.disabled = false;
     btn.textContent = currentStatus === 'pago' ? '✓ Pago' : '⏳ A pagar';
   }
+}
+
+// ── CATEGORY FILTER CHIPS ──
+function buildCatChips() {
+  const cats = [...new Set(allTx.map(t => t.categoria || 'Outros'))].sort();
+  const CAT_ICONS_MAP = {'alimentação':'🛒','moradia':'🏠','transporte':'🚗','lazer':'🎬','saúde':'💊','educação':'📚','salário':'💼','outros':'📦','casa':'🏠','renda':'💰'};
+  
+  const chipsEl = document.getElementById('cat-filter-chips');
+  const chipsPageEl = document.getElementById('cat-filter-chips-page');
+  
+  const buildHtml = (onClick) => `<button class="cat-chip active" onclick="${onClick}('all',this)">Todas</button>` +
+    cats.map(c => {
+      const icon = CAT_ICONS_MAP[c.toLowerCase()] || '📦';
+      return `<button class="cat-chip" onclick="${onClick}('${c}',this)">${icon} ${c}</button>`;
+    }).join('');
+  
+  if(chipsEl) chipsEl.innerHTML = buildHtml('filterCat');
+  if(chipsPageEl) chipsPageEl.innerHTML = buildHtml('filterCatPage');
+}
+
+function filterCat(cat, btn) {
+  currentCat = cat;
+  document.querySelectorAll('#cat-filter-chips .cat-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTx(currentFilter);
+}
+
+function filterCatPage(cat, btn) {
+  currentCatPage = cat;
+  document.querySelectorAll('#cat-filter-chips-page .cat-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTxPage(currentFilter);
 }
 
 // ── INIT ──
