@@ -2,6 +2,11 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(self), geolocation=()">
+<meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>finia — Gestão Financeira</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -194,6 +199,12 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .pay-btn{margin-left:8px;padding:5px 11px;border-radius:6px;font-size:0.45rem;font-weight:700;background:var(--growth);color:white;border:none;cursor:pointer;transition:all 0.1s;white-space:nowrap;}
 .pay-btn:hover{background:var(--growth-mid);}
 .pay-btn:disabled{background:var(--growth-light);color:var(--growth-mid);cursor:default;}
+.tx-actions{display:flex;align-items:center;gap:4px;margin-left:auto;}
+.tx-action-btn{width:26px;height:26px;border-radius:6px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.65rem;transition:all 0.1s;flex-shrink:0;}
+.tx-action-btn.edit{background:var(--blue-bg);color:var(--blue);}
+.tx-action-btn.edit:hover{background:var(--blue);color:white;}
+.tx-action-btn.del{background:var(--red-bg);color:var(--red);}
+.tx-action-btn.del:hover{background:var(--red);color:white;}
 
 /* WHATSAPP */
 .wpp{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;}
@@ -1197,6 +1208,72 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
   </div>
 </div>
 
+<!-- Modal Editar Transação -->
+<div class="modal-overlay" id="modal-edit">
+  <div class="modal">
+    <div class="modal-title">✏️ Editar Transação <button class="modal-close" onclick="closeModal('modal-edit')">✕</button></div>
+    <input type="hidden" id="edit-id">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Tipo</label>
+        <select class="form-select" id="edit-tipo">
+          <option value="despesa">💸 Despesa</option>
+          <option value="receita">💰 Receita</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Valor (R$)</label>
+        <input class="form-input" type="number" id="edit-valor" step="0.01">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descrição</label>
+      <input class="form-input" id="edit-desc" placeholder="Descrição da transação" maxlength="200">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Categoria</label>
+        <select class="form-select" id="edit-cat">
+          <optgroup label="🍽️ Alimentação"><option>Alimentação</option><option>Restaurante</option><option>Delivery</option><option>Padaria / Café</option></optgroup>
+          <optgroup label="🏠 Moradia"><option>Moradia</option><option>Aluguel</option><option>Condomínio</option><option>Energia Elétrica</option><option>Água / Gás</option><option>Internet / TV</option><option>Reforma / Manutenção</option></optgroup>
+          <optgroup label="🚗 Transporte"><option>Transporte</option><option>Combustível</option><option>Uber / Táxi</option><option>Ônibus / Metrô</option><option>Estacionamento</option><option>Manutenção do Carro</option></optgroup>
+          <optgroup label="💊 Saúde"><option>Saúde</option><option>Farmácia</option><option>Médico / Consulta</option><option>Plano de Saúde</option><option>Academia / Esporte</option><option>Dentista</option><option>Psicólogo / Terapia</option></optgroup>
+          <optgroup label="🎬 Lazer"><option>Lazer</option><option>Streaming</option><option>Cinema / Teatro</option><option>Viagem</option><option>Jogos</option><option>Hobbies</option></optgroup>
+          <optgroup label="📚 Educação"><option>Educação</option><option>Faculdade / Escola</option><option>Curso Online</option><option>Livros / Material</option><option>Idiomas</option></optgroup>
+          <optgroup label="👗 Pessoal"><option>Roupas / Calçados</option><option>Beleza / Estética</option><option>Cuidados Pessoais</option><option>Pet / Animal</option></optgroup>
+          <optgroup label="💰 Finanças"><option>Salário</option><option>Freelance / Renda Extra</option><option>Investimentos</option><option>Cartão de Crédito</option><option>Empréstimo / Financiamento</option><option>Seguro</option><option>Imposto / Taxa</option></optgroup>
+          <optgroup label="👶 Família"><option>Filhos / Escola</option><option>Mesada</option><option>Presente / Doação</option></optgroup>
+          <optgroup label="📦 Outros"><option>Compras Online</option><option>Eletrônicos</option><option>Assinatura</option><option>Outros</option></optgroup>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Forma de pagamento</label>
+        <select class="form-select" id="edit-metodo">
+          <option>PIX</option><option>Cartão de Crédito</option><option>Cartão de Débito</option>
+          <option>Boleto</option><option>TED</option><option>Dinheiro</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-select" id="edit-status">
+          <option value="pago">✅ Pago / Recebido</option>
+          <option value="nao_pago">⏳ A pagar</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Data</label>
+        <input class="form-input" type="date" id="edit-data">
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-edit')">Cancelar</button>
+      <button class="btn-save green" onclick="salvarEdicao()">💾 Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal Nova Categoria -->
 <div class="modal-overlay" id="modal-cat">
   <div class="modal" style="max-width:520px">
@@ -1461,12 +1538,16 @@ function renderTx(filter, listId='txList') {
     const isPago = t.status === 'pago';
     return `<div class="tx-item" style="animation-delay:${i*15}ms" id="tx-row-${t.id}">
       <div class="tx-ico ${t.tipo}">${icon}</div>
-      <div><div class="tx-name">${t.descricao}</div><div class="tx-meta"><span>${t.data}</span><span class="tx-cat">${t.categoria||'Outros'}</span><span style="color:var(--text-4)">${t.forma_pag||'PIX'}</span></div></div>
+      <div><div class="tx-name">${escHtml(t.descricao)}</div><div class="tx-meta"><span>${t.data}</span><span class="tx-cat">${escHtml(t.categoria||'Outros')}</span><span style="color:var(--text-4)">${escHtml(t.forma_pag||'PIX')}</span></div></div>
       <div class="tx-date">${t.data}</div>
       <div class="tx-amt ${t.tipo}">${t.tipo==='receita'?'+':'−'} ${fmt(t.valor)}</div>
       <button class="tx-status tx-status-btn ${t.status}" onclick="toggleStatus(${t.id}, '${t.status}', this)" title="Clique para alterar status">
         ${isPago ? '✓ Pago' : '⏳ A pagar'}
       </button>
+      <div class="tx-actions">
+        <button class="tx-action-btn edit" onclick="abrirEditar(${t.id})" title="Editar">✏️</button>
+        <button class="tx-action-btn del" onclick="confirmarDeletar(${t.id}, '${escHtml(t.descricao)}')" title="Excluir">🗑️</button>
+      </div>
     </div>`;
   }).join('');
 }
@@ -1484,9 +1565,11 @@ function renderPendentes(pendentes) {
     const icon = CAT_ICONS[(t.categoria||'').toLowerCase()]||'📋';
     return `<div class="pend-item" id="pend-${t.id}">
       <div class="pend-ico">${icon}</div>
-      <div><div class="pend-name">${t.descricao}</div><div class="pend-due">${t.data} · ${t.forma_pag||'PIX'}</div></div>
+      <div style="flex:1;min-width:0"><div class="pend-name">${escHtml(t.descricao)}</div><div class="pend-due">${t.data} · ${escHtml(t.categoria||'Outros')} · ${escHtml(t.forma_pag||'PIX')}</div></div>
       <div class="pend-amt">${fmt(t.valor)}</div>
-      <button class="pay-btn" onclick="marcarPago(${t.id},this)">Marcar pago</button>
+      <button class="pay-btn" onclick="marcarPago(${t.id},this)">✓ Pago</button>
+      <button class="tx-action-btn edit" onclick="abrirEditar(${t.id})" title="Editar" style="margin-left:4px">✏️</button>
+      <button class="tx-action-btn del" onclick="confirmarDeletar(${t.id}, '${escHtml(t.descricao)}')" title="Excluir" style="margin-left:2px">🗑️</button>
     </div>`;
   }).join('');
 }
@@ -1821,12 +1904,16 @@ function renderTxPage(filter) {
     const isPago = t.status === 'pago';
     return `<div class="tx-item" style="animation-delay:${i*10}ms" id="tx-row-${t.id}">
       <div class="tx-ico ${t.tipo}">${icon}</div>
-      <div><div class="tx-name">${t.descricao}</div><div class="tx-meta"><span>${t.data}</span><span class="tx-cat">${t.categoria||'Outros'}</span><span style="color:var(--text-4)">${t.forma_pag||'PIX'}</span></div></div>
+      <div><div class="tx-name">${escHtml(t.descricao)}</div><div class="tx-meta"><span>${t.data}</span><span class="tx-cat">${escHtml(t.categoria||'Outros')}</span><span style="color:var(--text-4)">${escHtml(t.forma_pag||'PIX')}</span></div></div>
       <div class="tx-date">${t.data}</div>
       <div class="tx-amt ${t.tipo}">${t.tipo==='receita'?'+':'−'} ${fmt(t.valor)}</div>
       <button class="tx-status tx-status-btn ${t.status}" onclick="toggleStatus(${t.id}, '${t.status}', this)" title="Clique para alterar status">
         ${isPago ? '✓ Pago' : '⏳ A pagar'}
       </button>
+      <div class="tx-actions">
+        <button class="tx-action-btn edit" onclick="abrirEditar(${t.id})" title="Editar">✏️</button>
+        <button class="tx-action-btn del" onclick="confirmarDeletar(${t.id}, '${escHtml(t.descricao)}')" title="Excluir">🗑️</button>
+      </div>
     </div>`;
   }).join('');
 }
@@ -1844,12 +1931,17 @@ function searchTx(val) {
   if(!filtered.length){ el.innerHTML='<div class="empty-msg">Nenhum resultado.</div>'; return; }
   el.innerHTML = filtered.map(t => {
     const icon = CAT_ICONS[(t.categoria||'').toLowerCase()]||'📦';
-    return `<div class="tx-item">
+    const isPago = t.status === 'pago';
+    return `<div class="tx-item" id="tx-row-${t.id}">
       <div class="tx-ico ${t.tipo}">${icon}</div>
-      <div><div class="tx-name">${t.descricao}</div><div class="tx-meta"><span>${t.data}</span><span class="tx-cat">${t.categoria||'Outros'}</span></div></div>
+      <div><div class="tx-name">${escHtml(t.descricao)}</div><div class="tx-meta"><span>${t.data}</span><span class="tx-cat">${escHtml(t.categoria||'Outros')}</span></div></div>
       <div class="tx-date">${t.data}</div>
       <div class="tx-amt ${t.tipo}">${t.tipo==='receita'?'+':'−'} ${fmt(t.valor)}</div>
-      <span class="tx-status ${t.status}">${t.status==='pago'?'✓ Pago':'⏳ A pagar'}</span>
+      <button class="tx-status tx-status-btn ${t.status}" onclick="toggleStatus(${t.id}, '${t.status}', this)">${isPago?'✓ Pago':'⏳ A pagar'}</button>
+      <div class="tx-actions">
+        <button class="tx-action-btn edit" onclick="abrirEditar(${t.id})" title="Editar">✏️</button>
+        <button class="tx-action-btn del" onclick="confirmarDeletar(${t.id}, '${escHtml(t.descricao)}')" title="Excluir">🗑️</button>
+      </div>
     </div>`;
   }).join('');
 }
@@ -1882,16 +1974,17 @@ function loadMetas() {
 
 // ── SALVAR TX ──
 async function salvarTx() {
-  const desc = document.getElementById('tx-desc').value;
-  const valor = document.getElementById('tx-valor').value;
-  if(!desc||!valor){ alert('Preencha descrição e valor!'); return; }
+  const desc = (document.getElementById('tx-desc').value || '').trim().substring(0, 200);
+  const valor = parseFloat(document.getElementById('tx-valor').value);
+  if(!desc)          { alert('Preencha a descrição!'); return; }
+  if(!valor||valor<=0){ alert('Informe um valor válido!'); return; }
   try {
     await fetch(`${API}/transacoes/`,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         descricao: desc,
-        valor: parseFloat(valor),
+        valor: valor,
         tipo: document.getElementById('tx-tipo').value,
         categoria: document.getElementById('tx-cat').value,
         metodo: document.getElementById('tx-metodo').value,
@@ -2198,6 +2291,130 @@ function downgradeGratis() {
 function abrirUpgrade() { window.open('/landing.html', '_blank'); }
 function atualizarCartao() { alert('Para atualizar o cartão, acesse o app do Mercado Pago ou entre em contato com o suporte.'); }
 function baixarRecibo() { alert('Recibo em PDF disponível em breve! Por enquanto, o comprovante é enviado pelo WhatsApp.'); }
+
+// ── SEGURANÇA — escape HTML para prevenir XSS ──
+function escHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+// ── EDITAR TRANSAÇÃO ──
+function abrirEditar(id) {
+  const tx = allTx.find(t => t.id === id);
+  if (!tx) { alert('Transação não encontrada.'); return; }
+
+  document.getElementById('edit-id').value     = id;
+  document.getElementById('edit-tipo').value   = tx.tipo || 'despesa';
+  document.getElementById('edit-valor').value  = tx.valor || '';
+  document.getElementById('edit-desc').value   = tx.descricao || '';
+  document.getElementById('edit-status').value = tx.status === 'pago' ? 'pago' : 'nao_pago';
+  document.getElementById('edit-data').value   = tx.data_iso || tx.data || new Date().toISOString().split('T')[0];
+
+  // Seleciona categoria
+  const catSel = document.getElementById('edit-cat');
+  for (let opt of catSel.options) {
+    if (opt.value.toLowerCase() === (tx.categoria||'').toLowerCase()) {
+      catSel.value = opt.value; break;
+    }
+  }
+
+  // Seleciona método
+  const metSel = document.getElementById('edit-metodo');
+  for (let opt of metSel.options) {
+    if (opt.value.toLowerCase() === (tx.forma_pag||'pix').toLowerCase()) {
+      metSel.value = opt.value; break;
+    }
+  }
+
+  openModal('modal-edit');
+}
+
+async function salvarEdicao() {
+  const id     = parseInt(document.getElementById('edit-id').value);
+  const desc   = document.getElementById('edit-desc').value.trim();
+  const valor  = parseFloat(document.getElementById('edit-valor').value);
+
+  if (!desc)          { alert('Informe a descrição.'); return; }
+  if (!valor || valor <= 0) { alert('Informe um valor válido.'); return; }
+
+  const payload = {
+    descricao:  desc,
+    valor:      valor,
+    tipo:       document.getElementById('edit-tipo').value,
+    categoria:  document.getElementById('edit-cat').value,
+    metodo:     document.getElementById('edit-metodo').value,
+    status:     document.getElementById('edit-status').value,
+  };
+
+  try {
+    const res = await fetch(`${API}/transacoes/${id}`, {
+      method:  'PATCH',
+      headers: {'Content-Type': 'application/json'},
+      body:    JSON.stringify(payload),
+    });
+
+    if (!res.ok) throw new Error('Erro ao salvar');
+
+    closeModal('modal-edit');
+    showToast('✅ Transação atualizada!');
+    await loadResumo();
+    await loadTransacoes();
+  } catch(e) {
+    alert('Erro ao salvar. Tente novamente.');
+  }
+}
+
+// ── DELETAR TRANSAÇÃO ──
+async function confirmarDeletar(id, nome) {
+  if (!confirm(`Excluir a transação "${nome}"?\n\nEsta ação não pode ser desfeita.`)) return;
+
+  try {
+    const res = await fetch(`${API}/transacoes/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Erro');
+
+    // Remove da lista local imediatamente
+    allTx = allTx.filter(t => t.id !== id);
+    const row = document.getElementById(`tx-row-${id}`);
+    const pend = document.getElementById(`pend-${id}`);
+    if (row)  { row.style.opacity  = '0'; row.style.height  = '0'; setTimeout(() => row.remove(),  300); }
+    if (pend) { pend.style.opacity = '0'; pend.style.height = '0'; setTimeout(() => pend.remove(), 300); }
+
+    showToast('🗑️ Transação excluída');
+    await loadResumo();
+  } catch(e) {
+    alert('Erro ao excluir. Tente novamente.');
+  }
+}
+
+// ── TOAST NOTIFICATION ──
+function showToast(msg, tipo='success') {
+  const t = document.createElement('div');
+  const bg = tipo === 'error' ? '#ef4444' : '#111827';
+  t.style.cssText = `position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:${bg};color:white;padding:10px 22px;border-radius:20px;font-size:0.65rem;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.2);animation:fadeIn 0.2s ease`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity 0.3s'; setTimeout(()=>t.remove(),300); }, 2500);
+}
+
+// ── SEGURANÇA — Headers de segurança via meta tags ──
+(function() {
+  // Previne clickjacking via JS como fallback
+  if (window.self !== window.top) {
+    try { window.top.location = window.self.location; } catch(e) { document.body.innerHTML = ''; }
+  }
+  // Sanitiza inputs ao submeter formulários
+  document.addEventListener('submit', function(e) {
+    const inputs = e.target.querySelectorAll('input[type="text"], textarea');
+    inputs.forEach(inp => {
+      inp.value = inp.value.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '').replace(/javascript:/gi, '');
+    });
+  });
+})();
 
 // Aliases para compatibilidade
 function loadResumo() { return loadResumoMes(viewMes, viewAno); }
