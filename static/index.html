@@ -7,6 +7,27 @@
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(self), geolocation=()">
 <meta name="robots" content="noindex, nofollow">
+<script>
+// ── AUTH GUARD — executa antes de tudo ──
+(function() {
+  const token = localStorage.getItem('finia_token') || sessionStorage.getItem('finia_token');
+  if (!token) { window.location.replace('/login.html'); return; }
+  try {
+    const parts = token.split('.');
+    const payload = JSON.parse(atob(parts[1]));
+    if (payload.exp * 1000 < Date.now()) {
+      localStorage.removeItem('finia_token');
+      sessionStorage.removeItem('finia_token');
+      window.location.replace('/login.html');
+      return;
+    }
+    window._finiaUser = JSON.parse(localStorage.getItem('finia_usuario') || '{}');
+    window._finiaToken = token;
+  } catch(e) {
+    window.location.replace('/login.html');
+  }
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>finia — Gestão Financeira</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -27,7 +48,7 @@
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
 
 /* NAV */
-.nav{background:var(--midnight);height:60px;display:flex;align-items:center;padding:0 28px;position:sticky;top:0;z-index:200;}
+.nav{background:var(--midnight);height:60px;display:flex;align-items:center;padding:0 28px;position:sticky;top:0;z-index:200;}.nav-right{position:relative;}
 .nav-logo{display:flex;align-items:center;gap:9px;margin-right:36px;cursor:pointer;}
 .nav-logomark{width:30px;height:30px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;}
 .fmark{width:12px;height:19px;position:relative;}
@@ -403,7 +424,13 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
   </div>
   <div class="nav-right">
     <button class="nav-cta" onclick="openModal('modal-tx')">+ Registrar</button>
-    <div class="nav-avatar">PB</div>
+    <div class="nav-avatar" id="nav-avatar" onclick="toggleUserMenu()" style="cursor:pointer;" title="Conta"></div>
+  <div id="user-menu" style="display:none;position:absolute;top:52px;right:20px;background:white;border:1px solid var(--border);border-radius:var(--r);padding:8px;min-width:160px;box-shadow:var(--shadow);z-index:300;">
+    <div style="padding:8px 12px;font-size:0.62rem;font-weight:700;border-bottom:1px solid var(--border);margin-bottom:4px;" id="menu-nome">—</div>
+    <div style="padding:6px 12px;font-size:0.58rem;color:var(--text-2);cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background=''" onclick="showPage('config')">⚙️ Configurações</div>
+    <div style="padding:6px 12px;font-size:0.58rem;color:var(--text-2);cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background=''" onclick="showPage('assinatura')">💳 Assinatura</div>
+    <div style="padding:6px 12px;font-size:0.58rem;color:var(--red);cursor:pointer;border-radius:6px;margin-top:4px;border-top:1px solid var(--border);padding-top:10px;" onmouseover="this.style.background='var(--red-bg)'" onmouseout="this.style.background=''" onclick="logout()">🚪 Sair</div>
+  </div>
   </div>
 </nav>
 
@@ -1382,6 +1409,23 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
 
 <script>
 const API = 'https://financeiro-bot-production-571e.up.railway.app';
+
+// Auth helper — adiciona token em todas as chamadas
+function authFetch(url, opts={}) {
+  const token = window._finiaToken || localStorage.getItem('finia_token') || '';
+  const headers = { 'Content-Type': 'application/json', ...(opts.headers||{}) };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  return fetch(url, { ...opts, headers });
+}
+
+// Logout
+function logout() {
+  if (!confirm('Deseja sair do finia?')) return;
+  localStorage.removeItem('finia_token');
+  localStorage.removeItem('finia_usuario');
+  sessionStorage.removeItem('finia_token');
+  window.location.href = '/login.html';
+}
 const fmt = v => 'R$ ' + Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const DIAS  = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
@@ -2421,6 +2465,25 @@ function loadResumo() { return loadResumoMes(viewMes, viewAno); }
 function loadTransacoes() { return loadTransacoesMes(viewMes, viewAno); }
 
 // ── INIT ──
+// Inicializa dados do usuário
+const _u = window._finiaUser || {};
+const _initials = (_u.nome||'U').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+document.getElementById('nav-avatar').textContent = _initials;
+document.querySelectorAll('.sb-name').forEach(el => el.textContent = _u.nome || 'Usuário');
+const _menuNome = document.getElementById('menu-nome');
+if (_menuNome) _menuNome.textContent = _u.nome || 'Minha conta';
+
+function toggleUserMenu() {
+  const m = document.getElementById('user-menu');
+  m.style.display = m.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.nav-right')) {
+    const m = document.getElementById('user-menu');
+    if (m) m.style.display = 'none';
+  }
+});
+
 // Inicializa label do mês atual
 document.getElementById('mes-label').textContent = `${MESES_PT_FULL[viewMes-1]} ${viewAno} ✦`;
 Promise.all([loadResumoMes(viewMes, viewAno), loadTransacoesMes(viewMes, viewAno), loadCats(), loadHistorico()]);
