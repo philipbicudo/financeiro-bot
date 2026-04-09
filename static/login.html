@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+<meta name="robots" content="noindex, nofollow">
+<title>finia — Entrar</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Lora:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --midnight:#111827;--midnight-2:#1e293b;
+  --growth:#22c55e;--growth-light:#dcfce7;--growth-mid:#16a34a;
+  --bg:#f1f5f9;--surface:#fff;--border:#e2e8f0;
+  --text:#0f172a;--text-2:#475569;--text-3:#94a3b8;
+  --red:#ef4444;--red-bg:#fef2f2;
+  --shadow:0 8px 32px rgba(0,0,0,0.1);
+  --r:14px;--r-lg:20px;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+
+/* BG pattern */
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(34,197,94,0.08) 0%,transparent 70%);pointer-events:none;}
+
+.card{background:var(--surface);border-radius:var(--r-lg);padding:40px;width:100%;max-width:420px;box-shadow:var(--shadow);border:1px solid var(--border);position:relative;z-index:1;}
+
+/* Logo */
+.logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:28px;}
+.logomark{width:42px;height:42px;background:var(--midnight);border-radius:12px;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;}
+.fmark{width:16px;height:22px;position:relative;}
+.fmark::before{content:'';position:absolute;left:0;top:0;width:4px;height:22px;background:white;border-radius:2px;}
+.fmark::after{content:'';position:absolute;left:0;top:0;width:16px;height:4px;background:white;border-radius:2px;box-shadow:0 9px 0 0 white;}
+.fmark-mid{position:absolute;left:4px;top:9px;width:10px;height:4px;background:white;border-radius:1px;}
+.fdot{position:absolute;right:-2px;bottom:-2px;width:9px;height:9px;background:var(--growth);border-radius:50%;border:2px solid var(--midnight);}
+.wordmark{font-family:'Lora',serif;font-weight:700;font-size:1.5rem;color:var(--midnight);letter-spacing:-0.5px;}
+
+.card-title{font-family:'Lora',serif;font-weight:700;font-size:1.15rem;color:var(--text);text-align:center;margin-bottom:6px;}
+.card-sub{font-size:0.68rem;color:var(--text-3);text-align:center;margin-bottom:28px;line-height:1.5;}
+
+/* Steps */
+.steps{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:28px;}
+.step{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.55rem;font-weight:700;flex-shrink:0;}
+.step.done{background:var(--growth);color:white;}
+.step.active{background:var(--midnight);color:white;}
+.step.next{background:var(--border);color:var(--text-3);}
+.step-line{flex:1;height:2px;background:var(--border);border-radius:1px;max-width:40px;}
+.step-line.done{background:var(--growth);}
+
+/* Form */
+.form-group{margin-bottom:16px;}
+label{display:block;font-size:0.6rem;font-weight:600;color:var(--text-2);margin-bottom:6px;}
+.input-wrap{position:relative;}
+.input-wrap .flag{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:0.85rem;}
+input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--r);font-family:'Plus Jakarta Sans',sans-serif;font-size:0.78rem;color:var(--text);outline:none;transition:border-color 0.15s;background:white;}
+input:focus{border-color:var(--midnight);}
+input.with-flag{padding-left:38px;}
+input.error{border-color:var(--red);background:var(--red-bg);}
+
+.btn{width:100%;padding:12px;border-radius:var(--r);font-family:'Plus Jakarta Sans',sans-serif;font-size:0.72rem;font-weight:700;cursor:pointer;transition:all 0.15s;border:none;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-primary{background:var(--midnight);color:white;}
+.btn-primary:hover{background:var(--midnight-2);}
+.btn-primary:disabled{background:var(--text-3);cursor:not-allowed;}
+.btn-ghost{background:none;color:var(--text-2);border:1.5px solid var(--border);margin-top:10px;font-size:0.65rem;}
+.btn-ghost:hover{border-color:var(--midnight);color:var(--midnight);}
+
+.error-msg{font-size:0.6rem;color:var(--red);margin-top:6px;display:none;}
+.error-msg.show{display:block;}
+
+.otp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px;}
+.otp-input{padding:12px 6px;text-align:center;font-size:1.1rem;font-weight:700;border:1.5px solid var(--border);border-radius:var(--r);transition:all 0.15s;}
+.otp-input:focus{border-color:var(--midnight);background:#f8fafc;}
+
+.resend{text-align:center;font-size:0.6rem;color:var(--text-3);margin-top:14px;}
+.resend a{color:var(--growth-mid);cursor:pointer;font-weight:600;text-decoration:none;}
+.resend a:hover{text-decoration:underline;}
+#timer{font-weight:700;color:var(--text-2);}
+
+.success-icon{font-size:2.5rem;text-align:center;margin-bottom:12px;}
+.plan-badge{display:inline-flex;align-items:center;gap:6px;background:var(--growth-light);color:var(--growth-mid);padding:5px 14px;border-radius:20px;font-size:0.62rem;font-weight:700;margin:0 auto 16px;display:block;text-align:center;width:fit-content;}
+
+/* Spinner */
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.divider{display:flex;align-items:center;gap:10px;margin:20px 0;font-size:0.6rem;color:var(--text-3);}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.features{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:24px;}
+.feature{display:flex;align-items:center;gap:6px;font-size:0.58rem;color:var(--text-3);}
+.feature-icon{font-size:0.85rem;}
+
+footer{margin-top:20px;font-size:0.55rem;color:var(--text-3);text-align:center;}
+footer a{color:var(--text-3);text-decoration:none;}
+footer a:hover{color:var(--text);}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <!-- Logo -->
+  <div class="logo">
+    <div class="logomark" style="position:relative">
+      <div class="fmark"><div class="fmark-mid"></div></div>
+      <div class="fdot"></div>
+    </div>
+    <span class="wordmark">finia</span>
+  </div>
+
+  <!-- ── STEP 1: TELEFONE ── -->
+  <div id="step1">
+    <h1 class="card-title">Entrar no finia</h1>
+    <p class="card-sub">Digite seu WhatsApp para receber o código de acesso</p>
+
+    <div class="steps">
+      <div class="step active">1</div>
+      <div class="step-line"></div>
+      <div class="step next">2</div>
+      <div class="step-line"></div>
+      <div class="step next">✓</div>
+    </div>
+
+    <div class="form-group">
+      <label>Número do WhatsApp</label>
+      <div class="input-wrap">
+        <span class="flag">🇧🇷</span>
+        <input class="with-flag" type="tel" id="telefone" placeholder="(11) 99999-9999"
+          maxlength="15" autocomplete="tel"
+          onkeydown="if(event.key==='Enter')solicitarOTP()"
+          oninput="mascaraTelefone(this)">
+      </div>
+      <div class="error-msg" id="err-tel">Número inválido. Ex: (11) 99999-9999</div>
+    </div>
+
+    <button class="btn btn-primary" id="btn-enviar" onclick="solicitarOTP()">
+      Enviar código pelo WhatsApp 📲
+    </button>
+
+    <div class="divider">Novo por aqui?</div>
+    <p style="font-size:0.65rem;color:var(--text-3);text-align:center;line-height:1.6;">
+      Digite seu número e crie sua conta automaticamente.<br>
+      <strong style="color:var(--text-2)">Grátis</strong> — sem precisar de cartão.
+    </p>
+
+    <div class="features">
+      <div class="feature"><span class="feature-icon">💬</span>Registre por WhatsApp</div>
+      <div class="feature"><span class="feature-icon">📊</span>Dashboard completo</div>
+      <div class="feature"><span class="feature-icon">🤖</span>Chat com IA</div>
+      <div class="feature"><span class="feature-icon">📸</span>Foto de nota fiscal</div>
+    </div>
+  </div>
+
+  <!-- ── STEP 2: CÓDIGO OTP ── -->
+  <div id="step2" style="display:none">
+    <h1 class="card-title">Código enviado! 📲</h1>
+    <p class="card-sub" id="sub-otp">Digite o código de 6 dígitos enviado para seu WhatsApp</p>
+
+    <div class="steps">
+      <div class="step done">✓</div>
+      <div class="step-line done"></div>
+      <div class="step active">2</div>
+      <div class="step-line"></div>
+      <div class="step next">✓</div>
+    </div>
+
+    <div class="form-group">
+      <label>Código de 6 dígitos</label>
+      <div class="otp-grid" id="otp-grid">
+        <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]">
+      </div>
+      <div class="error-msg" id="err-otp">Código incorreto. Tente novamente.</div>
+    </div>
+
+    <button class="btn btn-primary" id="btn-verificar" onclick="verificarOTP()">
+      Verificar e entrar
+    </button>
+    <button class="btn btn-ghost" onclick="voltarStep1()">← Trocar número</button>
+
+    <div class="resend">
+      <span id="timer-wrap">Reenviar em <span id="timer">60</span>s</span>
+      <span id="resend-wrap" style="display:none">
+        Não recebeu? <a onclick="reenviarOTP()">Reenviar código</a>
+      </span>
+    </div>
+  </div>
+
+  <!-- ── STEP 3: NOME (apenas novos usuários) ── -->
+  <div id="step3" style="display:none">
+    <h1 class="card-title">Quase lá! 🎉</h1>
+    <p class="card-sub">Como podemos te chamar?</p>
+
+    <div class="steps">
+      <div class="step done">✓</div>
+      <div class="step-line done"></div>
+      <div class="step done">✓</div>
+      <div class="step-line done"></div>
+      <div class="step active">3</div>
+    </div>
+
+    <div class="form-group">
+      <label>Seu nome</label>
+      <input type="text" id="nome" placeholder="Ex: Philip, Maria, João..." maxlength="100"
+        onkeydown="if(event.key==='Enter')finalizarCadastro()">
+    </div>
+
+    <button class="btn btn-primary" onclick="finalizarCadastro()">
+      Criar minha conta 🚀
+    </button>
+  </div>
+
+  <!-- ── STEP 4: SUCESSO ── -->
+  <div id="step4" style="display:none">
+    <div class="success-icon">🎉</div>
+    <h1 class="card-title" id="success-title">Bem-vindo ao finia!</h1>
+    <p class="card-sub" id="success-sub">Sua conta foi criada. Redirecionando...</p>
+    <div class="plan-badge" id="success-plan">✦ Plano Grátis ativo</div>
+    <div style="width:100%;height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:16px;">
+      <div id="progress-bar" style="height:100%;background:var(--growth);width:0%;transition:width 3s linear;border-radius:2px;"></div>
+    </div>
+    <p style="font-size:0.58rem;color:var(--text-3);text-align:center;margin-top:8px;">Acessando o dashboard...</p>
+  </div>
+
+</div>
+
+<footer>
+  <a href="/landing.html">Sobre o finia</a> ·
+  <span>Seus dados estão protegidos</span> ·
+  <span>© 2026 finia</span>
+</footer>
+
+<script>
+const API = 'https://financeiro-bot-production-571e.up.railway.app';
+let telefoneAtual = '';
+let timerInterval = null;
+let tokenRecebido = null;
+
+// ── MÁSCARA TELEFONE ──
+function mascaraTelefone(inp) {
+  let v = inp.value.replace(/\D/g,'').substring(0,11);
+  if (v.length > 6) v = `(${v.substring(0,2)}) ${v.substring(2,7)}-${v.substring(7)}`;
+  else if (v.length > 2) v = `(${v.substring(0,2)}) ${v.substring(2)}`;
+  else if (v.length > 0) v = `(${v}`;
+  inp.value = v;
+}
+
+// ── STEP 1: SOLICITAR OTP ──
+async function solicitarOTP() {
+  const inp = document.getElementById('telefone');
+  const tel = inp.value.replace(/\D/g,'');
+  const errEl = document.getElementById('err-tel');
+
+  if (tel.length < 10) {
+    inp.classList.add('error');
+    errEl.classList.add('show');
+    inp.focus();
+    return;
+  }
+  inp.classList.remove('error');
+  errEl.classList.remove('show');
+
+  const btn = document.getElementById('btn-enviar');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Enviando...';
+
+  try {
+    const res = await fetch(`${API}/auth/solicitar-otp`, {
+      method:  'POST',
+      headers: {'Content-Type':'application/json'},
+      body:    JSON.stringify({ telefone: tel }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.detail || 'Erro ao enviar código');
+    }
+
+    telefoneAtual = tel;
+    document.getElementById('sub-otp').textContent =
+      `Código enviado para WhatsApp terminado em ****${data.telefone}`;
+
+    // Muda para step 2
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'block';
+    document.getElementById('otp-grid').querySelectorAll('input')[0].focus();
+    iniciarTimer();
+
+  } catch(e) {
+    btn.disabled = false;
+    btn.innerHTML = 'Enviar código pelo WhatsApp 📲';
+    alert(e.message || 'Erro ao enviar. Verifique o número e tente novamente.');
+  }
+}
+
+// ── OTP INPUT NAVIGATION ──
+document.addEventListener('DOMContentLoaded', () => {
+  const otpInputs = document.querySelectorAll('.otp-input');
+  otpInputs.forEach((inp, i) => {
+    inp.addEventListener('input', e => {
+      const v = e.target.value.replace(/\D/g,'');
+      e.target.value = v;
+      if (v && i < otpInputs.length - 1) otpInputs[i+1].focus();
+      if (getOTPValue().length === 6) verificarOTP();
+    });
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !inp.value && i > 0) otpInputs[i-1].focus();
+      if (e.key === 'Enter') verificarOTP();
+    });
+    inp.addEventListener('paste', e => {
+      const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'');
+      if (text.length === 6) {
+        otpInputs.forEach((el, j) => el.value = text[j] || '');
+        otpInputs[5].focus();
+        e.preventDefault();
+        verificarOTP();
+      }
+    });
+  });
+});
+
+function getOTPValue() {
+  return Array.from(document.querySelectorAll('.otp-input')).map(i => i.value).join('');
+}
+
+// ── STEP 2: VERIFICAR OTP ──
+async function verificarOTP() {
+  const codigo = getOTPValue();
+  const errEl  = document.getElementById('err-otp');
+
+  if (codigo.length !== 6) {
+    errEl.textContent = 'Digite todos os 6 dígitos.';
+    errEl.classList.add('show');
+    return;
+  }
+  errEl.classList.remove('show');
+
+  const btn = document.getElementById('btn-verificar');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Verificando...';
+
+  try {
+    const res = await fetch(`${API}/auth/verificar-otp`, {
+      method:  'POST',
+      headers: {'Content-Type':'application/json'},
+      body:    JSON.stringify({ telefone: telefoneAtual, codigo }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.detail || 'Código incorreto');
+    }
+
+    tokenRecebido = data;
+
+    if (data.novo_usuario) {
+      // Novo usuário — pede nome
+      document.getElementById('step2').style.display = 'none';
+      document.getElementById('step3').style.display = 'block';
+      document.getElementById('nome').focus();
+    } else {
+      // Usuário existente — entra direto
+      salvarSessao(data);
+      mostrarSucesso(data);
+    }
+
+  } catch(e) {
+    btn.disabled = false;
+    btn.innerHTML = 'Verificar e entrar';
+    errEl.textContent = e.message || 'Código incorreto. Tente novamente.';
+    errEl.classList.add('show');
+    // Limpa campos OTP
+    document.querySelectorAll('.otp-input').forEach(i => i.value = '');
+    document.querySelectorAll('.otp-input')[0].focus();
+  }
+}
+
+// ── STEP 3: NOME ──
+async function finalizarCadastro() {
+  const nome = document.getElementById('nome').value.trim();
+  if (!nome) { document.getElementById('nome').focus(); return; }
+
+  // Atualiza o nome no token
+  if (tokenRecebido) {
+    tokenRecebido.nome = nome;
+    salvarSessao(tokenRecebido);
+    mostrarSucesso(tokenRecebido, nome);
+  }
+}
+
+// ── SALVAR SESSÃO ──
+function salvarSessao(data) {
+  // Salva token com segurança no sessionStorage + localStorage
+  sessionStorage.setItem('finia_token', data.token);
+  localStorage.setItem('finia_token', data.token);
+  localStorage.setItem('finia_usuario', JSON.stringify({
+    id:    data.usuario_id,
+    nome:  data.nome,
+    plano: data.plano,
+  }));
+}
+
+// ── STEP 4: SUCESSO ──
+function mostrarSucesso(data, nome) {
+  document.getElementById('step2').style.display = 'none';
+  document.getElementById('step3').style.display = 'none';
+  document.getElementById('step4').style.display = 'block';
+
+  const nomeFinal = nome || data.nome || 'usuário';
+  document.getElementById('success-title').textContent =
+    data.novo_usuario ? `Bem-vindo ao finia, ${nomeFinal}! 🎉` : `Olá, ${nomeFinal}! 👋`;
+  document.getElementById('success-sub').textContent =
+    data.novo_usuario ? 'Conta criada com sucesso!' : 'Login realizado com sucesso!';
+
+  const planoNomes = { gratis:'Grátis', pro:'✦ Pro', familia:'✦ Família' };
+  document.getElementById('success-plan').textContent =
+    `Plano ${planoNomes[data.plano] || data.plano} ativo`;
+
+  // Barra de progresso → redireciona
+  setTimeout(() => {
+    document.getElementById('progress-bar').style.width = '100%';
+  }, 100);
+  setTimeout(() => {
+    window.location.href = '/';
+  }, 3200);
+}
+
+// ── TIMER REENVIO ──
+function iniciarTimer() {
+  let secs = 60;
+  document.getElementById('timer-wrap').style.display = 'inline';
+  document.getElementById('resend-wrap').style.display = 'none';
+  timerInterval = setInterval(() => {
+    secs--;
+    document.getElementById('timer').textContent = secs;
+    if (secs <= 0) {
+      clearInterval(timerInterval);
+      document.getElementById('timer-wrap').style.display = 'none';
+      document.getElementById('resend-wrap').style.display = 'inline';
+    }
+  }, 1000);
+}
+
+async function reenviarOTP() {
+  clearInterval(timerInterval);
+  document.querySelectorAll('.otp-input').forEach(i => i.value = '');
+  document.getElementById('resend-wrap').style.display = 'none';
+  await solicitarOTPSilencioso();
+  iniciarTimer();
+}
+
+async function solicitarOTPSilencioso() {
+  await fetch(`${API}/auth/solicitar-otp`, {
+    method:  'POST',
+    headers: {'Content-Type':'application/json'},
+    body:    JSON.stringify({ telefone: telefoneAtual }),
+  });
+}
+
+function voltarStep1() {
+  clearInterval(timerInterval);
+  document.getElementById('step2').style.display = 'none';
+  document.getElementById('step1').style.display = 'block';
+  document.getElementById('btn-enviar').disabled = false;
+  document.getElementById('btn-enviar').innerHTML = 'Enviar código pelo WhatsApp 📲';
+}
+
+// ── VERIFICAR SE JÁ ESTÁ LOGADO ──
+(function() {
+  const token = localStorage.getItem('finia_token') || sessionStorage.getItem('finia_token');
+  if (token) {
+    // Verifica se o token ainda é válido
+    try {
+      const parts = token.split('.');
+      const payload = JSON.parse(atob(parts[1]));
+      if (payload.exp * 1000 > Date.now()) {
+        window.location.href = '/';
+        return;
+      }
+    } catch(e) {}
+    // Token inválido — limpa
+    localStorage.removeItem('finia_token');
+    sessionStorage.removeItem('finia_token');
+  }
+})();
+</script>
+</body>
+</html>
