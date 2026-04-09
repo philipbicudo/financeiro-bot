@@ -442,7 +442,7 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
     <div class="sb-profile-row">
       <div class="sb-avatar">PB</div>
       <div>
-        <div class="sb-name">Philip Bicudo</div>
+        <div class="sb-name" id="sb-nome-user">Carregando...</div>
         <div class="sb-plan">✦ Pro</div>
       </div>
     </div>
@@ -674,7 +674,7 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
       <div class="cc-chip"></div>
       <div class="cc-number">•••• •••• •••• 4821</div>
       <div class="cc-row">
-        <div><div class="cc-label">Titular</div><div class="cc-value">Philip Bicudo</div></div>
+        <div><div class="cc-label">Titular</div><div class="cc-value" id="cc-titular-1">—</div></div>
         <div><div class="cc-label">Vence</div><div class="cc-value">12/28</div></div>
         <div style="text-align:right"><div class="cc-label">Limite usado</div><div class="cc-limit">R$ 1.240</div><div class="cc-label" style="margin-top:2px">de R$ 5.000</div></div>
       </div>
@@ -684,7 +684,7 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
       <div class="cc-chip"></div>
       <div class="cc-number">•••• •••• •••• 7293</div>
       <div class="cc-row">
-        <div><div class="cc-label">Titular</div><div class="cc-value">Philip Bicudo</div></div>
+        <div><div class="cc-label">Titular</div><div class="cc-value" id="cc-titular-2">—</div></div>
         <div><div class="cc-label">Vence</div><div class="cc-value">08/27</div></div>
         <div style="text-align:right"><div class="cc-label">Limite usado</div><div class="cc-limit">R$ 380</div><div class="cc-label" style="margin-top:2px">de R$ 2.000</div></div>
       </div>
@@ -710,10 +710,11 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
     </div>
     <div class="panel">
       <div class="panel-head"><div class="panel-title">Histórico de faturas</div></div>
-      <div style="padding:0">
-        <div class="pend-item"><div class="pend-ico" style="background:var(--growth-light)">✅</div><div><div class="pend-name">Março 2026</div><div class="pend-due">Paga em 15/03</div></div><div class="pend-amt" style="color:var(--growth-mid)">R$ 980,00</div></div>
-        <div class="pend-item"><div class="pend-ico" style="background:var(--growth-light)">✅</div><div><div class="pend-name">Fevereiro 2026</div><div class="pend-due">Paga em 15/02</div></div><div class="pend-amt" style="color:var(--growth-mid)">R$ 1.120,00</div></div>
-        <div class="pend-item"><div class="pend-ico" style="background:var(--growth-light)">✅</div><div><div class="pend-name">Janeiro 2026</div><div class="pend-due">Paga em 15/01</div></div><div class="pend-amt" style="color:var(--growth-mid)">R$ 756,00</div></div>
+      <div style="padding:0" id="historico-faturas-cartao">
+        <div style="text-align:center;padding:24px;color:var(--text-3);font-size:0.62rem;">
+          <div style="font-size:1.2rem;margin-bottom:6px">📋</div>
+          Nenhum histórico de faturas ainda
+        </div>
       </div>
     </div>
   </div>
@@ -763,7 +764,7 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
       <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:14px;min-width:280px;">
         <div class="form-group" style="margin-bottom:0">
           <label class="form-label">Nome completo</label>
-          <input class="form-input" id="pf-nome" value="Philip Bicudo" placeholder="Seu nome completo">
+          <input class="form-input" id="pf-nome" placeholder="Seu nome completo">
         </div>
         <div class="form-group" style="margin-bottom:0">
           <label class="form-label">Apelido / Como prefere ser chamado</label>
@@ -771,7 +772,7 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
         </div>
         <div class="form-group" style="margin-bottom:0">
           <label class="form-label">E-mail</label>
-          <input class="form-input" id="pf-email" type="email" value="philip@email.com" placeholder="seu@email.com">
+          <input class="form-input" id="pf-email" type="email" placeholder="seu@email.com">
         </div>
         <div class="form-group" style="margin-bottom:0">
           <label class="form-label">WhatsApp</label>
@@ -1064,7 +1065,7 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
 
 <footer>
   <div class="footer-logo">fin<span>ia</span></div>
-  <div class="footer-text">Gestão Financeira via WhatsApp · Philip Bicudo · 2026</div>
+  <div class="footer-text">Gestão Financeira via WhatsApp · finia · 2026</div>
   <div class="footer-text">🤖 Bot online · Railway · 2026</div>
 </footer>
 
@@ -2003,7 +2004,7 @@ function simWpp(msg) {
   const box = document.getElementById('wppBody');
   const t = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
   const s = document.createElement('div'); s.className='bub sent';
-  s.innerHTML = `${msg}<div class="bub-time">${t} ✓✓</div>`;
+  s.innerHTML = `${escHtml(msg)}<div class="bub-time">${t} ✓✓</div>`;
   box.appendChild(s); box.scrollTop=9999;
   setTimeout(async()=>{
     let resp = botRes[msg];
@@ -2469,6 +2470,16 @@ if (_savedFoto) {
   if (_navAv) _navAv.textContent = _initials;
 }
 document.querySelectorAll('.sb-name').forEach(el => el.textContent = _u.nome || 'Usuário');
+document.querySelectorAll('#sb-nome-user').forEach(el => el.textContent = _u.nome || 'Usuário');
+// Preenche campos do perfil com dados do usuário
+setTimeout(() => {
+  const pfNome = document.getElementById('pf-nome');
+  const pfEmail = document.getElementById('pf-email');
+  if(pfNome && !pfNome.value) pfNome.value = _u.nome || '';
+  if(pfEmail && !pfEmail.value) pfEmail.value = _u.email || '';
+  // Titular do cartão
+  document.querySelectorAll('[id^="cc-titular"]').forEach(el => el.textContent = _u.nome || '—');
+}, 200);
 document.querySelectorAll('.sb-avatar').forEach(el => { if(!_savedFoto) el.textContent = _initials; });
 const _menuNome = document.getElementById('menu-nome');
 if (_menuNome) _menuNome.textContent = _u.nome || 'Minha conta';
