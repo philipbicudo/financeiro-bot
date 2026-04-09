@@ -695,34 +695,16 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
     <div class="panel">
       <div class="panel-head"><div class="panel-title">Fatura atual</div><span class="panel-count">vence 15/05</span></div>
       <div style="padding:18px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-          <div><div style="font-size:0.5rem;color:var(--text-3);margin-bottom:4px">TOTAL DA FATURA</div><div style="font-family:'Lora',serif;font-weight:700;font-size:1.8rem;color:var(--red);letter-spacing:-1px">R$ 1.240,00</div></div>
-          <button class="add-btn" style="background:var(--red);font-size:0.55rem">Pagar fatura</button>
+        <div style="text-align:center;padding:24px;color:var(--text-3);font-size:0.62rem;">
+          <div style="font-size:1.5rem;margin-bottom:8px">💳</div>
+          Nenhum cartão cadastrado ainda.<br>
+          <button class="add-btn green" onclick="openModal('modal-cartao')" style="margin-top:12px;font-size:0.55rem">+ Adicionar cartão</button>
         </div>
-        <div style="height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:100%;width:24.8%;background:var(--red);border-radius:3px"></div></div>
-        <div style="font-size:0.5rem;color:var(--text-3)">24.8% do limite de R$ 5.000</div>
       </div>
       <div id="fatura-list">
-        <div class="tx-item" style="border-top:1px solid var(--border)">
-          <div class="tx-ico despesa">🛒</div>
-          <div><div class="tx-name">Mercado Extra</div><div class="tx-meta"><span>03/04</span><span class="tx-cat">Alimentação</span></div></div>
-          <div class="tx-date">03/04</div>
-          <div class="tx-amt despesa">− R$ 280,00</div>
-          <span class="tx-status nao_pago">⏳ Fatura</span>
-        </div>
-        <div class="tx-item">
-          <div class="tx-ico despesa">⛽</div>
-          <div><div class="tx-name">Posto Shell</div><div class="tx-meta"><span>01/04</span><span class="tx-cat">Transporte</span></div></div>
-          <div class="tx-date">01/04</div>
-          <div class="tx-amt despesa">− R$ 180,00</div>
-          <span class="tx-status nao_pago">⏳ Fatura</span>
-        </div>
-        <div class="tx-item">
-          <div class="tx-ico despesa">📺</div>
-          <div><div class="tx-name">Netflix</div><div class="tx-meta"><span>01/04</span><span class="tx-cat">Lazer</span></div></div>
-          <div class="tx-date">01/04</div>
-          <div class="tx-amt despesa">− R$ 55,90</div>
-          <span class="tx-status nao_pago">⏳ Fatura</span>
+        <div style="text-align:center;padding:24px;color:var(--text-3);font-size:0.62rem;">
+          <div style="font-size:1.5rem;margin-bottom:8px">💳</div>
+          Adicione um cartão para ver a fatura aqui
         </div>
       </div>
     </div>
@@ -1367,7 +1349,7 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
       <div style="width:28px;height:28px;border-radius:50%;background:#8b5cf6;cursor:pointer;border:2px solid transparent" onclick="selectColor(this,'#8b5cf6')"></div>
       <div style="width:28px;height:28px;border-radius:50%;background:#ef4444;cursor:pointer;border:2px solid transparent" onclick="selectColor(this,'#ef4444')"></div>
     </div></div>
-    <div class="modal-btns"><button class="btn-cancel" onclick="closeModal('modal-conta')">Cancelar</button><button class="btn-save green">Adicionar conta</button></div>
+    <div class="modal-btns"><button class="btn-cancel" onclick="closeModal('modal-conta')">Cancelar</button><button class="btn-save green" onclick="salvarConta()">Adicionar conta</button></div>
   </div>
 </div>
 
@@ -1384,7 +1366,7 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
       <div class="form-group"><label class="form-label">Prazo</label><input class="form-input" type="date"></div>
       <div class="form-group"><label class="form-label">Ícone</label><input class="form-input" placeholder="Emoji, ex: ✈️"></div>
     </div>
-    <div class="modal-btns"><button class="btn-cancel" onclick="closeModal('modal-meta')">Cancelar</button><button class="btn-save green">Criar meta</button></div>
+    <div class="modal-btns"><button class="btn-cancel" onclick="closeModal('modal-meta')">Cancelar</button><button class="btn-save green" onclick="salvarMeta()">Criar meta</button></div>
   </div>
 </div>
 
@@ -1886,28 +1868,36 @@ function drawDonut(cats) {
 
 // ── CONTAS PAGE ──
 function loadContas() {
-  const contas = [
-    {nome:'Nubank',tipo:'Conta Digital',saldo:2583.10,color:'#8b5cf6',icon:'💜'},
-    {nome:'Itaú',tipo:'Conta Corrente',saldo:1200.00,color:'#f59e0b',icon:'🏦'},
-    {nome:'Poupança BB',tipo:'Poupança',saldo:4700.00,color:'#3b82f6',icon:'🏛️'},
-  ];
-  document.getElementById('contas-list').innerHTML = contas.map(c => `
-    <div class="account-card">
-      <div class="account-card-top">
-        <div class="account-bank">
-          <div class="account-bank-icon" style="background:${c.color}20">${c.icon}</div>
-          <div><div class="account-bank-name">${c.nome}</div><div class="account-bank-type">${c.tipo}</div></div>
+  const contasSalvas = JSON.parse(localStorage.getItem('finia_contas') || '[]');
+  const el = document.getElementById('contas-list');
+  if(!contasSalvas.length) {
+    el.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;background:white;border-radius:var(--r-lg);border:2px dashed var(--border);">
+      <div style="font-size:2rem;margin-bottom:12px">🏦</div>
+      <div style="font-size:0.78rem;font-weight:700;color:var(--text);margin-bottom:6px">Nenhuma conta cadastrada</div>
+      <div style="font-size:0.62rem;color:var(--text-3);margin-bottom:16px">Adicione suas contas bancárias para controlar seu saldo</div>
+      <button class="add-btn green" onclick="openModal('modal-conta')" style="margin:0 auto">+ Adicionar primeira conta</button>
+    </div>`;
+  } else {
+    el.innerHTML = contasSalvas.map(c => `
+      <div class="account-card">
+        <div class="account-card-top">
+          <div class="account-bank">
+            <div class="account-bank-icon" style="background:${c.color}20">${c.icon||'🏦'}</div>
+            <div><div class="account-bank-name">${escHtml(c.nome)}</div><div class="account-bank-type">${escHtml(c.tipo)}</div></div>
+          </div>
         </div>
-      </div>
-      <div class="account-balance positive">${fmt(c.saldo)}</div>
-      <div class="account-actions">
-        <div class="account-btn">📊 Extrato</div>
-        <div class="account-btn">➕ Depositar</div>
-        <div class="account-btn">✏️ Editar</div>
-      </div>
-    </div>`).join('');
+        <div class="account-balance positive">${fmt(c.saldo||0)}</div>
+        <div class="account-actions">
+          <div class="account-btn" onclick="alert('Em breve!')">📊 Extrato</div>
+          <div class="account-btn" onclick="alert('Em breve!')">➕ Depositar</div>
+          <div class="account-btn" onclick="editarConta('${escHtml(c.nome)}')">✏️ Editar</div>
+        </div>
+      </div>`).join('');
+  }
   renderTx('all','contas-tx');
 }
+
+function editarConta(nome) { alert('Edição de contas em breve!'); }
 
 // ── TX PAGE ──
 function loadTxPage() {
@@ -1973,65 +1963,41 @@ function searchTx(val) {
 
 // ── METAS ──
 function loadMetas() {
-  const metas = [
-    {nome:'Reserva de emergência',icon:'🛡️',color:'#3b82f6',target:30000,atual:12000,prazo:'Dez 2026'},
-    {nome:'Viagem para Europa',icon:'✈️',color:'#8b5cf6',target:15000,atual:3500,prazo:'Jul 2027'},
-    {nome:'Notebook novo',icon:'💻',color:'#22c55e',target:5000,atual:5000,prazo:'Concluída!'},
-    {nome:'Carro',icon:'🚗',color:'#f59e0b',target:50000,atual:8000,prazo:'Dez 2028'},
-  ];
-  const colors = ['#3b82f6','#8b5cf6','#22c55e','#f59e0b'];
-  document.getElementById('metas-list').innerHTML = metas.map((m,i) => {
-    const pct = Math.min(Math.round(m.atual/m.target*100),100);
-    const done = pct>=100;
-    return `<div class="goal-card">
-      <div class="goal-top">
-        <div class="goal-icon" style="background:${colors[i]}20">${m.icon}</div>
-        <span class="goal-pct" style="background:${colors[i]}20;color:${colors[i]}">${pct}%</span>
-      </div>
-      <div class="goal-name">${m.nome}</div>
-      <div class="goal-sub">Prazo: ${m.prazo}</div>
-      <div class="goal-bar"><div class="goal-fill" style="width:${pct}%;background:${colors[i]}"></div></div>
-      <div class="goal-row"><span><strong>${fmt(m.atual)}</strong> poupado</span><span>meta: <strong>${fmt(m.target)}</strong></span></div>
-      ${done?'<div style="margin-top:8px"><span class="tag green">✓ Concluída!</span></div>':''}
-    </div>`;
-  }).join('');
-}
+  const uid = window._finiaUser?.id || '0';
+  const metasSalvas = JSON.parse(localStorage.getItem('finia_metas_' + uid) || '[]');
+  const el = document.getElementById('metas-list');
+  const colors = ['#3b82f6','#8b5cf6','#22c55e','#f59e0b','#ef4444','#06b6d4'];
 
-// ── SALVAR TX ──
-async function salvarTx() {
-  const desc = (document.getElementById('tx-desc').value || '').trim().substring(0, 200);
-  const valor = parseFloat(document.getElementById('tx-valor').value);
-  if(!desc)          { alert('Preencha a descrição!'); return; }
-  if(!valor||valor<=0){ alert('Informe um valor válido!'); return; }
-  try {
-    await fetch(`${API}/transacoes/`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        descricao: desc,
-        valor: valor,
-        tipo: document.getElementById('tx-tipo').value,
-        categoria: document.getElementById('tx-cat').value,
-        metodo: document.getElementById('tx-metodo').value,
-        status: document.getElementById('tx-status').value,
-      })
-    });
-    closeModal('modal-tx');
-    loadResumo();
-    loadTransacoes();
-  } catch(e) {
-    alert('Erro ao salvar. Tente novamente.');
+  const concluidas = metasSalvas.filter(m => (m.atual||0) >= (m.target||1)).length;
+  const emAndamento = metasSalvas.filter(m => (m.atual||0) < (m.target||1)).length;
+  const totalPoupado = metasSalvas.reduce((s,m) => s + (m.atual||0), 0);
+  const statVals = document.querySelectorAll('#page-metas .stat-val');
+  if(statVals[0]) statVals[0].textContent = concluidas;
+  if(statVals[1]) statVals[1].textContent = emAndamento;
+  if(statVals[2]) statVals[2].textContent = fmt(totalPoupado);
+
+  if(!metasSalvas.length) {
+    el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;background:white;border-radius:var(--r-lg);border:2px dashed var(--border);"><div style="font-size:2rem;margin-bottom:12px">🎯</div><div style="font-size:0.78rem;font-weight:700;color:var(--text);margin-bottom:6px">Nenhuma meta criada ainda</div><div style="font-size:0.62rem;color:var(--text-3);margin-bottom:16px">Crie metas financeiras e acompanhe seu progresso</div><button class="add-btn green" onclick="openModal('modal-meta')" style="margin:0 auto">+ Criar primeira meta</button></div>';
+    return;
   }
+
+  el.innerHTML = metasSalvas.map((m,i) => {
+    const color = colors[i % colors.length];
+    const pct = Math.min(Math.round((m.atual||0)/Math.max(m.target||1,1)*100),100);
+    const done = pct >= 100;
+    return '<div class="goal-card">' +
+      '<div class="goal-top"><div class="goal-icon" style="background:'+color+'20">'+(m.icon||'🎯')+'</div>' +
+      '<span class="goal-pct" style="background:'+color+'20;color:'+color+'">'+pct+'%</span></div>' +
+      '<div class="goal-name">'+escHtml(m.nome)+'</div>' +
+      '<div class="goal-sub">Prazo: '+escHtml(m.prazo||'—')+'</div>' +
+      '<div class="goal-bar"><div class="goal-fill" style="width:'+pct+'%;background:'+color+'"></div></div>' +
+      '<div class="goal-row"><span><strong>'+fmt(m.atual||0)+'</strong> poupado</span><span>meta: <strong>'+fmt(m.target||0)+'</strong></span></div>' +
+      (done ? '<div style="margin-top:8px"><span class="tag green">✓ Concluída!</span></div>' : '') +
+      '</div>';
+  }).join('');
+
 }
 
-// ── WHATSAPP SIM ──
-const botRes = {
-  'gastei 50 no mercado':'✅ <strong>Registrado!</strong><br>🛒 Mercado — R$ 50,00<br>📁 Alimentação · ✅ Pago',
-  'paguei 180 luz':'✅ <strong>Registrado!</strong><br>💡 Luz — R$ 180,00<br>📁 Moradia · ⏳ A pagar',
-  'uber 22 reais':'✅ <strong>Registrado!</strong><br>🚗 Uber — R$ 22,00<br>📁 Transporte · ✅ Pago',
-  'recebi salário 3000':'💰 <strong>Receita registrada!</strong><br>💼 Salário — R$ 3.000,00<br>✅ Recebido',
-  'resumo':'📊 <strong>Resumo do mês</strong><br>Buscando dados reais...',
-};
 
 function simWpp(msg) {
   const box = document.getElementById('wppBody');
@@ -2447,6 +2413,45 @@ function showToast(msg, tipo='success') {
   });
 })();
 
+// ── SALVAR META ──
+function salvarMeta() {
+  const nome  = document.getElementById('modal-meta').querySelector('input').value.trim();
+  const target = parseFloat(document.getElementById('modal-meta').querySelectorAll('input')[1]?.value || 0);
+  const atual  = parseFloat(document.getElementById('modal-meta').querySelectorAll('input')[2]?.value || 0);
+  const prazo  = document.getElementById('modal-meta').querySelector('input[type="date"]')?.value || '';
+  const icon   = document.getElementById('modal-meta').querySelectorAll('input')[4]?.value || '🎯';
+  if(!nome) { alert('Informe o nome da meta!'); return; }
+  if(!target || target <= 0) { alert('Informe o valor alvo!'); return; }
+  const uid = window._finiaUser?.id || '0';
+  const key = 'finia_metas_' + uid;
+  const metas = JSON.parse(localStorage.getItem(key) || '[]');
+  metas.push({ nome, target, atual, prazo, icon });
+  localStorage.setItem(key, JSON.stringify(metas));
+  closeModal('modal-meta');
+  loadMetas();
+  showToast('🎯 Meta criada com sucesso!');
+}
+
+// ── SALVAR CONTA ──
+function salvarConta() {
+  const inputs = document.querySelectorAll('#modal-conta input');
+  const nome  = inputs[0]?.value.trim();
+  const saldo = parseFloat(inputs[1]?.value || 0);
+  const tipo  = document.querySelector('#modal-conta select')?.value || 'Conta Corrente';
+  if(!nome) { alert('Informe o nome do banco!'); return; }
+  const cores = {'#111827':'⬛','#22c55e':'💚','#3b82f6':'💙','#8b5cf6':'💜','#ef4444':'❤️'};
+  const corSel = document.querySelector('#modal-conta [onclick^="selectColor"].selected');
+  const color = '#3b82f6';
+  const icon = '🏦';
+  const key = 'finia_contas_' + (window._finiaUser?.id || '0');
+  const contas = JSON.parse(localStorage.getItem(key) || '[]');
+  contas.push({ nome, tipo, saldo, color, icon });
+  localStorage.setItem('finia_contas', JSON.stringify(contas));
+  closeModal('modal-conta');
+  loadContas();
+  showToast('🏦 Conta adicionada!');
+}
+
 // Aliases para compatibilidade
 function loadResumo() { return loadResumoMes(viewMes, viewAno); }
 function loadTransacoes() { return loadTransacoesMes(viewMes, viewAno); }
@@ -2467,6 +2472,16 @@ document.querySelectorAll('.sb-name').forEach(el => el.textContent = _u.nome || 
 document.querySelectorAll('.sb-avatar').forEach(el => { if(!_savedFoto) el.textContent = _initials; });
 const _menuNome = document.getElementById('menu-nome');
 if (_menuNome) _menuNome.textContent = _u.nome || 'Minha conta';
+
+// Atualiza badge do plano na sidebar
+const _plano = _u.plano || 'gratis';
+const _planoBadge = document.querySelector('.sb-plan');
+if (_planoBadge) {
+  const planoNomes = { gratis: 'Grátis', pro: '✦ Pro', familia: '✦ Família' };
+  _planoBadge.textContent = planoNomes[_plano] || _plano;
+  _planoBadge.style.background = _plano === 'gratis' ? 'var(--bg)' : 'var(--growth-light)';
+  _planoBadge.style.color = _plano === 'gratis' ? 'var(--text-3)' : 'var(--growth-mid)';
+}
 
 function toggleUserMenu() {
   const m = document.getElementById('user-menu');
