@@ -58,8 +58,7 @@ def migrar():
         TELEFONE_DONO = os.getenv("TELEFONE_DONO", "5513991560950")
         dono = db.execute(text(f"SELECT id, plano FROM {usr_table} WHERE telefone = :tel"), {"tel": TELEFONE_DONO}).fetchone()
         if dono:
-            db.execute(text(f"UPDATE {usr_table} SET plano='pro', plano_ativo=1, ativo=1 WHERE telefone = :tel"), {"tel": TELEFONE_DONO})
-            print(f"✅ Plano Pro garantido para {TELEFONE_DONO}")
+            db.execute(text(f"UPDATE {usr_table} SET plano='familia', plano_ativo=1, ativo=1 WHERE telefone = :tel"), {"tel": TELEFONE_DONO})
         else:
             print(f"ℹ️ Dono ainda não cadastrado — vai ser Pro automaticamente ao fazer login")
 
