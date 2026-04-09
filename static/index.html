@@ -1872,12 +1872,7 @@ function loadContas() {
   const contasSalvas = JSON.parse(localStorage.getItem('finia_contas') || '[]');
   const el = document.getElementById('contas-list');
   if(!contasSalvas.length) {
-    el.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;background:white;border-radius:var(--r-lg);border:2px dashed var(--border);">
-      <div style="font-size:2rem;margin-bottom:12px">🏦</div>
-      <div style="font-size:0.78rem;font-weight:700;color:var(--text);margin-bottom:6px">Nenhuma conta cadastrada</div>
-      <div style="font-size:0.62rem;color:var(--text-3);margin-bottom:16px">Adicione suas contas bancárias para controlar seu saldo</div>
-      <button class="add-btn green" onclick="openModal('modal-conta')" style="margin:0 auto">+ Adicionar primeira conta</button>
-    </div>`;
+    el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;background:white;border-radius:var(--r-lg);border:2px dashed var(--border);"><div style="font-size:2rem;margin-bottom:12px">🏦</div><div style="font-size:0.78rem;font-weight:700;color:var(--text);margin-bottom:6px">Nenhuma conta cadastrada</div><div style="font-size:0.62rem;color:var(--text-3);margin-bottom:16px">Adicione suas contas bancárias para controlar seu saldo</div><button class=\"add-btn green\" onclick=\"openModal(&apos;modal-conta&apos;)\" style=\"margin:0 auto\">+ Adicionar primeira conta</button></div>';
   } else {
     el.innerHTML = contasSalvas.map(c => `
       <div class="account-card">
@@ -1978,7 +1973,7 @@ function loadMetas() {
   if(statVals[2]) statVals[2].textContent = fmt(totalPoupado);
 
   if(!metasSalvas.length) {
-    el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;background:white;border-radius:var(--r-lg);border:2px dashed var(--border);"><div style="font-size:2rem;margin-bottom:12px">🎯</div><div style="font-size:0.78rem;font-weight:700;color:var(--text);margin-bottom:6px">Nenhuma meta criada ainda</div><div style="font-size:0.62rem;color:var(--text-3);margin-bottom:16px">Crie metas financeiras e acompanhe seu progresso</div><button class="add-btn green" onclick="openModal('modal-meta')" style="margin:0 auto">+ Criar primeira meta</button></div>';
+    el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;background:white;border-radius:var(--r-lg);border:2px dashed var(--border);"><div style="font-size:2rem;margin-bottom:12px">🎯</div><div style="font-size:0.78rem;font-weight:700;color:var(--text);margin-bottom:6px">Nenhuma meta criada ainda</div><div style="font-size:0.62rem;color:var(--text-3);margin-bottom:16px">Crie metas financeiras e acompanhe seu progresso</div><button class=\"add-btn green\" onclick=\"openModal(&apos;modal-meta&apos;)\" style=\"margin:0 auto\">+ Criar primeira meta</button></div>';
     return;
   }
 
