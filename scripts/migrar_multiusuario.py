@@ -15,17 +15,33 @@ def migrar():
     try:
         print("🔄 Iniciando migração para multiusuário...")
 
-        # 1. Limpa todas as transações existentes (dados de teste)
-        db.execute(text("DELETE FROM transacoes"))
-        print("✅ Transações limpas")
+        # 0. Cria tabelas se não existirem (via SQLAlchemy models)
+        from app.models import usuario, transacao
+        from app.database import Base, engine as _engine
+        Base.metadata.create_all(bind=_engine)
+        print("✅ Tabelas criadas/verificadas")
 
-        # 2. Limpa usuários antigos
-        db.execute(text("DELETE FROM usuarios"))
-        print("✅ Usuários limpos")
+        # Descobre nome real das tabelas
+        tabelas = db.execute(text("SELECT name FROM sqlite_master WHERE type='table'")).fetchall()
+        nomes = [t[0] for t in tabelas]
+        print(f"📋 Tabelas encontradas: {nomes}")
+
+        # 1. Limpa transações
+        tx_table = next((n for n in nomes if 'transac' in n.lower()), None)
+        if tx_table:
+            db.execute(text(f"DELETE FROM {tx_table}"))
+            print(f"✅ {tx_table} limpa")
+
+        # 2. Limpa usuários
+        usr_table = next((n for n in nomes if 'user' in n.lower() or 'usuario' in n.lower()), None)
+        if usr_table:
+            db.execute(text(f"DELETE FROM {usr_table}"))
+            print(f"✅ {usr_table} limpa")
 
         # 3. Adiciona coluna usuario_id na tabela transacoes se não existir
         try:
-            db.execute(text("ALTER TABLE transacoes ADD COLUMN usuario_id INTEGER REFERENCES usuarios(id)"))
+            tx_t = next((n for n in nomes if 'transac' in n.lower()), 'transacoes')
+            db.execute(text(f"ALTER TABLE {tx_t} ADD COLUMN usuario_id INTEGER"))
             print("✅ Coluna usuario_id adicionada em transacoes")
         except Exception as e:
             if "duplicate column" in str(e).lower() or "already exists" in str(e).lower():
@@ -35,7 +51,8 @@ def migrar():
 
         # 4. Adiciona coluna ativo em usuarios se não existir
         try:
-            db.execute(text("ALTER TABLE usuarios ADD COLUMN ativo BOOLEAN DEFAULT 1"))
+            usr_t = next((n for n in nomes if 'user' in n.lower() or 'usuario' in n.lower()), 'usuarios')
+            db.execute(text(f"ALTER TABLE {usr_t} ADD COLUMN ativo BOOLEAN DEFAULT 1"))
             print("✅ Coluna ativo adicionada em usuarios")
         except Exception as e:
             if "duplicate column" in str(e).lower() or "already exists" in str(e).lower():
@@ -45,7 +62,7 @@ def migrar():
 
         # 5. Adiciona coluna email em usuarios se não existir
         try:
-            db.execute(text("ALTER TABLE usuarios ADD COLUMN email TEXT"))
+            db.execute(text(f"ALTER TABLE {usr_t} ADD COLUMN email TEXT"))
             print("✅ Coluna email adicionada")
         except Exception as e:
             if "duplicate column" in str(e).lower() or "already exists" in str(e).lower():
@@ -53,7 +70,7 @@ def migrar():
 
         # 6. Adiciona coluna mp_payer_id se não existir
         try:
-            db.execute(text("ALTER TABLE usuarios ADD COLUMN mp_payer_id TEXT"))
+            db.execute(text(f"ALTER TABLE {usr_t} ADD COLUMN mp_payer_id TEXT"))
             print("✅ Coluna mp_payer_id adicionada")
         except Exception as e:
             if "duplicate column" in str(e).lower() or "already exists" in str(e).lower():
