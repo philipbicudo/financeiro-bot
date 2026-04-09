@@ -448,11 +448,10 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
       <div class="page-title">Olá, Philip 👋</div>
     </div>
     <div class="page-actions">
-      <div class="period-group">
-        <button class="period-btn">7d</button>
-        <button class="period-btn active">Mês</button>
-        <button class="period-btn">3m</button>
-        <button class="period-btn">Ano</button>
+      <div style="display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:3px;">
+        <button onclick="mudarMes(-1)" style="width:28px;height:28px;border-radius:6px;border:none;background:none;cursor:pointer;font-size:0.9rem;color:var(--text-2);display:flex;align-items:center;justify-content:center;transition:all 0.1s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'">‹</button>
+        <div id="mes-label" style="font-size:0.6rem;font-weight:700;color:var(--text);min-width:100px;text-align:center;padding:0 4px;">Abril 2026</div>
+        <button onclick="mudarMes(1)" id="btn-proximo-mes" style="width:28px;height:28px;border-radius:6px;border:none;background:none;cursor:pointer;font-size:0.9rem;color:var(--text-2);display:flex;align-items:center;justify-content:center;transition:all 0.1s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'">›</button>
       </div>
       <button class="add-btn" onclick="openModal('modal-tx')">+ Registrar transação</button>
     </div>
@@ -1336,6 +1335,38 @@ let currentFilter = 'all';
 let currentCat = 'all';
 let currentCatPage = 'all';
 
+// Navegação de mês
+const _now = new Date();
+let viewMes = _now.getMonth() + 1;
+let viewAno = _now.getFullYear();
+const MESES_PT_FULL = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+function mudarMes(dir) {
+  viewMes += dir;
+  if (viewMes > 12) { viewMes = 1;  viewAno++; }
+  if (viewMes < 1)  { viewMes = 12; viewAno--; }
+
+  // Atualiza label
+  const isFuturo = (viewAno > _now.getFullYear()) || (viewAno === _now.getFullYear() && viewMes > _now.getMonth() + 1);
+  const isAtual  = viewMes === _now.getMonth() + 1 && viewAno === _now.getFullYear();
+  const label = isAtual ? `${MESES_PT_FULL[viewMes-1]} ${viewAno} ✦` : `${MESES_PT_FULL[viewMes-1]} ${viewAno}`;
+  document.getElementById('mes-label').textContent = label;
+
+  // Bloqueia avançar para o futuro
+  const btnProx = document.getElementById('btn-proximo-mes');
+  if (btnProx) btnProx.style.opacity = isFuturo ? '0.3' : '1';
+
+  // Atualiza header da página
+  const dl = document.getElementById('date-label');
+  if (dl && !isAtual) dl.textContent = `${MESES_PT_FULL[viewMes-1]} de ${viewAno}`;
+  else if (dl) dl.textContent = `${DIAS[_now.getDay()]}, ${_now.getDate()} de ${MESES_PT_FULL[_now.getMonth()]} de ${_now.getFullYear()}`;
+
+  // Recarrega dados do mês selecionado
+  loadResumoMes(viewMes, viewAno);
+  loadTransacoesMes(viewMes, viewAno);
+  loadHistorico();
+}
+
 const now = new Date();
 document.getElementById('date-label').textContent = `${DIAS[now.getDay()]}, ${now.getDate()} de ${MESES[now.getMonth()]} de ${now.getFullYear()}`;
 
@@ -1367,9 +1398,10 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); }));
 
 // ── LOAD RESUMO ──
-async function loadResumo() {
+async function loadResumoMes(mes, ano) {
   try {
-    const res = await fetch(`${API}/dashboard/resumo`);
+    const params = mes && ano ? `?mes=${mes}&ano=${ano}` : '';
+    const res = await fetch(`${API}/dashboard/resumo${params}`);
     const d = await res.json();
     document.getElementById('d-receitas').textContent = fmt(d.receitas);
     document.getElementById('d-gastos').textContent = fmt(d.gastos);
@@ -1394,9 +1426,10 @@ async function loadResumo() {
 }
 
 // ── LOAD TRANSAÇÕES ──
-async function loadTransacoes() {
+async function loadTransacoesMes(mes, ano) {
   try {
-    const res = await fetch(`${API}/dashboard/transacoes`);
+    const params = mes && ano ? `?mes=${mes}&ano=${ano}` : '';
+    const res = await fetch(`${API}/dashboard/transacoes${params}`);
     allTx = await res.json();
     const pendentes = allTx.filter(t => t.status === 'nao_pago' || t.status === 'pendente');
     document.getElementById('tx-count').textContent = `${allTx.length} registros`;
@@ -2166,8 +2199,14 @@ function abrirUpgrade() { window.open('/landing.html', '_blank'); }
 function atualizarCartao() { alert('Para atualizar o cartão, acesse o app do Mercado Pago ou entre em contato com o suporte.'); }
 function baixarRecibo() { alert('Recibo em PDF disponível em breve! Por enquanto, o comprovante é enviado pelo WhatsApp.'); }
 
+// Aliases para compatibilidade
+function loadResumo() { return loadResumoMes(viewMes, viewAno); }
+function loadTransacoes() { return loadTransacoesMes(viewMes, viewAno); }
+
 // ── INIT ──
-Promise.all([loadResumo(), loadTransacoes(), loadCats(), loadHistorico()]);
+// Inicializa label do mês atual
+document.getElementById('mes-label').textContent = `${MESES_PT_FULL[viewMes-1]} ${viewAno} ✦`;
+Promise.all([loadResumoMes(viewMes, viewAno), loadTransacoesMes(viewMes, viewAno), loadCats(), loadHistorico()]);
 setInterval(()=>{ loadResumo(); loadTransacoes(); },30000);
 </script>
 <!-- Botão finia IA Flutuante -->
