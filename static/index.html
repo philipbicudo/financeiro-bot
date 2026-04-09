@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
-<meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(self), geolocation=()">
 <meta name="robots" content="noindex, nofollow">
@@ -2197,54 +2196,101 @@ function carregarPerfil() {
 }
 
 // ── ASSINATURA ──
-const USUARIO_ID = 1; // Trocar pelo ID real do usuário logado
+const USUARIO_ID = window._finiaUser?.id || 1;
 
 async function loadAssinatura() {
+  const planoNomes   = { gratis:'Grátis', pro:'✦ finia Pro', familia:'✦ finia Família' };
+  const planoValores = { gratis:'R$ 0/mês', pro:'R$ 19,90/mês', familia:'R$ 34,90/mês' };
+
+  // Usa dados do JWT primeiro (instantâneo)
+  const userLocal = window._finiaUser || JSON.parse(localStorage.getItem('finia_usuario') || '{}');
+  const planoLocal = userLocal.plano || 'gratis';
+
+  document.getElementById('assin-plano-nome').textContent = planoNomes[planoLocal] || planoLocal;
+  document.getElementById('det-plano').textContent        = planoNomes[planoLocal] || planoLocal;
+  document.getElementById('det-valor').textContent        = planoValores[planoLocal] || '—';
+  document.getElementById('assin-plano-sub').textContent  = planoValores[planoLocal] || '—';
+
+  // Atualiza badge na sidebar também
+  const badge = document.querySelector('.sb-plan');
+  if(badge) {
+    badge.textContent = planoNomes[planoLocal] || planoLocal;
+    badge.style.background = planoLocal === 'gratis' ? 'var(--bg)' : 'var(--growth-light)';
+    badge.style.color = planoLocal === 'gratis' ? 'var(--text-3)' : 'var(--growth-mid)';
+  }
+
+  // Destaca card do plano atual
+  ['gratis','pro','familia'].forEach(p => {
+    const card = document.getElementById('card-' + p);
+    if(!card) return;
+    if(p === planoLocal) {
+      card.style.border = '2px solid var(--growth)';
+      card.style.background = 'var(--growth-light)';
+    } else {
+      card.style.border = '1.5px solid var(--border)';
+      card.style.background = '';
+    }
+  });
+
+  // Busca dados completos da API
   try {
-    const res = await fetch(`${API}/assinaturas/status/${USUARIO_ID}`);
+    const uid = userLocal.id || USUARIO_ID;
+    const res = await authFetch(`${API}/assinaturas/status/${uid}`);
+    if(!res.ok) throw new Error('API error ' + res.status);
     const d = await res.json();
 
-    const planoNomes = { gratis: 'Grátis', pro: '✦ finia Pro', familia: '✦ finia Família' };
-    const planoValores = { gratis: 'R$ 0/mês', pro: 'R$ 19,90/mês', familia: 'R$ 34,90/mês' };
+    if(d.plano) {
+      document.getElementById('assin-plano-nome').textContent = planoNomes[d.plano] || d.plano;
+      document.getElementById('det-plano').textContent        = planoNomes[d.plano] || d.plano;
+      document.getElementById('det-valor').textContent        = d.valor_mensal ? `R$ ${d.valor_mensal.toFixed(2)}/mês` : planoValores[d.plano] || '—';
+      document.getElementById('det-id').textContent           = d.subscription_id || 'Sem assinatura MP';
 
-    document.getElementById('assin-plano-nome').textContent = planoNomes[d.plano] || d.plano;
-    document.getElementById('det-plano').textContent = planoNomes[d.plano] || d.plano;
-    document.getElementById('det-valor').textContent = d.valor_mensal ? `R$ ${d.valor_mensal.toFixed(2)}/mês` : planoValores[d.plano] || '—';
-    document.getElementById('det-id').textContent = d.subscription_id || 'Plano gratuito';
+      if(d.proximo_debito) {
+        const dt = new Date(d.proximo_debito);
+        document.getElementById('det-proximo').textContent = dt.toLocaleDateString('pt-BR');
+        document.getElementById('assin-plano-sub').textContent = `Próxima cobrança: ${dt.toLocaleDateString('pt-BR')} · ${planoValores[d.plano]}`;
+      } else if(d.expira) {
+        const dt = new Date(d.expira);
+        document.getElementById('det-proximo').textContent = dt.toLocaleDateString('pt-BR');
+        document.getElementById('assin-plano-sub').textContent = `Acesso até ${dt.toLocaleDateString('pt-BR')}`;
+      } else {
+        document.getElementById('det-proximo').textContent = '—';
+        document.getElementById('assin-plano-sub').textContent = d.plano === 'gratis' ? 'Plano gratuito — sem cobrança' : 'Assinatura ativa';
+      }
 
-    if (d.proximo_debito) {
-      const dt = new Date(d.proximo_debito);
-      document.getElementById('det-proximo').textContent = dt.toLocaleDateString('pt-BR');
-      document.getElementById('assin-plano-sub').textContent = `Próxima cobrança em ${dt.toLocaleDateString('pt-BR')} · ${planoValores[d.plano]}`;
-    } else if (d.expira) {
-      const dt = new Date(d.expira);
-      document.getElementById('det-proximo').textContent = dt.toLocaleDateString('pt-BR');
-      document.getElementById('assin-plano-sub').textContent = `Acesso até ${dt.toLocaleDateString('pt-BR')}`;
+      const statusEl = document.getElementById('det-status');
+      if(d.ativo) { statusEl.textContent = '✓ Ativo'; statusEl.className = 'tx-status pago'; }
+      else { statusEl.textContent = '⏸ Inativo'; statusEl.className = 'tx-status pendente'; }
     }
-
-    const statusEl = document.getElementById('det-status');
-    if (d.ativo) { statusEl.textContent = '✓ Ativo'; statusEl.className = 'tx-status pago'; }
-    else { statusEl.textContent = '⏸ Inativo'; statusEl.className = 'tx-status pendente'; }
-
-    // Histórico mock (em produção vem do MP)
-    renderHistorico(d.plano);
-
+    renderHistorico(d.plano || planoLocal);
   } catch(e) {
-    document.getElementById('assin-plano-sub').textContent = 'Erro ao carregar dados';
+    // Usa dados locais como fallback — não mostra erro
+    renderHistorico(planoLocal);
+    document.getElementById('det-proximo').textContent = '—';
+    document.getElementById('det-id').textContent = 'Plano local';
   }
 }
 
 function renderHistorico(plano) {
-  const valor = plano === 'familia' ? 'R$ 34,90' : plano === 'pro' ? 'R$ 19,90' : 'R$ 0,00';
-  const meses = ['Abril 2026','Março 2026','Fevereiro 2026','Janeiro 2026'];
   const hist = document.getElementById('historico-pag');
-  document.getElementById('hist-count').textContent = `${meses.length} pagamentos`;
-  hist.innerHTML = meses.map((m, i) => `
-    <div class="pend-item">
-      <div class="pend-ico" style="background:var(--growth-light)">✅</div>
-      <div><div class="pend-name">${m}</div><div class="pend-due">Pago via cartão · finia ${plano.charAt(0).toUpperCase()+plano.slice(1)}</div></div>
-      <div class="pend-amt" style="color:var(--growth-mid)">${valor}</div>
-    </div>`).join('');
+  if(!hist) return;
+  if(plano === 'gratis') {
+    document.getElementById('hist-count').textContent = '0 pagamentos';
+    hist.innerHTML = '<div style="text-align:center;padding:24px;font-size:0.62rem;color:var(--text-3)"><div style="font-size:1.2rem;margin-bottom:6px">📋</div>Nenhum pagamento — plano gratuito</div>';
+    return;
+  }
+  // Plano pago — mostra histórico real do MP quando disponível
+  // Por enquanto mostra o mês atual como pago
+  const valor = plano === 'familia' ? 'R$ 34,90' : 'R$ 19,90';
+  const agora = new Date();
+  const meses_pt = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const mesAtual = `${meses_pt[agora.getMonth()]} ${agora.getFullYear()}`;
+  document.getElementById('hist-count').textContent = '1 pagamento';
+  hist.innerHTML = `<div class="pend-item">
+    <div class="pend-ico" style="background:var(--growth-light)">✅</div>
+    <div><div class="pend-name">${mesAtual}</div><div class="pend-due">Pago via cartão · finia ${plano.charAt(0).toUpperCase()+plano.slice(1)}</div></div>
+    <div class="pend-amt" style="color:var(--growth-mid)">${valor}</div>
+  </div>`;
 }
 
 async function confirmarCancelamento() {
