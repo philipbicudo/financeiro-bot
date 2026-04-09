@@ -102,16 +102,24 @@ def verificar_token(token: str) -> dict:
         raise HTTPException(status_code=401, detail="Token inválido ou expirado")
 
 async def enviar_wpp(telefone: str, mensagem: str):
+    # Garante formato correto — remove @s.whatsapp.net se vier junto
+    numero = telefone.replace("@s.whatsapp.net", "").strip()
+    # Garante que começa com 55
+    nums = re.sub(r"\D", "", numero)
+    if not nums.startswith("55"):
+        nums = "55" + nums
+    
     if not EVOLUTION_URL:
-        print(f"[OTP] Código para {telefone}: {mensagem}")
+        print(f"[OTP] Código para {nums}: {mensagem}")
         return
     try:
-        async with httpx.AsyncClient(timeout=8) as client:
-            await client.post(
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.post(
                 f"{EVOLUTION_URL}/message/sendText/{EVOLUTION_INST}",
-                json={"number": telefone, "textMessage": {"text": mensagem}},
-                headers={"apikey": EVOLUTION_KEY},
+                json={"number": nums, "textMessage": {"text": mensagem}},
+                headers={"apikey": EVOLUTION_KEY, "Content-Type": "application/json"},
             )
+            print(f"[OTP] Enviado para {nums}: status {resp.status_code}")
     except Exception as e:
         print(f"[auth] Erro WhatsApp: {e}")
 
