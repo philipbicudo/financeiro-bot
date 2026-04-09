@@ -170,7 +170,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .tx-status-btn.nao_pago:hover,.tx-status-btn.pendente:hover{background:var(--growth-light);color:var(--growth-mid);}
 
 /* GRIDS */
-.content-grid{display:grid;grid-template-columns:1fr 320px;gap:18px;margin-bottom:18px;}
+.content-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-bottom:18px;}
 .right-col{display:flex;flex-direction:column;gap:16px;}
 .bottom{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px;}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
@@ -519,40 +519,21 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
       </div>
       <div id="txList"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
     </div>
-    <div class="right-col">
-      <div class="wpp">
-        <div class="wpp-top"><div class="wpp-av">🤖</div><div><div class="wpp-info-name">finia bot</div><div class="wpp-info-sub"><div class="wpp-dot"></div>online</div></div></div>
-        <div class="wpp-body" id="wppBody">
-          <div class="bub sent">gastei 50 no mercado<div class="bub-time">agora ✓✓</div></div>
-          <div class="bub bot">✅ <strong>Registrado!</strong><br>🛒 Mercado — R$ 50,00<br>📁 Alimentação · ✅ Pago<div class="bub-time">agora ✓✓</div></div>
-        </div>
-        <div class="wpp-shortcuts">
-          <span class="shortcut" onclick="simWpp('gastei 50 no mercado')">🛒 mercado</span>
-          <span class="shortcut" onclick="simWpp('paguei 180 luz')">💡 luz</span>
-          <span class="shortcut" onclick="simWpp('uber 22 reais')">🚗 uber</span>
-          <span class="shortcut" onclick="simWpp('recebi salário 3000')">💰 salário</span>
-          <span class="shortcut" onclick="simWpp('resumo')">📊 resumo</span>
-        </div>
-        <div class="wpp-bar">
-          <input class="wpp-in" id="wppInput" placeholder="Escreva..." onkeydown="if(event.key==='Enter')simWppInput()">
-          <button class="wpp-send" onclick="simWppInput()">➤</button>
-        </div>
-      </div>
-      <div class="panel">
-        <div class="panel-head"><div class="panel-title">🏷️ Por categoria</div><span class="panel-count">mês atual</span></div>
-        <div class="cats" id="catList"><div class="loading"><div class="spinner"></div></div></div>
-      </div>
-    </div>
+
   </div>
-  <div class="bottom">
+  <div class="two-col" style="margin-bottom:18px">
     <div class="panel">
-      <div class="panel-head"><div class="panel-title">Entradas × Saídas</div><div class="chart-legend"><span class="leg"><span class="leg-swatch" style="background:var(--midnight)"></span>Receitas</span><span class="leg"><span class="leg-swatch" style="background:#cbd5e1"></span>Gastos</span></div></div>
-      <div class="chart-body"><div class="bar-area" id="barArea"><div class="loading"><div class="spinner"></div></div></div></div>
+      <div class="panel-head"><div class="panel-title">🏷️ Por categoria</div><span class="panel-count">mês atual</span></div>
+      <div class="cats" id="catList"><div class="loading"><div class="spinner"></div></div></div>
     </div>
     <div class="panel">
       <div class="panel-head"><div class="panel-title">Contas a pagar</div><span class="panel-count" id="pend-count">—</span></div>
       <div id="pendList"><div class="loading"><div class="spinner"></div></div></div>
     </div>
+  </div>
+  <div class="panel" style="margin-bottom:18px">
+    <div class="panel-head"><div class="panel-title">Entradas × Saídas</div><div class="chart-legend"><span class="leg"><span class="leg-swatch" style="background:var(--midnight)"></span>Receitas</span><span class="leg"><span class="leg-swatch" style="background:#cbd5e1"></span>Gastos</span></div></div>
+    <div class="chart-body"><div class="bar-area" id="barArea"><div class="loading"><div class="spinner"></div></div></div></div>
   </div>
 </div>
 
@@ -2157,17 +2138,26 @@ function trocarFoto(input) {
   if (!input.files[0]) return;
   const reader = new FileReader();
   reader.onload = e => {
-    const av = document.getElementById('perfil-avatar');
-    av.innerHTML = '';
-    av.style.background = 'transparent';
-    const img = document.createElement('img');
-    img.src = e.target.result;
-    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%';
-    av.appendChild(img);
-    // Salva no localStorage
-    localStorage.setItem('finia_foto', e.target.result);
+    const foto = e.target.result;
+    localStorage.setItem('finia_foto', foto);
+    // Atualiza TODOS os avatares na página
+    atualizarAvatares(foto);
   };
   reader.readAsDataURL(input.files[0]);
+}
+
+function atualizarAvatares(foto) {
+  const imgHtml = `<img src="${foto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+  // Avatar do perfil
+  const perfilAv = document.getElementById('perfil-avatar');
+  if (perfilAv) { perfilAv.innerHTML = imgHtml; perfilAv.style.background = 'transparent'; }
+  // Avatar do nav
+  const navAv = document.getElementById('nav-avatar');
+  if (navAv) { navAv.innerHTML = imgHtml; navAv.style.background = 'transparent'; navAv.style.padding = '0'; }
+  // Avatar da sidebar
+  document.querySelectorAll('.sb-avatar').forEach(av => {
+    av.innerHTML = imgHtml; av.style.background = 'transparent';
+  });
 }
 
 function salvarPerfil() {
@@ -2239,12 +2229,9 @@ function carregarPerfil() {
   if (dados.cep)     document.getElementById('pf-cep') && (document.getElementById('pf-cep').value = dados.cep);
   if (dados.cidade)  document.getElementById('pf-cidade') && (document.getElementById('pf-cidade').value = dados.cidade);
   if (dados.estado)  document.getElementById('pf-estado') && (document.getElementById('pf-estado').value = dados.estado);
-  // Foto
+  // Foto — sincroniza todos os avatares
   const foto = localStorage.getItem('finia_foto');
-  if (foto) {
-    const av = document.getElementById('perfil-avatar');
-    if (av) { av.innerHTML = `<img src="${foto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`; }
-  }
+  if (foto) atualizarAvatares(foto);
 }
 
 // ── ASSINATURA ──
@@ -2468,8 +2455,16 @@ function loadTransacoes() { return loadTransacoesMes(viewMes, viewAno); }
 // Inicializa dados do usuário
 const _u = window._finiaUser || {};
 const _initials = (_u.nome||'U').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
-document.getElementById('nav-avatar').textContent = _initials;
+const _navAv = document.getElementById('nav-avatar');
+const _savedFoto = localStorage.getItem('finia_foto');
+if (_savedFoto) {
+  // Tem foto salva — usa em todos os avatares
+  setTimeout(() => atualizarAvatares(_savedFoto), 100);
+} else {
+  if (_navAv) _navAv.textContent = _initials;
+}
 document.querySelectorAll('.sb-name').forEach(el => el.textContent = _u.nome || 'Usuário');
+document.querySelectorAll('.sb-avatar').forEach(el => { if(!_savedFoto) el.textContent = _initials; });
 const _menuNome = document.getElementById('menu-nome');
 if (_menuNome) _menuNome.textContent = _u.nome || 'Minha conta';
 
