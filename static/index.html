@@ -410,18 +410,7 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
     </div>
     <span class="nav-wordmark">finia</span>
   </div>
-  <div class="nav-links">
-    <button class="nav-link active" onclick="showPage('visao-geral',this)">🏠 Visão Geral</button>
-    <button class="nav-link" onclick="showPage('relatorios',this)">📊 Relatórios</button>
-    <button class="nav-link" onclick="showPage('categorias',this)">🏷️ Categorias</button>
-    <button class="nav-link" onclick="showPage('contas',this)">🏦 Contas</button>
-    <button class="nav-link" onclick="showPage('transacoes-page',this)">💸 Transações</button>
-    <button class="nav-link" onclick="showPage('cartao',this)">💳 Cartão</button>
-    <button class="nav-link" onclick="showPage('metas',this)">🎯 Metas</button>
-    <button class="nav-link" onclick="showPage('config',this)">⚙️ Config</button>
-    <button class="nav-link" onclick="showPage('assinatura',this)">💳 Assinatura</button>
-    <button class="nav-link" onclick="showPage('suporte',this)">🆘 Suporte</button>
-  </div>
+  <div class="nav-links" id="nav-links-empty"></div>
   <div class="nav-right">
     <button class="nav-cta" onclick="openModal('modal-tx')">+ Registrar</button>
     <div class="nav-avatar" id="nav-avatar" onclick="toggleUserMenu()" style="cursor:pointer;" title="Conta"></div>
@@ -1257,8 +1246,8 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
 
 <footer>
   <div class="footer-logo">fin<span>ia</span></div>
-  <div class="footer-text">Gestão Financeira via WhatsApp · finia · 2026</div>
-  <div class="footer-text">🤖 Bot online · Railway · 2026</div>
+  <div class="footer-text">© 2026 finia — Todos os direitos reservados · Gestão Financeira via WhatsApp</div>
+  <div class="footer-text">Desenvolvido por Philip Bicudo · CNPJ em breve</div>
 </footer>
 
 <!-- MODAIS -->
@@ -1690,6 +1679,13 @@ document.getElementById('date-label').textContent = `${DIAS[now.getDay()]}, ${no
 
 // ── NAVIGATION ──
 function showPage(id, navBtn, sideBtn, filter) {
+  // Verifica acesso ao plano
+  const restricted = { 'cartao': 'cartao', 'relatorios': 'relatorios' };
+  if(restricted[id] && !temAcesso(restricted[id])) {
+    showToast('🔒 Este recurso requer o plano Pro!','error');
+    setTimeout(() => { showPage('assinatura'); }, 100);
+    return;
+  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
@@ -1720,7 +1716,9 @@ document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('cli
 async function loadResumoMes(mes, ano) {
   try {
     const params = mes && ano ? `?mes=${mes}&ano=${ano}` : '';
-    const res = await fetch(`${API}/dashboard/resumo${params}`);
+    const token = window._finiaToken || localStorage.getItem('finia_token') || '';
+    const headers = token ? {'Authorization': 'Bearer ' + token} : {};
+    const res = await fetch(`${API}/dashboard/resumo${params}`, {headers});
     const d = await res.json();
     document.getElementById('d-receitas').textContent = fmt(d.receitas);
     document.getElementById('d-gastos').textContent = fmt(d.gastos);
@@ -1748,7 +1746,9 @@ async function loadResumoMes(mes, ano) {
 async function loadTransacoesMes(mes, ano) {
   try {
     const params = mes && ano ? `?mes=${mes}&ano=${ano}` : '';
-    const res = await fetch(`${API}/dashboard/transacoes${params}`);
+    const token2 = window._finiaToken || localStorage.getItem('finia_token') || '';
+    const headers2 = token2 ? {'Authorization': 'Bearer ' + token2} : {};
+    const res = await fetch(`${API}/dashboard/transacoes${params}`, {headers: headers2});
     allTx = await res.json();
     const pendentes = allTx.filter(t => t.status === 'nao_pago' || t.status === 'pendente');
     document.getElementById('tx-count').textContent = `${allTx.length} registros`;
@@ -1829,10 +1829,14 @@ async function marcarPago(id,btn) {
 // ── LOAD CATEGORIAS ──
 async function loadCats(listId='catList') {
   try {
-    const res = await fetch(`${API}/dashboard/categorias`);
+    const token = window._finiaToken || localStorage.getItem('finia_token') || '';
+    const headers = token ? {'Authorization': 'Bearer ' + token} : {};
+    const res = await fetch(`${API}/dashboard/categorias`, {headers});
     const cats = await res.json();
-    if(!cats.length){ document.getElementById(listId).innerHTML='<div class="empty-msg">Sem gastos no mês.</div>'; return; }
-    document.getElementById(listId).innerHTML = cats.slice(0,6).map(c => {
+    const el = document.getElementById(listId);
+    if(!el) return cats || [];
+    if(!cats.length){ el.innerHTML='<div class="empty-msg">Sem gastos no mês.</div>'; return []; }
+    el.innerHTML = cats.slice(0,6).map(c => {
       const color = CAT_COLORS[(c.categoria||'').toLowerCase()]||'#94a3b8';
       const icon = CAT_ICONS[(c.categoria||'').toLowerCase()]||'📦';
       return `<div class="cat-row">
@@ -1844,7 +1848,11 @@ async function loadCats(listId='catList') {
       </div>`;
     }).join('');
     return cats;
-  } catch(e) { document.getElementById(listId).innerHTML='<div class="error-msg">Erro ao carregar.</div>'; }
+  } catch(e) {
+    const el = document.getElementById(listId);
+    if(el) el.innerHTML='<div class="empty-msg">Sem dados de categorias.</div>';
+    return [];
+  }
 }
 
 // ── LOAD HISTÓRICO ──
@@ -1906,7 +1914,7 @@ function getCatInfo(nome) {
 }
 
 async function loadCategorias() {
-  const catsGasto = await loadCats('cat-list-full') || [];
+  const catsGasto = await loadCats('cat-table') || [];
   const allCats   = getAllCats();
   const custom    = getCatsCustom();
 
@@ -2914,6 +2922,9 @@ if (_planoBadge) {
   _planoBadge.style.background = _plano === 'gratis' ? 'var(--bg)' : 'var(--growth-light)';
   _planoBadge.style.color = _plano === 'gratis' ? 'var(--text-3)' : 'var(--growth-mid)';
 }
+
+// Aplica restrições após inicializar usuário
+setTimeout(aplicarRestricoesDePlano, 300);
 
 function toggleUserMenu() {
   const m = document.getElementById('user-menu');
