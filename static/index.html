@@ -499,7 +499,9 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
   <div class="sb-divider"></div>
   <div class="sb-item" onclick="showPage('config',null,this)"><div class="sb-icon">⚙️</div>Configurações</div>
   <div class="sb-item" onclick="showPage('assinatura',null,this)"><div class="sb-icon">💳</div>Assinatura</div>
-  <div class="sb-item" onclick="showPage('suporte',null,this)"><div class="sb-icon">🆘</div>Suporte</div>
+  <div class="sb-divider"></div>
+  <div class="sb-item" onclick="showPage('suporte',null,this)"><div class="sb-icon">💬</div>Contato</div>
+  <div class="sb-item" onclick="showPage('termos',null,this)"><div class="sb-icon">📄</div>Termos de uso</div>
 </aside>
 
 <main class="main">
@@ -759,6 +761,42 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
   </div>
   <div class="card-grid" style="grid-template-columns:repeat(2,1fr)" id="metas-list">
     <!-- Gerado por JS -->
+  </div>
+</div>
+
+<!-- ══ TERMOS ══ -->
+<div id="page-termos" class="page">
+  <div class="page-head">
+    <div><div class="page-greeting">Legal</div><div class="page-title">Termos de uso</div></div>
+  </div>
+  <div style="max-width:720px;">
+    <div class="panel" style="margin-bottom:16px;">
+      <div class="panel-head"><div class="panel-title">Termos de uso e Política de privacidade</div><span class="panel-count">Atualizado em Jan/2026</span></div>
+      <div style="padding:20px;font-size:0.65rem;color:var(--text-2);line-height:1.85;">
+        <p style="font-weight:700;color:var(--text);margin-bottom:8px;font-size:0.72rem;">1. Aceitação dos termos</p>
+        <p style="margin-bottom:16px;">Ao utilizar o finia, você concorda com estes termos de uso. O finia é um serviço de gestão financeira pessoal oferecido por Philip Bicudo. O uso do aplicativo implica na aceitação integral destes termos.</p>
+        <p style="font-weight:700;color:var(--text);margin-bottom:8px;font-size:0.72rem;">2. Descrição do serviço</p>
+        <p style="margin-bottom:16px;">O finia oferece ferramentas para controle financeiro pessoal via WhatsApp e dashboard web, incluindo registro de transações, relatórios, metas e integração com inteligência artificial.</p>
+        <p style="font-weight:700;color:var(--text);margin-bottom:8px;font-size:0.72rem;">3. Uso dos dados</p>
+        <p style="margin-bottom:16px;">Seus dados financeiros são armazenados de forma criptografada e nunca são compartilhados com terceiros. Utilizamos seus dados exclusivamente para fornecer as funcionalidades do serviço. Não vendemos, alugamos ou transferimos seus dados pessoais.</p>
+        <p style="font-weight:700;color:var(--text);margin-bottom:8px;font-size:0.72rem;">4. Pagamentos e assinaturas</p>
+        <p style="margin-bottom:16px;">Os planos pagos (Pro e Família) são cobrados mensalmente via Mercado Pago. Você pode cancelar a qualquer momento e manterá o acesso até o fim do período pago. Não realizamos reembolsos de períodos parciais.</p>
+        <p style="font-weight:700;color:var(--text);margin-bottom:8px;font-size:0.72rem;">5. Limitação de responsabilidade</p>
+        <p style="margin-bottom:16px;">O finia é uma ferramenta de apoio financeiro e não constitui aconselhamento financeiro profissional. Não nos responsabilizamos por decisões financeiras tomadas com base nas informações exibidas no aplicativo.</p>
+        <p style="font-weight:700;color:var(--text);margin-bottom:8px;font-size:0.72rem;">6. Segurança</p>
+        <p style="margin-bottom:16px;">Implementamos medidas de segurança incluindo autenticação por código OTP, criptografia JWT, isolamento de dados por usuário e proteção contra ataques comuns. Porém, nenhum sistema é 100% seguro e não garantimos segurança absoluta.</p>
+        <p style="font-weight:700;color:var(--text);margin-bottom:8px;font-size:0.72rem;">7. Encerramento de conta</p>
+        <p style="margin-bottom:16px;">Você pode solicitar o encerramento da sua conta a qualquer momento em Configurações → Segurança. Todos os seus dados serão permanentemente removidos em até 30 dias após a solicitação.</p>
+        <p style="font-weight:700;color:var(--text);margin-bottom:8px;font-size:0.72rem;">8. Contato</p>
+        <p>Para dúvidas sobre estes termos, entre em contato pelo Suporte ou pelo WhatsApp disponível na aba Contato.</p>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">Política de cookies</div></div>
+      <div style="padding:16px 20px;font-size:0.65rem;color:var(--text-2);line-height:1.75;">
+        O finia utiliza armazenamento local (localStorage) exclusivamente para manter sua sessão ativa e preferências de uso. Não utilizamos cookies de rastreamento ou publicidade.
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1086,205 +1124,89 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
   </div>
 </div>
 
-<!-- ══ SUPORTE ══ -->
+<!-- ══ SUPORTE / CONTATO ══ -->
 <div id="page-suporte" class="page">
-  <div class="page-head">
-    <div><div class="page-greeting">Central de ajuda</div><div class="page-title">Suporte finia</div></div>
-  </div>
 
-  <!-- TABS -->
-  <div class="tabs" id="suporte-tabs">
-    <div class="tab active" onclick="switchSupportTab('faq',this)">Perguntas frequentes</div>
-    <div class="tab" onclick="switchSupportTab('chat',this)">Chat com suporte</div>
-    <div class="tab" onclick="switchSupportTab('contato',this)">Contato</div>
-  </div>
-
-  <!-- FAQ -->
-  <div class="tab-content active" id="tab-faq">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;">
-
-      <!-- COLUNA 1 -->
-      <div>
-        <div class="faq-section">
-          <div class="faq-section-title">Bot WhatsApp</div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como registro um gasto pelo WhatsApp? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">Basta mandar uma mensagem natural para o bot! Exemplos:<br><br>
-            • "gastei 50 no mercado"<br>• "paguei 180 de luz no cartão"<br>• "uber 22 reais"<br>• "recebi salário de 3000"<br><br>
-            O finia interpreta automaticamente e registra!</div>
-          </div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Posso registrar por voz? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">Sim! Grave um áudio no WhatsApp falando o gasto. O finia transcreve e registra automaticamente. Você também pode usar o microfone no chat do site em /chat.html</div>
-          </div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">O bot não está respondendo. O que fazer? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">Verifique se salvou o número correto na agenda. Tente mandar "oi" para reiniciar a conversa. Se o problema persistir, acesse o dashboard e verifique se o bot está ativo em Configurações → Bot WhatsApp.</div>
-          </div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como ver meu resumo financeiro? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">Mande "resumo" para o bot a qualquer hora. Você também recebe o resumo automaticamente todo dia às 20h se essa opção estiver ativada nas configurações.</div>
-          </div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como funciona a foto de nota fiscal? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">Tire foto do cupom fiscal e envie pelo WhatsApp ou pela aba "Nota Fiscal" no chat do site. A IA lê os itens e registra tudo automaticamente. Certifique-se de que a foto está nítida e com o cupom completo visível.</div>
-          </div>
-        </div>
-
-        </div>
-        <div class="faq-section">
-          <div class="faq-section-title">Dashboard e Dados</div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Meus dados aparecem para outros usuários? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">Não! Cada conta é completamente isolada. Seus dados são protegidos por autenticação JWT e só você tem acesso às suas transações e informações financeiras.</div>
-          </div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como filtrar transações por categoria? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">Na aba Transações ou Visão Geral, use os chips de categoria abaixo dos filtros. Você pode combinar filtros (ex: Gastos + Alimentação).</div>
-          </div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como navegar entre meses? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">Use as setas ‹ › ao lado do mês no topo do dashboard. Você pode ver o histórico de qualquer mês anterior.</div>
-          </div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como editar ou excluir uma transação? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">Em qualquer lista de transações, use o botão ✏️ para editar ou 🗑️ para excluir. Você pode alterar valor, categoria, método de pagamento e status.</div>
-          </div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como marcar uma conta como paga? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">Clique diretamente no status "⏳ A pagar" na lista de transações — ele vira "✓ Pago" automaticamente e atualiza seu saldo.</div>
-          </div>
-        </div>
-      </div>
-      </div>
-
-      <!-- COLUNA 2 -->
-      <div>
-        <div class="faq-section">
-          <div class="faq-section-title">Assinatura e Pagamento</div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como assinar um plano pago? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">Vá em Assinatura → clique em "Fazer upgrade" ou no plano desejado. Você será redirecionado para o Mercado Pago onde poderá inserir seu cartão com segurança. Após a confirmação, seu plano é atualizado automaticamente.</div>
-          </div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como funciona a cobrança recorrente? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">O Mercado Pago debita automaticamente todo mês na data da sua assinatura. Você receberá uma confirmação por WhatsApp a cada pagamento. Não é necessário fazer nada.</div>
-          </div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como cancelar minha assinatura? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">Vá em Assinatura → Ações → "Cancelar assinatura". Você mantém o acesso até o fim do período já pago. Após isso, sua conta volta ao plano Grátis automaticamente.</div>
-          </div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como pausar minha assinatura? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">Vá em Assinatura → Ações → "Pausar assinatura". A cobrança para imediatamente mas você mantém o acesso até a data de expiração atual. Para reativar, clique em "Reativar assinatura".</div>
-          </div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como atualizar meu cartão de crédito? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">Vá em Assinatura → Ações → "Atualizar cartão". Você será direcionado para o painel do Mercado Pago onde pode gerenciar seus métodos de pagamento com segurança.</div>
-          </div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como baixar o recibo de pagamento? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">Vá em Assinatura → Ações → "Baixar recibo do mês". Um documento com os detalhes da sua assinatura será aberto e você pode imprimir ou salvar como PDF.</div>
-          </div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">O que acontece se o pagamento falhar? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">O Mercado Pago tentará cobrar novamente automaticamente. Se o pagamento não for processado, você receberá um aviso por WhatsApp e seu plano será temporariamente suspenso. Atualize seu cartão para reativar.</div>
-          </div>
-        </div>
-
-        </div>
-        <div class="faq-section">
-          <div class="faq-section-title">Segurança e Conta</div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como funciona o login? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">O finia usa autenticação por código OTP via WhatsApp. Você digita seu número, recebe um código de 6 dígitos e entra. Não existe senha para lembrar!</div>
-          </div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Meus dados financeiros estão seguros? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">Sim! O finia usa criptografia JWT, isolamento total por usuário, proteção contra XSS e SQL injection, e HTTPS em todas as comunicações. Nunca armazenamos dados de cartão — isso é gerenciado pelo Mercado Pago.</div>
-          </div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como exportar meus dados? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">Vá em Configurações → Segurança → "Exportar dados". Você poderá baixar todas as suas transações em formato CSV.</div>
-          </div>
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como excluir minha conta? <span class="faq-arrow">+</span></div>
-            <div class="faq-a">Vá em Configurações → Segurança → "Excluir conta". Atenção: esta ação é irreversível e apaga todos os seus dados permanentemente. Cancele sua assinatura antes de excluir a conta.</div>
-          </div>
-        </div>
-      </div>
+  <!-- Hero -->
+  <div style="background:var(--midnight);border-radius:var(--r-lg);padding:32px 28px;margin-bottom:20px;text-align:center;">
+    <div style="font-size:0.55rem;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.4);margin-bottom:8px;">Central de ajuda</div>
+    <div id="suporte-hero-greeting" style="font-size:1.1rem;font-family:'Lora',serif;font-weight:700;color:white;margin-bottom:18px;">Como podemos te ajudar?</div>
+    <div style="position:relative;max-width:480px;margin:0 auto;">
+      <input id="suporte-busca" style="width:100%;padding:12px 44px 12px 16px;border-radius:var(--r);border:none;font-size:0.72rem;outline:none;font-family:'Plus Jakarta Sans',sans-serif;" placeholder="Ex: Como registro um gasto? Como cancelo meu plano?" onkeydown="if(event.key==='Enter')buscarSuporte(this.value)" oninput="filtrarAtalhosVisiveis(this.value)">
+      <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:0.8rem;cursor:pointer;" onclick="buscarSuporte(document.getElementById('suporte-busca').value)">🔍</span>
     </div>
   </div>
 
-  <!-- CHAT SUPORTE IA -->
-  <div class="tab-content" id="tab-chat">
-    <div style="background:white;border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;max-width:700px;margin:0 auto;">
-      <div style="background:var(--midnight);padding:14px 18px;display:flex;align-items:center;gap:10px;">
-        <div style="width:36px;height:36px;background:var(--growth);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🤖</div>
-        <div>
-          <div style="font-size:0.7rem;font-weight:700;color:white;">finia Suporte IA</div>
-          <div style="font-size:0.5rem;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:4px;"><div style="width:5px;height:5px;background:var(--growth);border-radius:50%;"></div>online 24h</div>
+  <!-- Grid principal -->
+  <div style="display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start;">
+
+    <!-- ESQUERDA: Atalhos + FAQ -->
+    <div>
+      <!-- Atalhos personalizados -->
+      <div class="panel" style="margin-bottom:16px;">
+        <div class="panel-head"><div class="panel-title">Atalhos</div></div>
+        <div id="atalhos-list">
+          <div class="atalho-item" onclick="atalhoChat('Como registro um gasto pelo WhatsApp?')">Como registro um gasto pelo WhatsApp? <span class="atalho-arrow">›</span></div>
+          <div class="atalho-item" onclick="atalhoChat('Como cancelo minha assinatura?')">Como cancelo minha assinatura? <span class="atalho-arrow">›</span></div>
+          <div class="atalho-item" onclick="atalhoChat('Meus dados estão seguros?')">Meus dados estão seguros? <span class="atalho-arrow">›</span></div>
+          <div class="atalho-item" onclick="atalhoChat('Como adicionar uma transação recorrente?')">Como adicionar uma transação recorrente? <span class="atalho-arrow">›</span></div>
+          <div class="atalho-item" onclick="atalhoChat('Como atualizar meu cartão de pagamento?')">Como atualizar meu cartão de pagamento? <span class="atalho-arrow">›</span></div>
+          <div class="atalho-item" onclick="atalhoChat('O bot do WhatsApp parou de responder')">O bot do WhatsApp parou de responder <span class="atalho-arrow">›</span></div>
+          <div class="atalho-item" onclick="atalhoChat('Como exportar minhas transações?')">Como exportar minhas transações? <span class="atalho-arrow">›</span></div>
+          <div class="atalho-item" onclick="atalhoChat('Como pausar minha assinatura?')">Como pausar minha assinatura? <span class="atalho-arrow">›</span></div>
+        </div>
+        <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:0.62rem;color:var(--text-2);font-weight:500;">Você precisa de mais ajuda?</span>
+          <button class="add-btn" onclick="focarChat()" style="font-size:0.55rem;padding:6px 14px;">Fale conosco</button>
         </div>
       </div>
-      <div id="suporte-msgs" style="min-height:300px;max-height:400px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:#f8fafc;">
-        <div style="background:white;border:1px solid var(--border);border-radius:4px 14px 14px 14px;padding:10px 14px;max-width:80%;font-size:0.68rem;line-height:1.65;color:var(--text);">
-          Olá! 👋 Sou o assistente de suporte do finia.<br><br>
-          Pode me perguntar qualquer coisa sobre como usar o finia, sua assinatura, pagamentos ou qualquer dúvida que tiver!
+
+      <!-- FAQ acordeão -->
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">Perguntas frequentes</div></div>
+        <div style="padding:0 0 4px;">
+          <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Como registro um gasto pelo WhatsApp?<span class="faq-arrow">+</span></div><div class="faq-a">Mande uma mensagem natural para o bot: "gastei 50 no mercado", "paguei 180 de luz", "uber 22 reais". O finia interpreta e registra automaticamente.</div></div>
+          <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Como funciona a cobrança recorrente?<span class="faq-arrow">+</span></div><div class="faq-a">O Mercado Pago debita automaticamente todo mês na data da sua assinatura. Você recebe confirmação por WhatsApp a cada pagamento.</div></div>
+          <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Como cancelar minha assinatura?<span class="faq-arrow">+</span></div><div class="faq-a">Vá em Assinatura → Ações → Cancelar assinatura. Você mantém o acesso até o fim do período pago. Após isso, volta para o plano Grátis automaticamente.</div></div>
+          <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Meus dados aparecem para outros usuários?<span class="faq-arrow">+</span></div><div class="faq-a">Não. Cada conta é completamente isolada. Seus dados são protegidos por autenticação JWT e só você tem acesso às suas transações.</div></div>
+          <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Como pausar minha assinatura?<span class="faq-arrow">+</span></div><div class="faq-a">Vá em Assinatura → Ações → Pausar assinatura. A cobrança para mas você mantém o acesso até a data de expiração atual.</div></div>
+          <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Como atualizar meu cartão de crédito?<span class="faq-arrow">+</span></div><div class="faq-a">Vá em Assinatura → Ações → Atualizar cartão. Você será direcionado ao painel do Mercado Pago para atualizar seus dados com segurança.</div></div>
+          <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Como baixar o recibo de pagamento?<span class="faq-arrow">+</span></div><div class="faq-a">Vá em Assinatura → Ações → Baixar recibo. Um documento com os detalhes da sua assinatura será gerado para impressão ou PDF.</div></div>
+          <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Como funciona o login?<span class="faq-arrow">+</span></div><div class="faq-a">O finia usa código de verificação enviado via WhatsApp. Você digita seu número, recebe um código de 6 dígitos e entra. Sem senha para lembrar.</div></div>
         </div>
-      </div>
-      <div style="display:flex;gap:6px;padding:10px 14px;border-top:1px solid var(--border);background:white;">
-        <input id="suporte-input" style="flex:1;border:1.5px solid var(--border);border-radius:20px;padding:8px 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.65rem;color:var(--text);outline:none;" placeholder="Digite sua dúvida..." onkeydown="if(event.key==='Enter')enviarSuporte()">
-        <button onclick="enviarSuporte()" style="width:36px;height:36px;border-radius:50%;background:var(--midnight);color:white;border:none;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;justify-content:center;">➤</button>
-      </div>
-      <div style="display:flex;flex-wrap:wrap;gap:5px;padding:8px 14px 12px;background:#f8fafc;border-top:1px solid var(--border);">
-        <span class="shortcut" onclick="enviarSuporteMsg('Como registro um gasto?')">💸 Registrar gasto</span>
-        <span class="shortcut" onclick="enviarSuporteMsg('Como cancelo minha assinatura?')">❌ Cancelar plano</span>
-        <span class="shortcut" onclick="enviarSuporteMsg('Meus dados estão seguros?')">🔒 Segurança</span>
-        <span class="shortcut" onclick="enviarSuporteMsg('Como funciona a cobrança?')">💳 Cobrança</span>
-        <span class="shortcut" onclick="enviarSuporteMsg('O bot não responde')">🤖 Bot parado</span>
       </div>
     </div>
-  </div>
 
-  <!-- CONTATO -->
-  <div class="tab-content" id="tab-contato">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:700px;">
-      <div class="info-card" style="cursor:default">
-        <div class="info-card-icon">💬</div>
-        <div class="info-card-title">Chat com IA</div>
-        <div style="font-size:0.62rem;color:var(--text-3);line-height:1.6;margin-bottom:12px">Tire dúvidas instantaneamente com nosso assistente de IA. Disponível 24h.</div>
-        <button class="add-btn" onclick="switchSupportTab('chat',null)" style="font-size:0.55rem">Abrir chat →</button>
-      </div>
-      <div class="info-card" style="cursor:default">
-        <div class="info-card-icon">📱</div>
-        <div class="info-card-title">WhatsApp Suporte</div>
-        <div style="font-size:0.62rem;color:var(--text-3);line-height:1.6;margin-bottom:12px">Fale diretamente com nossa equipe pelo WhatsApp. Resposta em até 24h.</div>
-        <button class="add-btn" onclick="window.open('https://wa.me/5513991560950?text=Olá,%20preciso%20de%20suporte%20com%20o%20finia','_blank')" style="font-size:0.55rem;background:var(--growth)">Abrir WhatsApp →</button>
-      </div>
-      <div class="info-card" style="cursor:default">
-        <div class="info-card-icon">📧</div>
-        <div class="info-card-title">E-mail</div>
-        <div style="font-size:0.62rem;color:var(--text-3);line-height:1.6;margin-bottom:12px">Envie um e-mail detalhando seu problema. Resposta em até 48h úteis.</div>
-        <button class="add-btn" onclick="window.location.href='mailto:suporte@finia.app'" style="font-size:0.55rem">Enviar e-mail →</button>
-      </div>
-      <div class="info-card" style="cursor:default">
-        <div class="info-card-icon">📖</div>
-        <div class="info-card-title">Manual completo</div>
-        <div style="font-size:0.62rem;color:var(--text-3);line-height:1.6;margin-bottom:12px">Acesse o manual completo de funcionalidades do finia com exemplos e tutoriais.</div>
-        <button class="add-btn" onclick="window.open('/static/finia_manual.pdf','_blank')" style="font-size:0.55rem">Ver manual →</button>
+    <!-- DIREITA: Chat IA -->
+    <div style="position:sticky;top:80px;">
+      <div style="border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;">
+        <div style="background:var(--midnight);padding:12px 16px;display:flex;align-items:center;gap:10px;">
+          <div style="width:34px;height:34px;background:var(--growth);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0;">🤖</div>
+          <div>
+            <div style="font-size:0.65rem;font-weight:700;color:white;">finia Suporte IA</div>
+            <div style="font-size:0.48rem;color:rgba(255,255,255,0.4);display:flex;align-items:center;gap:4px;margin-top:1px;"><span style="width:5px;height:5px;background:var(--growth);border-radius:50%;display:inline-block;"></span>online 24h</div>
+          </div>
+        </div>
+        <div id="suporte-msgs" style="height:320px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;background:#f8fafc;">
+          <div style="background:white;border:1px solid var(--border);border-radius:4px 12px 12px 12px;padding:10px 13px;max-width:90%;font-size:0.65rem;line-height:1.65;color:var(--text);">
+            Olá! Sou o assistente do finia.<br>Pode me perguntar qualquer coisa sobre como usar o app, sua assinatura ou pagamentos.
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--border);background:white;">
+          <input id="suporte-input" style="flex:1;border:1.5px solid var(--border);border-radius:20px;padding:7px 12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.62rem;color:var(--text);outline:none;" placeholder="Digite sua dúvida..." onkeydown="if(event.key==='Enter')enviarSuporte()">
+          <button onclick="enviarSuporte()" style="width:32px;height:32px;border-radius:50%;background:var(--midnight);color:white;border:none;cursor:pointer;font-size:0.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">›</button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;padding:6px 10px 10px;background:#f8fafc;border-top:1px solid var(--border);">
+          <span class="shortcut" onclick="enviarSuporteMsg('Como registro um gasto?')">Registrar gasto</span>
+          <span class="shortcut" onclick="enviarSuporteMsg('Como cancelo meu plano?')">Cancelar plano</span>
+          <span class="shortcut" onclick="enviarSuporteMsg('Bot não responde')">Bot parado</span>
+          <span class="shortcut" onclick="enviarSuporteMsg('Meus dados estão seguros?')">Segurança</span>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-</main>
-</div>
-
-<footer>
-  <div class="footer-logo">fin<span>ia</span></div>
-  <div class="footer-text">© 2026 finia — Todos os direitos reservados · Gestão Financeira via WhatsApp</div>
-  <div class="footer-text">Desenvolvido por Philip Bicudo · CNPJ em breve</div>
-</footer>
 
 <!-- MODAIS -->
 <!-- Modal Nova Transação -->
@@ -1799,7 +1721,13 @@ function showPage(id, navBtn, sideBtn, filter) {
   if(id === 'metas') loadMetas();
   if(id === 'config') setTimeout(carregarPerfil, 50);
   if(id === 'assinatura') loadAssinatura();
-  if(id === 'suporte') {} // already initialized
+  if(id === 'suporte' || id === 'termos') {
+    const heroEl = document.getElementById('suporte-hero-greeting');
+    if(heroEl) {
+      const n = window._finiaUser?.nome || '';
+      heroEl.textContent = n ? `Olá, ${n.split(' ')[0]}. Como podemos te ajudar?` : 'Como podemos te ajudar?';
+    }
+  }
   if(filter === 'pendentes') filterTx('pendente', document.querySelector('.chip'));
 }
 
@@ -2932,6 +2860,29 @@ function salvarConta() {
 }
 
 // ── SUPORTE ──
+function buscarSuporte(q) {
+  if(!q.trim()) return;
+  focarChat();
+  setTimeout(() => enviarSuporteMsg(q), 300);
+}
+
+function atalhoChat(msg) {
+  focarChat();
+  setTimeout(() => enviarSuporteMsg(msg), 200);
+}
+
+function focarChat() {
+  const inp = document.getElementById('suporte-input');
+  if(inp) inp.focus();
+}
+
+function filtrarAtalhosVisiveis(q) {
+  const items = document.querySelectorAll('.atalho-item');
+  items.forEach(item => {
+    item.style.display = !q || item.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
 function switchSupportTab(tab, btn) {
   document.querySelectorAll('#suporte-tabs .tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('#page-suporte .tab-content').forEach(t => t.classList.remove('active'));
