@@ -3006,6 +3006,37 @@ if (_planoBadge) {
 }
 
 // Aplica restrições após inicializar usuário
+function temAcesso(recurso) {
+  const plano = (window._finiaUser?.plano || 'gratis').toLowerCase();
+  const limites = {
+    gratis:  { cartao:false, relatorios:false, ia:false },
+    pro:     { cartao:true,  relatorios:true,  ia:true  },
+    familia: { cartao:true,  relatorios:true,  ia:true  },
+  };
+  const l = limites[plano] || limites.gratis;
+  return l[recurso] !== false;
+}
+
+function aplicarRestricoesDePlano() {
+  const plano = (window._finiaUser?.plano || 'gratis').toLowerCase();
+  const fab = document.getElementById('finia-ia-fab');
+  if(fab) fab.style.display = (plano === 'gratis') ? 'none' : 'flex';
+  if(plano === 'gratis') {
+    document.querySelectorAll('.sb-item').forEach(item => {
+      const onclick = item.getAttribute('onclick') || '';
+      if(['cartao','relatorios'].some(r => onclick.includes(r))) {
+        if(!item.querySelector('.sb-pro-badge')) {
+          const b = document.createElement('span');
+          b.className = 'sb-pro-badge';
+          b.style.cssText = 'font-size:0.4rem;background:#f59e0b;color:white;padding:1px 5px;border-radius:4px;margin-left:auto;font-weight:700;';
+          b.textContent = 'PRO';
+          item.appendChild(b);
+        }
+      }
+    });
+  }
+}
+
 setTimeout(aplicarRestricoesDePlano, 300);
 
 function toggleUserMenu() {
