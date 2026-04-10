@@ -63,6 +63,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .nav-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
 .nav-cta{padding:7px 16px;border-radius:8px;font-size:0.65rem;font-weight:700;background:var(--growth);color:white;border:none;cursor:pointer;transition:all 0.12s;}
 .nav-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--growth),var(--growth-mid));display:flex;align-items:center;justify-content:center;font-size:0.58rem;font-weight:800;color:white;cursor:pointer;}
+.umenu-item{display:flex;align-items:center;gap:9px;padding:8px 12px;font-size:0.65rem;color:var(--text-2);cursor:pointer;border-radius:8px;transition:background 0.1s;font-weight:500;}
+.umenu-item:hover{background:var(--bg);color:var(--text);}
+.umenu-item span{font-size:0.85rem;width:18px;text-align:center;}
+.umenu-danger{color:var(--red)!important;}
+.umenu-danger:hover{background:var(--red-bg)!important;}
 
 /* LAYOUT */
 .layout{display:flex;flex:1;}
@@ -413,13 +418,42 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
   <div class="nav-links" id="nav-links-empty"></div>
   <div class="nav-right">
     <button class="nav-cta" onclick="openModal('modal-tx')">+ Registrar</button>
-    <div class="nav-avatar" id="nav-avatar" onclick="toggleUserMenu()" style="cursor:pointer;" title="Conta"></div>
-  <div id="user-menu" style="display:none;position:absolute;top:52px;right:20px;background:white;border:1px solid var(--border);border-radius:var(--r);padding:8px;min-width:160px;box-shadow:var(--shadow);z-index:300;">
-    <div style="padding:8px 12px;font-size:0.62rem;font-weight:700;border-bottom:1px solid var(--border);margin-bottom:4px;" id="menu-nome">—</div>
-    <div style="padding:6px 12px;font-size:0.58rem;color:var(--text-2);cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background=''" onclick="showPage('config')">⚙️ Configurações</div>
-    <div style="padding:6px 12px;font-size:0.58rem;color:var(--text-2);cursor:pointer;border-radius:6px;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background=''" onclick="showPage('assinatura')">💳 Assinatura</div>
-    <div style="padding:6px 12px;font-size:0.58rem;color:var(--red);cursor:pointer;border-radius:6px;margin-top:4px;border-top:1px solid var(--border);padding-top:10px;" onmouseover="this.style.background='var(--red-bg)'" onmouseout="this.style.background=''" onclick="logout()">🚪 Sair</div>
-  </div>
+    <div id="nav-avatar" onclick="toggleUserMenu()" style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--growth),var(--growth-mid));display:flex;align-items:center;justify-content:center;font-size:0.58rem;font-weight:800;color:white;cursor:pointer;overflow:hidden;flex-shrink:0;border:2px solid rgba(255,255,255,0.2);" title="Minha conta"></div>
+
+    <div id="user-menu" style="display:none;position:absolute;top:54px;right:0;background:white;border:1px solid var(--border);border-radius:12px;padding:6px;min-width:220px;box-shadow:0 8px 32px rgba(0,0,0,0.15);z-index:999;">
+
+      <!-- Header do menu -->
+      <div style="padding:10px 12px 10px;border-bottom:1px solid var(--border);margin-bottom:4px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div id="menu-avatar-mini" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--growth),var(--growth-mid));display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:800;color:white;overflow:hidden;flex-shrink:0;"></div>
+          <div>
+            <div style="font-size:0.65rem;font-weight:700;color:var(--text);" id="menu-nome">—</div>
+            <div style="font-size:0.5rem;color:var(--text-3);" id="menu-plano-label">Plano Grátis</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Opções -->
+      <div class="umenu-item" onclick="showPage('config');toggleUserMenu()">
+        Minha conta
+      </div>
+      <div class="umenu-item" onclick="showPage('assinatura');toggleUserMenu()">
+        Assinatura
+      </div>
+      <div class="umenu-item" onclick="abrirTrocarSenha();toggleUserMenu()">
+        Trocar senha
+      </div>
+      <div class="umenu-item" onclick="showPage('suporte');toggleUserMenu()">
+        Suporte
+      </div>
+
+      <!-- Logout -->
+      <div style="border-top:1px solid var(--border);margin-top:4px;padding-top:4px;">
+        <div class="umenu-item umenu-danger" onclick="logout()">
+          Sair da conta
+        </div>
+      </div>
+    </div>
   </div>
 </nav>
 
@@ -1053,14 +1087,14 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
 <!-- ══ SUPORTE ══ -->
 <div id="page-suporte" class="page">
   <div class="page-head">
-    <div><div class="page-greeting">Central de ajuda</div><div class="page-title">🆘 Suporte finia</div></div>
+    <div><div class="page-greeting">Central de ajuda</div><div class="page-title">Suporte finia</div></div>
   </div>
 
   <!-- TABS -->
   <div class="tabs" id="suporte-tabs">
-    <div class="tab active" onclick="switchSupportTab('faq',this)">❓ Perguntas frequentes</div>
-    <div class="tab" onclick="switchSupportTab('chat',this)">🤖 Chat com IA</div>
-    <div class="tab" onclick="switchSupportTab('contato',this)">📞 Contato</div>
+    <div class="tab active" onclick="switchSupportTab('faq',this)">Perguntas frequentes</div>
+    <div class="tab" onclick="switchSupportTab('chat',this)">Chat com suporte</div>
+    <div class="tab" onclick="switchSupportTab('contato',this)">Contato</div>
   </div>
 
   <!-- FAQ -->
@@ -1070,52 +1104,52 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
       <!-- COLUNA 1 -->
       <div>
         <div class="faq-section">
-          <div class="faq-section-title">💬 Bot WhatsApp</div>
+          <div class="faq-section-title">Bot WhatsApp</div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como registro um gasto pelo WhatsApp? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">Como registro um gasto pelo WhatsApp? <span class="faq-arrow">+</span></div>
             <div class="faq-a">Basta mandar uma mensagem natural para o bot! Exemplos:<br><br>
             • "gastei 50 no mercado"<br>• "paguei 180 de luz no cartão"<br>• "uber 22 reais"<br>• "recebi salário de 3000"<br><br>
             O finia interpreta automaticamente e registra!</div>
           </div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Posso registrar por voz? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">Posso registrar por voz? <span class="faq-arrow">+</span></div>
             <div class="faq-a">Sim! Grave um áudio no WhatsApp falando o gasto. O finia transcreve e registra automaticamente. Você também pode usar o microfone no chat do site em /chat.html</div>
           </div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">O bot não está respondendo. O que fazer? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">O bot não está respondendo. O que fazer? <span class="faq-arrow">+</span></div>
             <div class="faq-a">Verifique se salvou o número correto na agenda. Tente mandar "oi" para reiniciar a conversa. Se o problema persistir, acesse o dashboard e verifique se o bot está ativo em Configurações → Bot WhatsApp.</div>
           </div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como ver meu resumo financeiro? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">Como ver meu resumo financeiro? <span class="faq-arrow">+</span></div>
             <div class="faq-a">Mande "resumo" para o bot a qualquer hora. Você também recebe o resumo automaticamente todo dia às 20h se essa opção estiver ativada nas configurações.</div>
           </div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como funciona a foto de nota fiscal? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">Como funciona a foto de nota fiscal? <span class="faq-arrow">+</span></div>
             <div class="faq-a">Tire foto do cupom fiscal e envie pelo WhatsApp ou pela aba "Nota Fiscal" no chat do site. A IA lê os itens e registra tudo automaticamente. Certifique-se de que a foto está nítida e com o cupom completo visível.</div>
           </div>
         </div>
 
         </div>
         <div class="faq-section">
-          <div class="faq-section-title">📊 Dashboard e Dados</div>
+          <div class="faq-section-title">Dashboard e Dados</div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Meus dados aparecem para outros usuários? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">Meus dados aparecem para outros usuários? <span class="faq-arrow">+</span></div>
             <div class="faq-a">Não! Cada conta é completamente isolada. Seus dados são protegidos por autenticação JWT e só você tem acesso às suas transações e informações financeiras.</div>
           </div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como filtrar transações por categoria? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">Como filtrar transações por categoria? <span class="faq-arrow">+</span></div>
             <div class="faq-a">Na aba Transações ou Visão Geral, use os chips de categoria abaixo dos filtros. Você pode combinar filtros (ex: Gastos + Alimentação).</div>
           </div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como navegar entre meses? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">Como navegar entre meses? <span class="faq-arrow">+</span></div>
             <div class="faq-a">Use as setas ‹ › ao lado do mês no topo do dashboard. Você pode ver o histórico de qualquer mês anterior.</div>
           </div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como editar ou excluir uma transação? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">Como editar ou excluir uma transação? <span class="faq-arrow">+</span></div>
             <div class="faq-a">Em qualquer lista de transações, use o botão ✏️ para editar ou 🗑️ para excluir. Você pode alterar valor, categoria, método de pagamento e status.</div>
           </div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como marcar uma conta como paga? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">Como marcar uma conta como paga? <span class="faq-arrow">+</span></div>
             <div class="faq-a">Clique diretamente no status "⏳ A pagar" na lista de transações — ele vira "✓ Pago" automaticamente e atualiza seu saldo.</div>
           </div>
         </div>
@@ -1125,54 +1159,54 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
       <!-- COLUNA 2 -->
       <div>
         <div class="faq-section">
-          <div class="faq-section-title">💳 Assinatura e Pagamento</div>
+          <div class="faq-section-title">Assinatura e Pagamento</div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como assinar um plano pago? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">Como assinar um plano pago? <span class="faq-arrow">+</span></div>
             <div class="faq-a">Vá em Assinatura → clique em "Fazer upgrade" ou no plano desejado. Você será redirecionado para o Mercado Pago onde poderá inserir seu cartão com segurança. Após a confirmação, seu plano é atualizado automaticamente.</div>
           </div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como funciona a cobrança recorrente? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">Como funciona a cobrança recorrente? <span class="faq-arrow">+</span></div>
             <div class="faq-a">O Mercado Pago debita automaticamente todo mês na data da sua assinatura. Você receberá uma confirmação por WhatsApp a cada pagamento. Não é necessário fazer nada.</div>
           </div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como cancelar minha assinatura? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">Como cancelar minha assinatura? <span class="faq-arrow">+</span></div>
             <div class="faq-a">Vá em Assinatura → Ações → "Cancelar assinatura". Você mantém o acesso até o fim do período já pago. Após isso, sua conta volta ao plano Grátis automaticamente.</div>
           </div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como pausar minha assinatura? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">Como pausar minha assinatura? <span class="faq-arrow">+</span></div>
             <div class="faq-a">Vá em Assinatura → Ações → "Pausar assinatura". A cobrança para imediatamente mas você mantém o acesso até a data de expiração atual. Para reativar, clique em "Reativar assinatura".</div>
           </div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como atualizar meu cartão de crédito? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">Como atualizar meu cartão de crédito? <span class="faq-arrow">+</span></div>
             <div class="faq-a">Vá em Assinatura → Ações → "Atualizar cartão". Você será direcionado para o painel do Mercado Pago onde pode gerenciar seus métodos de pagamento com segurança.</div>
           </div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como baixar o recibo de pagamento? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">Como baixar o recibo de pagamento? <span class="faq-arrow">+</span></div>
             <div class="faq-a">Vá em Assinatura → Ações → "Baixar recibo do mês". Um documento com os detalhes da sua assinatura será aberto e você pode imprimir ou salvar como PDF.</div>
           </div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">O que acontece se o pagamento falhar? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">O que acontece se o pagamento falhar? <span class="faq-arrow">+</span></div>
             <div class="faq-a">O Mercado Pago tentará cobrar novamente automaticamente. Se o pagamento não for processado, você receberá um aviso por WhatsApp e seu plano será temporariamente suspenso. Atualize seu cartão para reativar.</div>
           </div>
         </div>
 
         </div>
         <div class="faq-section">
-          <div class="faq-section-title">🔒 Segurança e Conta</div>
+          <div class="faq-section-title">Segurança e Conta</div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como funciona o login? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">Como funciona o login? <span class="faq-arrow">+</span></div>
             <div class="faq-a">O finia usa autenticação por código OTP via WhatsApp. Você digita seu número, recebe um código de 6 dígitos e entra. Não existe senha para lembrar!</div>
           </div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Meus dados financeiros estão seguros? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">Meus dados financeiros estão seguros? <span class="faq-arrow">+</span></div>
             <div class="faq-a">Sim! O finia usa criptografia JWT, isolamento total por usuário, proteção contra XSS e SQL injection, e HTTPS em todas as comunicações. Nunca armazenamos dados de cartão — isso é gerenciado pelo Mercado Pago.</div>
           </div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como exportar meus dados? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">Como exportar meus dados? <span class="faq-arrow">+</span></div>
             <div class="faq-a">Vá em Configurações → Segurança → "Exportar dados". Você poderá baixar todas as suas transações em formato CSV.</div>
           </div>
           <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-q">Como excluir minha conta? <span class="faq-arrow">▼</span></div>
+            <div class="faq-q">Como excluir minha conta? <span class="faq-arrow">+</span></div>
             <div class="faq-a">Vá em Configurações → Segurança → "Excluir conta". Atenção: esta ação é irreversível e apaga todos os seus dados permanentemente. Cancele sua assinatura antes de excluir a conta.</div>
           </div>
         </div>
@@ -1605,6 +1639,19 @@ function authFetch(url, opts={}) {
 }
 
 // Logout
+function abrirTrocarSenha() {
+  // Envia código OTP para trocar senha (mesmo fluxo do login)
+  const tel = window._finiaUser?.telefone || '';
+  if(!tel) { showToast('Faça login novamente para trocar a senha.','error'); return; }
+  if(confirm('Enviar código de verificação para seu WhatsApp para confirmar a troca de senha?')) {
+    fetch(`${API}/auth/solicitar-otp`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({telefone: tel})
+    }).then(() => showToast('✅ Código enviado no WhatsApp! Use-o para fazer login novamente.'))
+     .catch(() => showToast('❌ Erro ao enviar código.','error'));
+  }
+}
+
 function logout() {
   if (!confirm('Deseja sair do finia?')) return;
   localStorage.removeItem('finia_token');
@@ -1875,10 +1922,50 @@ async function loadHistorico(areaId='barArea') {
 
 // ── RELATÓRIOS ──
 async function loadRelatorios(mes) {
+  mes = parseInt(mes) || viewMes;
+  const ano = viewAno;
+  // Carrega resumo do mês selecionado
+  try {
+    const token = window._finiaToken || localStorage.getItem('finia_token') || '';
+    const h = token ? {'Authorization':'Bearer '+token} : {};
+    const r = await fetch(`${API}/dashboard/resumo?mes=${mes}&ano=${ano}`, {headers:h});
+    const d = await r.json();
+    if(document.getElementById('rep-receitas')) document.getElementById('rep-receitas').textContent = fmt(d.receitas||0);
+    if(document.getElementById('rep-gastos'))   document.getElementById('rep-gastos').textContent   = fmt(d.gastos||0);
+    if(document.getElementById('rep-saldo'))    document.getElementById('rep-saldo').textContent    = fmt(d.saldo||0);
+  } catch(e){}
+  // Carrega transações do mês
+  try {
+    const token = window._finiaToken || localStorage.getItem('finia_token') || '';
+    const h = token ? {'Authorization':'Bearer '+token} : {};
+    const r2 = await fetch(`${API}/dashboard/transacoes?mes=${mes}&ano=${ano}`, {headers:h});
+    const txs = await r2.json();
+    const el = document.getElementById('rep-txList');
+    const countEl = document.getElementById('rep-tx-count');
+    if(countEl) countEl.textContent = `${txs.length} registros`;
+    if(!txs.length) {
+      if(el) el.innerHTML = '<div class="empty-msg">Nenhuma transação neste período.</div>';
+    } else {
+      if(el) el.innerHTML = txs.map((t,i) => {
+        const icon = CAT_ICONS[(t.categoria||'').toLowerCase()]||'📦';
+        const isPago = t.status === 'pago';
+        return `<div class="tx-item" style="animation-delay:${i*10}ms" id="tx-row-${t.id}">
+          <div class="tx-ico ${t.tipo}">${icon}</div>
+          <div><div class="tx-name">${escHtml(t.descricao)}</div><div class="tx-meta"><span>${t.data}</span><span class="tx-cat">${escHtml(t.categoria||'Outros')}</span></div></div>
+          <div class="tx-date">${t.data}</div>
+          <div class="tx-amt ${t.tipo}">${t.tipo==='receita'?'+':'−'} ${fmt(t.valor)}</div>
+          <button class="tx-status tx-status-btn ${t.status}" onclick="toggleStatus(${t.id},'${t.status}',this)">${isPago?'Pago':'A pagar'}</button>
+          <div class="tx-actions">
+            <button class="tx-action-btn edit" onclick="abrirEditar(${t.id})" title="Editar">✏️</button>
+            <button class="tx-action-btn del" onclick="confirmarDeletar(${t.id},'${escHtml(t.descricao)}')" title="Excluir">🗑️</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  } catch(e){ const el=document.getElementById('rep-txList'); if(el) el.innerHTML='<div class="empty-msg">Erro ao carregar transações.</div>'; }
+  // Carrega categorias e histórico
   await loadCats('rep-cats');
   await loadHistorico('rep-chart');
-  document.getElementById('rep-tx-count').textContent = `${allTx.length} registros`;
-  renderTx('all','rep-txList');
 }
 
 // ── CATEGORIAS PAGE ──
@@ -2821,8 +2908,16 @@ function switchSupportTab(tab, btn) {
 
 function toggleFaq(item) {
   const isOpen = item.classList.contains('open');
-  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
-  if(!isOpen) item.classList.add('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => {
+    i.classList.remove('open');
+    const arr = i.querySelector('.faq-arrow');
+    if(arr) arr.textContent = '+';
+  });
+  if(!isOpen) {
+    item.classList.add('open');
+    const arr = item.querySelector('.faq-arrow');
+    if(arr) arr.textContent = '−';
+  }
 }
 
 async function enviarSuporte() {
@@ -2928,7 +3023,25 @@ setTimeout(aplicarRestricoesDePlano, 300);
 
 function toggleUserMenu() {
   const m = document.getElementById('user-menu');
-  m.style.display = m.style.display === 'none' ? 'block' : 'none';
+  const isOpen = m.style.display !== 'none';
+  m.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen) {
+    // Sincroniza foto no mini avatar do menu
+    const foto = localStorage.getItem('finia_foto');
+    const mini = document.getElementById('menu-avatar-mini');
+    if(mini) {
+      if(foto) {
+        mini.innerHTML = `<img src="${foto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+      } else {
+        const _u = window._finiaUser || {};
+        mini.textContent = (_u.nome||'U').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+      }
+    }
+    // Atualiza plano no menu
+    const planoNomes = { gratis:'Plano Grátis', pro:'✦ Plano Pro', familia:'✦ Plano Família' };
+    const plLabel = document.getElementById('menu-plano-label');
+    if(plLabel) plLabel.textContent = planoNomes[window._finiaUser?.plano||'gratis'] || 'Plano Grátis';
+  }
 }
 document.addEventListener('click', e => {
   if (!e.target.closest('.nav-right')) {
