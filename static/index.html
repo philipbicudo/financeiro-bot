@@ -2964,6 +2964,38 @@ Seja conciso — máximo 4 linhas.`;
   }
 }
 
+// ── SALVAR TRANSAÇÃO ──
+async function salvarTx() {
+  const desc  = (document.getElementById('tx-desc')?.value || '').trim().substring(0,200);
+  const valor = parseFloat(document.getElementById('tx-valor')?.value || 0);
+  if(!desc)           { showToast('Preencha a descrição!','error'); return; }
+  if(!valor||valor<=0){ showToast('Informe um valor válido!','error'); return; }
+  const btn = document.querySelector('#modal-tx .btn-save');
+  if(btn) { btn.disabled=true; btn.textContent='Salvando...'; }
+  try {
+    const res = await authFetch(`${API}/transacoes/`, {
+      method: 'POST',
+      body: JSON.stringify({
+        descricao:  desc,
+        valor:      valor,
+        tipo:       document.getElementById('tx-tipo')?.value || 'despesa',
+        categoria:  document.getElementById('tx-cat')?.value || 'Outros',
+        metodo:     document.getElementById('tx-metodo')?.value || 'PIX',
+        status:     document.getElementById('tx-status')?.value || 'pago',
+      })
+    });
+    if(!res.ok) throw new Error('Erro ' + res.status);
+    closeModal('modal-tx');
+    showToast('✅ Transação salva!');
+    await loadResumo();
+    await loadTransacoes();
+  } catch(e) {
+    showToast('❌ Erro ao salvar. Tente novamente.','error');
+  } finally {
+    if(btn) { btn.disabled=false; btn.textContent='Salvar transação'; }
+  }
+}
+
 // Aliases para compatibilidade
 function loadResumo() { return loadResumoMes(viewMes, viewAno); }
 function loadTransacoes() { return loadTransacoesMes(viewMes, viewAno); }
