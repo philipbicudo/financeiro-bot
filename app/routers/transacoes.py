@@ -125,6 +125,15 @@ def _get_uid(request: Request) -> int | None:
 @router.post("/")
 def criar_transacao(tx: TransacaoCreate, request: Request, db: Session = Depends(get_db)):
     usuario_id = _get_uid(request)
+    # Parse date from request or use today
+    from datetime import date as _date
+    tx_data = datetime.now()
+    if tx.data:
+        try:
+            tx_data = datetime.strptime(tx.data, '%Y-%m-%d')
+        except Exception:
+            tx_data = datetime.now()
+
     nova = Transacao(
         descricao  = tx.descricao,
         valor      = tx.valor,
@@ -132,7 +141,7 @@ def criar_transacao(tx: TransacaoCreate, request: Request, db: Session = Depends
         categoria  = tx.categoria,
         metodo     = tx.metodo,
         status     = StatusTransacao.pago if tx.status == 'pago' else StatusTransacao.nao_pago,
-        data       = datetime.now(),
+        data       = tx_data,
         usuario_id = usuario_id,
     )
     db.add(nova)
