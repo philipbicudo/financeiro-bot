@@ -152,7 +152,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .chip.active{background:var(--midnight);border-color:var(--midnight);color:white;}
 
 /* TRANSACTIONS */
-.tx-item{display:grid;grid-template-columns:40px 1fr auto auto auto;align-items:center;gap:12px;padding:13px 20px;transition:background 0.1s;animation:fadeIn 0.2s ease both;}
+.tx-item{display:grid;grid-template-columns:40px 1fr auto auto;align-items:center;gap:12px;padding:13px 20px;transition:background 0.1s;animation:fadeIn 0.2s ease both;}
 .tx-item:hover{background:var(--bg);}
 .tx-item+.tx-item{border-top:1px solid var(--border);}
 .tx-ico{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:0.95rem;flex-shrink:0;}
@@ -224,7 +224,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .pay-btn{margin-left:8px;padding:5px 11px;border-radius:6px;font-size:0.45rem;font-weight:700;background:var(--growth);color:white;border:none;cursor:pointer;transition:all 0.1s;white-space:nowrap;}
 .pay-btn:hover{background:var(--growth-mid);}
 .pay-btn:disabled{background:var(--growth-light);color:var(--growth-mid);cursor:default;}
-.tx-actions{display:flex;align-items:center;gap:4px;margin-left:auto;}
+.tx-actions{display:flex;align-items:center;gap:4px;margin-left:8px;}
+.tx-status-wrap{display:flex;align-items:center;gap:6px;}
 .tx-action-btn{width:26px;height:26px;border-radius:6px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.65rem;transition:all 0.1s;flex-shrink:0;}
 .tx-action-btn.edit{background:var(--blue-bg);color:var(--blue);}
 .tx-action-btn.edit:hover{background:var(--blue);color:white;}
@@ -1825,10 +1826,10 @@ function renderTx(filter, listId='txList') {
       <div><div class="tx-name">${escHtml(t.descricao)}</div><div class="tx-meta"><span>${t.data}</span><span class="tx-cat">${escHtml(t.categoria||'Outros')}</span><span style="color:var(--text-4)">${escHtml(t.forma_pag||'PIX')}</span></div></div>
       <div class="tx-date">${t.data}</div>
       <div class="tx-amt ${t.tipo}">${t.tipo==='receita'?'+':'−'} ${fmt(t.valor)}</div>
-      <button class="tx-status tx-status-btn ${t.status}" onclick="toggleStatus(${t.id}, '${t.status}', this)" title="Clique para alterar status">
-        ${isPago ? '✓ Pago' : '⏳ A pagar'}
-      </button>
-      <div class="tx-actions">
+      <div class="tx-status-wrap">
+        <button class="tx-status tx-status-btn ${t.status}" onclick="toggleStatus(${t.id}, '${t.status}', this)" title="Clique para alterar status">
+          ${isPago ? '✓ Pago' : '⏳ A pagar'}
+        </button>
         <button class="tx-action-btn edit" onclick="abrirEditar(${t.id})" title="Editar">✏️</button>
         <button class="tx-action-btn del" onclick="confirmarDeletar(${t.id}, '${escHtml(t.descricao)}')" title="Excluir">🗑️</button>
       </div>
@@ -2236,10 +2237,10 @@ function renderTxPage(filter) {
       <div><div class="tx-name">${escHtml(t.descricao)}</div><div class="tx-meta"><span>${t.data}</span><span class="tx-cat">${escHtml(t.categoria||'Outros')}</span><span style="color:var(--text-4)">${escHtml(t.forma_pag||'PIX')}</span></div></div>
       <div class="tx-date">${t.data}</div>
       <div class="tx-amt ${t.tipo}">${t.tipo==='receita'?'+':'−'} ${fmt(t.valor)}</div>
-      <button class="tx-status tx-status-btn ${t.status}" onclick="toggleStatus(${t.id}, '${t.status}', this)" title="Clique para alterar status">
-        ${isPago ? '✓ Pago' : '⏳ A pagar'}
-      </button>
-      <div class="tx-actions">
+      <div class="tx-status-wrap">
+        <button class="tx-status tx-status-btn ${t.status}" onclick="toggleStatus(${t.id}, '${t.status}', this)" title="Clique para alterar status">
+          ${isPago ? '✓ Pago' : '⏳ A pagar'}
+        </button>
         <button class="tx-action-btn edit" onclick="abrirEditar(${t.id})" title="Editar">✏️</button>
         <button class="tx-action-btn del" onclick="confirmarDeletar(${t.id}, '${escHtml(t.descricao)}')" title="Excluir">🗑️</button>
       </div>
@@ -2982,6 +2983,7 @@ async function salvarTx() {
         categoria:  document.getElementById('tx-cat')?.value || 'Outros',
         metodo:     document.getElementById('tx-metodo')?.value || 'PIX',
         status:     document.getElementById('tx-status')?.value || 'pago',
+        data:       document.getElementById('tx-data')?.value || new Date().toISOString().split('T')[0],
       })
     });
     if(!res.ok) throw new Error('Erro ' + res.status);
