@@ -417,7 +417,6 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
   </div>
   <div class="nav-links" id="nav-links-empty"></div>
   <div class="nav-right">
-    <button class="nav-cta" onclick="openModal('modal-tx')">+ Registrar</button>
     <div id="nav-avatar" onclick="toggleUserMenu()" style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--growth),var(--growth-mid));display:flex;align-items:center;justify-content:center;font-size:0.58rem;font-weight:800;color:white;cursor:pointer;overflow:hidden;flex-shrink:0;border:2px solid rgba(255,255,255,0.2);" title="Minha conta"></div>
 
     <div id="user-menu" style="display:none;position:absolute;top:54px;right:0;background:white;border:1px solid var(--border);border-radius:12px;padding:6px;min-width:220px;box-shadow:0 8px 32px rgba(0,0,0,0.15);z-index:999;">
@@ -1763,9 +1762,7 @@ document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('cli
 async function loadResumoMes(mes, ano) {
   try {
     const params = mes && ano ? `?mes=${mes}&ano=${ano}` : '';
-    const token = window._finiaToken || localStorage.getItem('finia_token') || '';
-    const headers = token ? {'Authorization': 'Bearer ' + token} : {};
-    const res = await fetch(`${API}/dashboard/resumo${params}`, {headers});
+    const res = await authFetch(`${API}/dashboard/resumo${params}`);
     const d = await res.json();
     document.getElementById('d-receitas').textContent = fmt(d.receitas);
     document.getElementById('d-gastos').textContent = fmt(d.gastos);
@@ -1793,9 +1790,7 @@ async function loadResumoMes(mes, ano) {
 async function loadTransacoesMes(mes, ano) {
   try {
     const params = mes && ano ? `?mes=${mes}&ano=${ano}` : '';
-    const token2 = window._finiaToken || localStorage.getItem('finia_token') || '';
-    const headers2 = token2 ? {'Authorization': 'Bearer ' + token2} : {};
-    const res = await fetch(`${API}/dashboard/transacoes${params}`, {headers: headers2});
+    const res = await authFetch(`${API}/dashboard/transacoes${params}`);
     allTx = await res.json();
     const pendentes = allTx.filter(t => t.status === 'nao_pago' || t.status === 'pendente');
     document.getElementById('tx-count').textContent = `${allTx.length} registros`;
@@ -1866,7 +1861,7 @@ function renderPendentes(pendentes) {
 async function marcarPago(id,btn) {
   btn.disabled=true; btn.textContent='...';
   try {
-    await fetch(`${API}/dashboard/transacoes/${id}/pagar`,{method:'PATCH'});
+    await authFetch(`${API}/dashboard/transacoes/${id}/pagar`,{method:'PATCH'});
     document.getElementById(`pend-${id}`).style.opacity='0.4';
     btn.textContent='✓ Pago';
     setTimeout(()=>{loadResumo();loadTransacoes();},500);
@@ -1876,9 +1871,7 @@ async function marcarPago(id,btn) {
 // ── LOAD CATEGORIAS ──
 async function loadCats(listId='catList') {
   try {
-    const token = window._finiaToken || localStorage.getItem('finia_token') || '';
-    const headers = token ? {'Authorization': 'Bearer ' + token} : {};
-    const res = await fetch(`${API}/dashboard/categorias`, {headers});
+    const res = await authFetch(`${API}/dashboard/categorias`);
     const cats = await res.json();
     const el = document.getElementById(listId);
     if(!el) return cats || [];
@@ -1905,7 +1898,7 @@ async function loadCats(listId='catList') {
 // ── LOAD HISTÓRICO ──
 async function loadHistorico(areaId='barArea') {
   try {
-    const res = await fetch(`${API}/dashboard/historico?meses=6`);
+    const res = await authFetch(`${API}/dashboard/historico?meses=6`);
     const hist = await res.json();
     const maxVal = Math.max(...hist.map(h=>Math.max(h.receitas,h.gastos)),1);
     const H = 90;
@@ -1926,9 +1919,7 @@ async function loadRelatorios(mes) {
   const ano = viewAno;
   // Carrega resumo do mês selecionado
   try {
-    const token = window._finiaToken || localStorage.getItem('finia_token') || '';
-    const h = token ? {'Authorization':'Bearer '+token} : {};
-    const r = await fetch(`${API}/dashboard/resumo?mes=${mes}&ano=${ano}`, {headers:h});
+    const r = await authFetch(`${API}/dashboard/resumo?mes=${mes}&ano=${ano}`);
     const d = await r.json();
     if(document.getElementById('rep-receitas')) document.getElementById('rep-receitas').textContent = fmt(d.receitas||0);
     if(document.getElementById('rep-gastos'))   document.getElementById('rep-gastos').textContent   = fmt(d.gastos||0);
@@ -1936,9 +1927,7 @@ async function loadRelatorios(mes) {
   } catch(e){}
   // Carrega transações do mês
   try {
-    const token = window._finiaToken || localStorage.getItem('finia_token') || '';
-    const h = token ? {'Authorization':'Bearer '+token} : {};
-    const r2 = await fetch(`${API}/dashboard/transacoes?mes=${mes}&ano=${ano}`, {headers:h});
+    const r2 = await authFetch(`${API}/dashboard/transacoes?mes=${mes}&ano=${ano}`);
     const txs = await r2.json();
     const el = document.getElementById('rep-txList');
     const countEl = document.getElementById('rep-tx-count');
@@ -2334,7 +2323,7 @@ function simWpp(msg) {
     let resp = botRes[msg];
     if(msg==='resumo') {
       try {
-        const r = await fetch(`${API}/dashboard/resumo`);
+        const r = await authFetch(`${API}/dashboard/resumo`);
         const d = await r.json();
         resp = `📊 <strong>Resumo de ${MESES[d.mes-1]}</strong><br>💰 ${fmt(d.receitas)}<br>💸 ${fmt(d.gastos)}<br>✅ Saldo: ${fmt(d.saldo)}`;
       } catch { resp='❌ Erro ao buscar resumo.'; }
@@ -2362,16 +2351,15 @@ async function toggleStatus(id, currentStatus, btn) {
   btn.textContent = '...';
 
   try {
-    const res = await fetch(`${API}/transacoes/${id}`, {
+    const res = await authFetch(`${API}/transacoes/${id}`, {
       method: 'PATCH',
-      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({status: newStatus})
     });
 
     if(res.ok || res.status === 422) {
       // Tenta endpoint de pagar do dashboard
       if(newStatus === 'pago') {
-        await fetch(`${API}/dashboard/transacoes/${id}/pagar`, {method: 'PATCH'});
+        await authFetch(`${API}/dashboard/transacoes/${id}/pagar`, {method: 'PATCH'});
       }
     }
 
@@ -2790,9 +2778,8 @@ async function salvarEdicao() {
   };
 
   try {
-    const res = await fetch(`${API}/transacoes/${id}`, {
+    const res = await authFetch(`${API}/transacoes/${id}`, {
       method:  'PATCH',
-      headers: {'Content-Type': 'application/json'},
       body:    JSON.stringify(payload),
     });
 
@@ -2812,7 +2799,7 @@ async function confirmarDeletar(id, nome) {
   if (!confirm(`Excluir a transação "${nome}"?\n\nEsta ação não pode ser desfeita.`)) return;
 
   try {
-    const res = await fetch(`${API}/transacoes/${id}`, { method: 'DELETE' });
+    const res = await authFetch(`${API}/transacoes/${id}`, { method: 'DELETE' });
     if (!res.ok) throw new Error('Erro');
 
     // Remove da lista local imediatamente
