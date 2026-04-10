@@ -1,7 +1,7 @@
 # Adicione estes endpoints no app/routers/transacoes.py
 # (ou substitua o arquivo completo)
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, validator
 from typing import Optional
@@ -110,16 +110,30 @@ def listar_transacoes(
     return q.all()
 
 
+def _get_uid(request: Request) -> int | None:
+    try:
+        import jwt as _jwt
+        import os as _os
+        auth = request.headers.get("Authorization", "")
+        if auth.startswith("Bearer "):
+            payload = _jwt.decode(auth[7:], _os.getenv("JWT_SECRET","finia_secret"), algorithms=["HS256"])
+            return int(payload.get("sub", 0)) or None
+    except Exception:
+        pass
+    return None
+
 @router.post("/")
-def criar_transacao(tx: TransacaoCreate, db: Session = Depends(get_db)):
+def criar_transacao(tx: TransacaoCreate, request: Request, db: Session = Depends(get_db)):
+    usuario_id = _get_uid(request)
     nova = Transacao(
-        descricao = tx.descricao,
-        valor     = tx.valor,
-        tipo      = TipoTransacao.despesa if tx.tipo == 'despesa' else TipoTransacao.receita,
-        categoria = tx.categoria,
-        metodo    = tx.metodo,
-        status    = StatusTransacao.pago if tx.status == 'pago' else StatusTransacao.nao_pago,
-        data      = datetime.now(),
+        descricao  = tx.descricao,
+        valor      = tx.valor,
+        tipo       = TipoTransacao.despesa if tx.tipo == 'despesa' else TipoTransacao.receita,
+        categoria  = tx.categoria,
+        metodo     = tx.metodo,
+        status     = StatusTransacao.pago if tx.status == 'pago' else StatusTransacao.nao_pago,
+        data       = datetime.now(),
+        usuario_id = usuario_id,
     )
     db.add(nova)
     db.commit()
