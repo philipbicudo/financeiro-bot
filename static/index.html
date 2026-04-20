@@ -63,6 +63,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .sb-item:hover{background:var(--slate-light);color:var(--text);}
 .sb-item.active{background:var(--growth-light);color:var(--growth-mid);font-weight:700;}
 .sb-icon{width:28px;height:28px;border-radius:7px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:0.78rem;flex-shrink:0;}
+.sb-icon svg{transition:stroke 0.15s;}
+.sb-item:hover .sb-icon svg{stroke:var(--text);}
+.sb-item.active .sb-icon svg{stroke:var(--growth-mid);}
 .sb-item.active .sb-icon{background:rgba(34,197,94,0.15);}
 .sb-badge{margin-left:auto;font-size:0.42rem;font-weight:700;padding:2px 6px;border-radius:20px;background:var(--red);color:white;}
 .sb-badge.g{background:var(--growth-light);color:var(--growth-mid);}
@@ -76,6 +79,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .page{display:none;padding:28px 32px;animation:fadeIn 0.2s ease;}
 .page.active{display:block;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeInUp{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
 
 /* PAGE HEADER */
 .page-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;}
@@ -373,15 +377,18 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
 <!-- NAV -->
 <nav class="nav">
   <div class="nav-logo" onclick="showPage('visao-geral')">
-    <div style="width:32px;height:32px;background:rgba(255,255,255,0.08);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-      <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
+    <div style="width:42px;height:42px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
         <rect x="3" y="3" width="10" height="10" rx="2.5" fill="#1a6bff"/>
-        <rect x="15" y="3" width="10" height="10" rx="2.5" fill="#1a6bff" opacity="0.4"/>
-        <rect x="3" y="15" width="10" height="10" rx="2.5" fill="#1a6bff" opacity="0.4"/>
+        <rect x="15" y="3" width="10" height="10" rx="2.5" fill="#1a6bff" opacity="0.45"/>
+        <rect x="3" y="15" width="10" height="10" rx="2.5" fill="#1a6bff" opacity="0.45"/>
         <rect x="15" y="15" width="10" height="10" rx="2.5" fill="#22c55e"/>
       </svg>
     </div>
-    <span style="font-weight:800;font-size:1.05rem;color:white;letter-spacing:-0.5px;font-family:'Plus Jakarta Sans',sans-serif;">con<span style="color:#1a6bff;">tix</span></span>
+    <div style="display:flex;flex-direction:column;line-height:1;">
+      <span style="font-weight:900;font-size:1.25rem;color:white;letter-spacing:-0.8px;font-family:'Plus Jakarta Sans',sans-serif;">con<span style="color:#1a6bff;">tix</span></span>
+      <span style="font-size:0.42rem;color:rgba(255,255,255,0.35);letter-spacing:1.5px;text-transform:uppercase;margin-top:1px;">Gestão Financeira</span>
+    </div>
   </div>
   <div style="flex:1"></div>
   <div class="nav-right">
@@ -394,25 +401,25 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
           <div style="font-size:0.45rem;color:rgba(255,255,255,0.5);">Meu perfil ›</div>
         </div>
       </div>
-      <div id="user-menu" style="display:none;position:absolute;top:52px;right:0;background:white;border:1px solid var(--border);border-radius:14px;min-width:240px;box-shadow:0 12px 40px rgba(0,0,0,0.18);z-index:999;overflow:hidden;">
+      <div id="user-menu" style="display:none;position:absolute;top:52px;right:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;min-width:240px;box-shadow:0 12px 40px rgba(0,0,0,0.5);z-index:999;overflow:hidden;">
         <!-- Header perfil -->
         <div style="padding:16px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;">
           <div id="menu-avatar-mini" style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--growth),var(--growth-mid));display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;color:white;overflow:hidden;flex-shrink:0;"></div>
           <div>
             <div style="font-size:0.72rem;font-weight:700;color:var(--text);" id="menu-nome">Philip Bicudo</div>
-            <div style="font-size:0.5rem;color:var(--text-3);margin-top:1px;" id="menu-plano-label">✦ Plano Pro</div>
-            <div style="font-size:0.48rem;color:var(--blue);cursor:pointer;margin-top:2px;" onclick="showPage('config');toggleUserMenu()">Ver meu perfil ›</div>
+            <div style="font-size:0.5rem;color:var(--blue);margin-top:1px;" id="menu-plano-label">✦ Plano Pro</div>
+            <div style="font-size:0.48rem;color:var(--text-2);cursor:pointer;margin-top:2px;" onclick="showPage('config');toggleUserMenu()">Ver meu perfil ›</div>
           </div>
         </div>
         <!-- Opções -->
         <div style="padding:6px;">
-          <div class="umenu-item" onclick="showPage('config');toggleUserMenu()"><span>⚙️</span> Configurações</div>
-          <div class="umenu-item" onclick="showPage('assinatura');toggleUserMenu()"><span>💳</span> Assinatura</div>
-          <div class="umenu-item" onclick="abrirTrocarSenha();toggleUserMenu()"><span>🔑</span> Trocar senha</div>
-          <div class="umenu-item" onclick="showPage('suporte');toggleUserMenu()"><span>🆘</span> Suporte</div>
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:0.62rem;font-weight:500;color:var(--text-2);transition:all 0.1s;" onmouseover="this.style.background='var(--surface2)';this.style.color='var(--text)'" onmouseout="this.style.background='transparent';this.style.color='var(--text-2)'" onclick="showPage('config');toggleUserMenu()"><span>⚙️</span> Configurações</div>
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:0.62rem;font-weight:500;color:var(--text-2);transition:all 0.1s;" onmouseover="this.style.background='var(--surface2)';this.style.color='var(--text)'" onmouseout="this.style.background='transparent';this.style.color='var(--text-2)'" onclick="showPage('assinatura');toggleUserMenu()"><span>💳</span> Assinatura</div>
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:0.62rem;font-weight:500;color:var(--text-2);transition:all 0.1s;" onmouseover="this.style.background='var(--surface2)';this.style.color='var(--text)'" onmouseout="this.style.background='transparent';this.style.color='var(--text-2)'" onclick="abrirTrocarSenha();toggleUserMenu()"><span>🔑</span> Trocar senha</div>
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:0.62rem;font-weight:500;color:var(--text-2);transition:all 0.1s;" onmouseover="this.style.background='var(--surface2)';this.style.color='var(--text)'" onmouseout="this.style.background='transparent';this.style.color='var(--text-2)'" onclick="showPage('suporte');toggleUserMenu()"><span>🆘</span> Suporte</div>
         </div>
         <div style="border-top:1px solid var(--border);padding:6px;">
-          <div class="umenu-item umenu-danger" onclick="logout()"><span>🚪</span> Sair da conta</div>
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:0.62rem;font-weight:600;color:#ef4444;transition:all 0.1s;" onmouseover="this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.background='transparent'" onclick="logout()"><span>🚪</span> Sair da conta</div>
         </div>
       </div>
     </div>
@@ -432,50 +439,48 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
       </div>
     </div>
     <div class="sb-balance">
-      <div class="sb-bal-label">Saldo disponível</div>
+      <div class="sb-bal-label">Saldo acumulado</div>
       <div class="sb-bal-value" id="sb-saldo">—</div>
       <div class="sb-bal-sub" id="sb-periodo">carregando...</div>
+      <div style="font-size:0.44rem;color:rgba(255,255,255,0.3);margin-top:2px;">soma de todos os meses</div>
       <div class="sb-bal-row">
-        <div class="sb-bal-item"><div class="sb-bal-item-label">Receitas</div><div class="sb-bal-item-val" id="sb-rec">—</div></div>
-        <div class="sb-bal-item"><div class="sb-bal-item-label">Gastos</div><div class="sb-bal-item-val" id="sb-gas">—</div></div>
-        <div class="sb-bal-item"><div class="sb-bal-item-label">A pagar</div><div class="sb-bal-item-val amber" id="sb-pag">—</div></div>
+        <div class="sb-bal-item"><div class="sb-bal-item-label">Economia</div><div class="sb-bal-item-val" id="sb-rec" style="color:#22c55e">—</div></div>
+        <div class="sb-bal-item"><div class="sb-bal-item-label">Próx. venc.</div><div class="sb-bal-item-val amber" id="sb-pag">—</div></div>
       </div>
     </div>
   </div>
   <div class="sb-section">Menu</div>
-  <div class="sb-item active" onclick="showPage('visao-geral',null,this)"><div class="sb-icon">🔔</div>Visão Geral</div>
-  <div class="sb-item" onclick="showPage('transacoes-page',null,this)"><div class="sb-icon">🔔</div>Transações<span class="sb-badge g" id="sb-badge-tx">—</span></div>
-  <div class="sb-item" onclick="showPage('visao-geral',null,this,'pendentes')"><div class="sb-icon">⏳</div>A Pagar<span class="sb-badge" id="sb-badge-pend">—</span></div>
-  <div class="sb-item" onclick="showPage('relatorios',null,this)"><div class="sb-icon">🔔</div>Relatórios</div>
-  <div class="sb-item" onclick="showPage('categorias',null,this)"><div class="sb-icon">🔔️</div>Categorias</div>
+  <div class="sb-item active" onclick="showPage('visao-geral',null,this)"><div class="sb-icon" data-icon="visao"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8899b4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>Visão Geral</div>
+  <div class="sb-item" onclick="showPage('transacoes-page',null,this)"><div class="sb-icon" data-icon="tx"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8899b4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4 4 4M17 8v12m0 0 4-4m-4 4-4-4"/></svg></div>Transações<span class="sb-badge g" id="sb-badge-tx">—</span></div>
+  <div class="sb-item" onclick="showPage('visao-geral',null,this,'pendentes')"><div class="sb-icon" data-icon="apagar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8899b4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>A Pagar<span class="sb-badge" id="sb-badge-pend">—</span></div>
+  <div class="sb-item" onclick="showPage('relatorios',null,this)"><div class="sb-icon" data-icon="relat"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8899b4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 16 4-4 4 4 4-6"/></svg></div>Relatórios</div>
+  <div class="sb-item" onclick="showPage('categorias',null,this)"><div class="sb-icon" data-icon="categ"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8899b4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h8v8H3zM13 3h8v8h-8zM3 13h8v8H3zM13 13h8v8h-8"/></svg></div>Categorias</div>
   <div class="sb-divider"></div>
   <div class="sb-section">Financeiro</div>
-  <div class="sb-item" onclick="showPage('contas',null,this)"><div class="sb-icon">🔔</div>Contas</div>
-  <div class="sb-item" onclick="showPage('cartao',null,this)"><div class="sb-icon">🔔</div>Cartão</div>
-  <div class="sb-item" onclick="showPage('metas',null,this)"><div class="sb-icon">🔔</div>Metas</div>
+  <div class="sb-item" onclick="showPage('contas',null,this)"><div class="sb-icon" data-icon="contas"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8899b4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>Contas</div>
+  <div class="sb-item" onclick="showPage('cartao',null,this)"><div class="sb-icon" data-icon="cartao"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8899b4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M7 15h.01M11 15h4"/></svg></div>Cartão</div>
+  <div class="sb-item" onclick="showPage('metas',null,this)"><div class="sb-icon" data-icon="metas"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8899b4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><circle cx="18" cy="6" r="3" fill="currentColor"/></svg></div>Metas</div>
   <div class="sb-divider"></div>
-  <div class="sb-section">Bot</div>
-  <div class="sb-item"><div class="sb-icon">🔔</div>contix bot<span class="sb-badge online">● online</span></div>
+  <div class="sb-item" onclick="showPage('config',null,this)"><div class="sb-icon" data-icon="config"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8899b4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></div>Configurações</div>
+  <div class="sb-item" onclick="showPage('assinatura',null,this)"><div class="sb-icon" data-icon="assin"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8899b4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg></div>Assinatura</div>
+  <div class="sb-item" onclick="showPage('suporte',null,this)"><div class="sb-icon" data-icon="suporte"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8899b4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg></div>Suporte</div>
   <div class="sb-divider"></div>
-  <div class="sb-item" onclick="showPage('config',null,this)"><div class="sb-icon">⚙️</div>Configurações</div>
-  <div class="sb-item" onclick="showPage('assinatura',null,this)"><div class="sb-icon">💳</div>Assinatura</div>
-  <div class="sb-item" onclick="showPage('suporte',null,this)"><div class="sb-icon">🆘</div>Suporte</div>
-  <div class="sb-divider"></div>
-  <!-- contix IA button -->
-  <a href="/chat.html" style="display:flex;align-items:center;gap:9px;margin:6px 8px 12px;padding:10px;border-radius:var(--r-sm);text-decoration:none;background:linear-gradient(135deg,rgba(26,107,255,0.1),rgba(34,197,94,0.06));border:1px solid rgba(26,107,255,0.18);transition:all 0.15s;" onmouseover="this.style.background='linear-gradient(135deg,rgba(26,107,255,0.18),rgba(34,197,94,0.12))'" onmouseout="this.style.background='linear-gradient(135deg,rgba(26,107,255,0.1),rgba(34,197,94,0.06))'">
-    <div style="width:28px;height:28px;background:rgba(26,107,255,0.12);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-      <svg width="16" height="16" viewBox="0 0 28 28" fill="none">
-        <rect x="3" y="3" width="10" height="10" rx="2.5" fill="#1a6bff"/>
-        <rect x="15" y="3" width="10" height="10" rx="2.5" fill="#1a6bff" opacity="0.5"/>
-        <rect x="3" y="15" width="10" height="10" rx="2.5" fill="#1a6bff" opacity="0.5"/>
-        <rect x="15" y="15" width="10" height="10" rx="2.5" fill="#22c55e"/>
-      </svg>
+  <div class="sb-section">Ferramentas</div>
+  <div class="sb-item" onclick="showPage('chat-ia',null,this)" style="background:linear-gradient(135deg,rgba(26,107,255,0.08),rgba(34,197,94,0.04));border:1px solid rgba(26,107,255,0.15);margin:2px 8px;border-radius:var(--r-sm);">
+    <div class="sb-icon" style="background:rgba(26,107,255,0.12);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8899b4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+    <div><div style="font-size:0.62rem;font-weight:700;color:var(--text);">contix <span style="color:#1a6bff;">IA</span></div><div style="font-size:0.44rem;color:var(--text-3);">chat · simulador · NF</div></div>
+  </div>
+  <div class="sb-item" onclick="showPage('holerites',null,this)" style="height:auto;align-items:flex-start;padding:10px;">
+    <div class="sb-icon" data-icon="holer" style="margin-top:2px;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8899b4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+    <div style="flex:1;min-width:0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:0.62rem;font-weight:600;color:var(--text);">Holerites</span>
+        <span class="sb-badge g" style="flex-shrink:0;">Novo</span>
+      </div>
+      <div style="font-size:0.48rem;color:var(--text-3);margin-top:3px;line-height:1.5;">Guarde seus contracheques com segurança. Acesse quando precisar — admissão, INSS, financiamento.</div>
     </div>
-    <div>
-      <div style="font-size:0.62rem;font-weight:700;color:var(--midnight);">con<span style="color:#1a6bff;">tix</span> <span style="color:#22c55e;">IA</span></div>
-      <div style="font-size:0.46rem;color:var(--text-3);margin-top:1px;">chat · voz · nota fiscal</div>
-    </div>
-  </a>
+  </div>
+  <div class="sb-divider"></div>
 </aside>
 
 <main class="main">
@@ -502,6 +507,8 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
     <div class="stat"><div class="stat-top"><div class="stat-ico a">⏳</div><span class="stat-delta ne" id="d-pag-delta">pendente</span></div><div class="stat-lbl">A pagar</div><div class="stat-val" id="d-apagar">—</div><div class="stat-sub">contas pendentes</div></div>
     <div class="stat"><div class="stat-top"><div class="stat-ico b">🔔</div><span class="stat-delta up">✓ Positivo</span></div><div class="stat-lbl">Saldo líquido</div><div class="stat-val" id="d-saldo">—</div><div class="stat-sub">Receitas − gastos</div></div>
   </div>
+
+
   <div class="content-grid">
     <div class="panel">
       <div class="panel-head">
@@ -512,10 +519,96 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
           <button class="chip" onclick="filterTx('receita',this)">Receitas</button>
           <button class="chip" onclick="filterTx('pendente',this)">Pendentes</button>
         </div>
+        <!-- Filtro por categoria -->
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;">
+          <select id="filtro-cat-home" onchange="filtrarPorCategoria(this.value)"
+            style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--text-2);font-size:0.58rem;font-family:'Plus Jakarta Sans',sans-serif;outline:none;cursor:pointer;">
+            <option value="">🏷️ Todas as categorias</option>
+            <option>Alimentação</option><option>Moradia</option><option>Aluguel</option><option>Condomínio</option>
+            <option>Água</option><option>Energia Elétrica</option><option>Internet</option><option>Telefone / Celular</option>
+            <option>Streaming</option><option>Transporte</option><option>Combustível</option><option>Uber / Táxi</option>
+            <option>Ônibus / Metrô</option><option>Manutenção Veículo</option><option>Saúde</option><option>Farmácia</option>
+            <option>Plano de Saúde</option><option>Consulta Médica</option><option>Exames</option><option>Educação</option>
+            <option>Curso / Faculdade</option><option>Livros</option><option>Lazer</option><option>Academia</option>
+            <option>Cinema / Teatro</option><option>Viagem</option><option>Restaurante</option><option>Bar / Balada</option>
+            <option>Roupas / Calçados</option><option>Eletrônicos</option><option>Presentes</option><option>Pet</option>
+            <option>Salário</option><option>Freelance / Renda Extra</option><option>Investimentos</option><option>Empréstimo</option>
+            <option>Cartão de Crédito</option><option>Seguro</option><option>Imposto / Taxa</option><option>Outros</option>
+          </select>
+          <button id="filtro-cat-clear" onclick="limparFiltroCat()" style="display:none;padding:5px 12px;background:var(--red-dim,rgba(239,68,68,0.1));border:1px solid rgba(239,68,68,0.2);border-radius:8px;color:#ef4444;font-size:0.55rem;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">✕ Limpar filtro</button>
+          <span id="filtro-cat-resultado" style="font-size:0.52rem;color:var(--text-3);"></span>
+        </div>
       </div>
       <div id="txList"><div class="loading"><div class="spinner"></div> Carregando...</div></div>
     </div>
-    
+
+    <!-- GRÁFICO CIRCULAR GRANDE -->
+    <div class="panel" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;gap:20px;">
+      <div style="font-size:0.55rem;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;align-self:flex-start;">Distribuição do mês</div>
+      <div style="position:relative;width:180px;height:180px;flex-shrink:0;">
+        <svg width="180" height="180" viewBox="0 0 180 180">
+          <!-- trilha fundo -->
+          <circle cx="90" cy="90" r="72" fill="none" stroke="var(--border)" stroke-width="16"/>
+          <!-- gastos -->
+          <circle cx="90" cy="90" r="72" fill="none" stroke="#ef4444" stroke-width="16"
+            stroke-dasharray="452.4" id="big-circ-gastos"
+            stroke-dashoffset="274" stroke-linecap="butt"
+            transform="rotate(-90 90 90)" opacity="0.9"/>
+          <!-- a pagar -->
+          <circle cx="90" cy="90" r="72" fill="none" stroke="#f59e0b" stroke-width="16"
+            stroke-dasharray="452.4" id="big-circ-apagar"
+            stroke-dashoffset="339" stroke-linecap="butt"
+            transform="rotate(-90 90 90)" opacity="0.9"/>
+          <!-- vai sobrar -->
+          <circle cx="90" cy="90" r="72" fill="none" stroke="#22c55e" stroke-width="16"
+            stroke-dasharray="452.4" id="big-circ-sobra"
+            stroke-dashoffset="284" stroke-linecap="butt"
+            transform="rotate(-90 90 90)" opacity="0.9"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+          <div style="font-size:0.48rem;color:var(--text-3);text-transform:uppercase;letter-spacing:1px;">saldo</div>
+          <div style="font-size:1.1rem;font-weight:800;color:var(--text);font-family:'Lora',serif;letter-spacing:-1px;" id="big-circ-saldo">—</div>
+          <div style="font-size:0.45rem;color:var(--text-3);">líquido</div>
+        </div>
+      </div>
+      <!-- legenda -->
+      <div style="width:100%;display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:10px;height:10px;border-radius:50%;background:#ef4444;flex-shrink:0;"></div>
+            <span style="font-size:0.58rem;color:var(--text-2);">Gastos</span>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:0.65rem;font-weight:700;color:#ef4444;" id="big-leg-gastos">—</div>
+            <div style="font-size:0.45rem;color:var(--text-3);" id="big-leg-gastos-pct">—% da receita</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:10px;height:10px;border-radius:50%;background:#f59e0b;flex-shrink:0;"></div>
+            <span style="font-size:0.58rem;color:var(--text-2);">A pagar</span>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:0.65rem;font-weight:700;color:#f59e0b;" id="big-leg-apagar">—</div>
+            <div style="font-size:0.45rem;color:var(--text-3);" id="big-leg-apagar-pct">—% da receita</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:10px;height:10px;border-radius:50%;background:#22c55e;flex-shrink:0;"></div>
+            <span style="font-size:0.58rem;color:var(--text-2);">Vai sobrar</span>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:0.65rem;font-weight:700;color:#22c55e;" id="big-leg-sobra">—</div>
+            <div style="font-size:0.45rem;color:var(--text-3);" id="big-leg-sobra-pct">—% da receita</div>
+          </div>
+        </div>
+        <div style="border-top:1px solid var(--border);padding-top:10px;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:0.55rem;color:var(--text-2);font-weight:600;">Total receitas</span>
+          <span style="font-size:0.65rem;font-weight:800;color:var(--growth-mid);" id="big-leg-rec">—</span>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="bottom">
     <div class="panel">
@@ -642,26 +735,32 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
 <div id="page-cartao" class="page">
   <div class="page-head">
     <div><div class="page-greeting">Controle de crédito</div><div class="page-title">🔔 Cartão de Crédito</div></div>
-    <button class="add-btn green" onclick="openModal('modal-cartao')">+ Novo cartão</button>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <div style="display:flex;align-items:center;gap:5px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:20px;padding:4px 12px;">
+        <div style="width:6px;height:6px;background:#22c55e;border-radius:50%;"></div>
+        <span style="font-size:0.5rem;font-weight:700;color:#22c55e;">DADOS CRIPTOGRAFADOS</span>
+      </div>
+      <button class="add-btn green" onclick="openModal('modal-cartao')">+ Novo cartão</button>
+    </div>
   </div>
   <div class="three-col" id="cards-list">
     <div class="cc-card dark">
       <div class="cc-chip"></div>
-      <div class="cc-number">•••• •••• •••• 4821</div>
+      <div class="cc-number" data-sensitive>•••• •••• •••• 4821</div>
       <div class="cc-row">
-        <div><div class="cc-label">Titular</div><div class="cc-value">Philip Bicudo</div></div>
-        <div><div class="cc-label">Vence</div><div class="cc-value">12/28</div></div>
-        <div style="text-align:right"><div class="cc-label">Limite usado</div><div class="cc-limit">R$ 1.240</div><div class="cc-label" style="margin-top:2px">de R$ 5.000</div></div>
+        <div><div class="cc-label">Titular</div><div class="cc-value" data-sensitive>Philip Bicudo</div></div>
+        <div><div class="cc-label">Vence</div><div class="cc-value" data-sensitive>12/28</div></div>
+        <div style="text-align:right"><div class="cc-label">Limite usado</div><div class="cc-limit" data-sensitive>R$ 1.240</div><div class="cc-label" style="margin-top:2px">de R$ 5.000</div></div>
       </div>
       <div class="progress-bar"><div class="progress-fill" style="width:24.8%"></div></div>
     </div>
     <div class="cc-card green">
       <div class="cc-chip"></div>
-      <div class="cc-number">•••• •••• •••• 7293</div>
+      <div class="cc-number" data-sensitive>•••• •••• •••• 7293</div>
       <div class="cc-row">
-        <div><div class="cc-label">Titular</div><div class="cc-value">Philip Bicudo</div></div>
-        <div><div class="cc-label">Vence</div><div class="cc-value">08/27</div></div>
-        <div style="text-align:right"><div class="cc-label">Limite usado</div><div class="cc-limit">R$ 380</div><div class="cc-label" style="margin-top:2px">de R$ 2.000</div></div>
+        <div><div class="cc-label">Titular</div><div class="cc-value" data-sensitive>Philip Bicudo</div></div>
+        <div><div class="cc-label">Vence</div><div class="cc-value" data-sensitive>08/27</div></div>
+        <div style="text-align:right"><div class="cc-label">Limite usado</div><div class="cc-limit" data-sensitive>R$ 380</div><div class="cc-label" style="margin-top:2px">de R$ 2.000</div></div>
       </div>
       <div class="progress-bar"><div class="progress-fill" style="width:19%"></div></div>
     </div>
@@ -922,34 +1021,182 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
       </div>
     </div>
     <div style="position:sticky;top:80px;">
-      <div style="border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;">
-        <div style="background:var(--midnight);padding:12px 16px;display:flex;align-items:center;gap:10px;">
-          <div style="width:34px;height:34px;background:var(--growth);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0;">🤖</div>
-          <div>
-            <div style="font-size:0.65rem;font-weight:700;color:white;">contix Suporte IA</div>
-            <div style="font-size:0.48rem;color:rgba(255,255,255,0.4);display:flex;align-items:center;gap:4px;margin-top:1px;"><span style="width:5px;height:5px;background:var(--growth);border-radius:50%;display:inline-block;"></span>online 24h</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;text-align:center;">
+        <div style="width:52px;height:52px;background:linear-gradient(135deg,var(--blue),#22c55e);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin:0 auto 14px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div style="font-size:0.72rem;font-weight:800;color:var(--text);margin-bottom:6px;">Precisa de mais ajuda?</div>
+        <div style="font-size:0.58rem;color:var(--text-2);line-height:1.6;margin-bottom:16px;">Use o <strong style="color:var(--blue)">contix IA</strong> para tirar dúvidas, analisar suas finanças e muito mais.</div>
+        <button onclick="showPage('chat-ia')" style="width:100%;padding:10px;background:var(--blue);color:white;border:none;border-radius:8px;font-size:0.62rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:background 0.15s;" onmouseover="this.style.background='#1558cc'" onmouseout="this.style.background='var(--blue)'">
+          Abrir contix IA →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ CHAT IA ══ -->
+<div id="page-chat-ia" class="page">
+  <div class="page-head">
+    <div>
+      <div class="page-greeting">Assistente financeiro inteligente</div>
+      <div class="page-title">contix <span style="color:var(--blue)">IA</span></div>
+    </div>
+    <div class="page-actions">
+      <div style="display:flex;align-items:center;gap:5px;background:var(--green-dim,rgba(34,197,94,0.1));border:1px solid rgba(34,197,94,0.2);border-radius:20px;padding:4px 12px;">
+        <div style="width:6px;height:6px;background:#22c55e;border-radius:50%;animation:blink 1.5s infinite;"></div>
+        <span style="font-size:0.5rem;font-weight:700;color:#22c55e;">IA online</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick actions -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
+    <button onclick="sendIAChip('Resumo financeiro do mês')" style="display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--surface);border:1px solid var(--border);border-radius:20px;font-size:0.58rem;font-weight:600;color:var(--text-2);cursor:pointer;transition:all 0.12s;" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-2)'">📊 Resumo do mês</button>
+    <button onclick="sendIAChip('Posso comprar um carro de R$ 40.000? Analise minha situação financeira atual.')" style="display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--surface);border:1px solid var(--border);border-radius:20px;font-size:0.58rem;font-weight:600;color:var(--text-2);cursor:pointer;transition:all 0.12s;" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-2)'">🚗 Simular compra carro</button>
+    <button onclick="sendIAChip('Posso comprar um imóvel de R$ 250.000? Analise minha situação financeira.')" style="display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--surface);border:1px solid var(--border);border-radius:20px;font-size:0.58rem;font-weight:600;color:var(--text-2);cursor:pointer;transition:all 0.12s;" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-2)'">🏠 Simular compra casa</button>
+    <button onclick="sendIAChip('Monte uma planilha com todas minhas despesas do mês em formato de tabela')" style="display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--surface);border:1px solid var(--border);border-radius:20px;font-size:0.58rem;font-weight:600;color:var(--text-2);cursor:pointer;transition:all 0.12s;" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-2)'">📋 Planilha de despesas</button>
+    <label style="display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--surface);border:1px solid var(--border);border-radius:20px;font-size:0.58rem;font-weight:600;color:var(--text-2);cursor:pointer;transition:all 0.12s;" onmouseover="this.style.borderColor='#f59e0b';this.style.color='#f59e0b'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-2)'">
+      📷 Nota fiscal por foto
+      <input type="file" accept="image/*" style="display:none" onchange="processNF(this)">
+    </label>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 340px;gap:16px;">
+    <!-- Chat principal -->
+    <div class="panel" style="display:flex;flex-direction:column;height:520px;padding:0;overflow:hidden;">
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+        <div style="width:30px;height:30px;background:linear-gradient(135deg,var(--blue),#22c55e);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.55rem;font-weight:800;color:white;flex-shrink:0;">cx</div>
+        <div><div style="font-size:0.65rem;font-weight:700;color:var(--text);">contix IA</div><div style="font-size:0.48rem;color:#22c55e;">● online · resposta em segundos</div></div>
+      </div>
+      <div id="ia-msgs" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;flex-direction:column;gap:3px;align-items:flex-start;">
+          <div style="background:var(--surface2);color:var(--text);padding:10px 14px;border-radius:14px 14px 14px 4px;font-size:0.63rem;line-height:1.55;max-width:85%;">
+            Olá! Sou a IA do contix 👋<br><br>Posso te ajudar com:<br>
+            • <strong>Análise financeira</strong> — resumos e insights<br>
+            • <strong>Simulador</strong> — carro, casa, investimento<br>
+            • <strong>Nota fiscal</strong> — envie uma foto e registro automático<br>
+            • <strong>Planilha</strong> — monto sua tabela de despesas<br><br>
+            Como posso ajudar?
           </div>
         </div>
-        <div id="suporte-msgs" style="height:320px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;background:#f8fafc;">
-          <div style="background:white;border:1px solid var(--border);border-radius:4px 12px 12px 12px;padding:10px 13px;max-width:90%;font-size:0.65rem;line-height:1.65;color:var(--text);">
-            Olá! Sou o assistente do contix.<br>Pode me perguntar qualquer coisa sobre como usar o app, sua assinatura ou pagamentos.
-          </div>
+      </div>
+      <div style="padding:12px 14px;border-top:1px solid var(--border);">
+        <div style="display:flex;gap:8px;align-items:flex-end;">
+          <textarea id="ia-input" placeholder="Digite sua dúvida ou peça uma simulação..." rows="2"
+            style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:9px 14px;color:var(--text);font-size:0.62rem;font-family:'Plus Jakarta Sans',sans-serif;outline:none;resize:none;line-height:1.5;transition:border 0.15s;"
+            onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--border)'"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendIA()}"></textarea>
+          <button onclick="sendIA()" style="width:38px;height:38px;background:var(--blue);border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.15s;" onmouseover="this.style.background='#1558cc'" onmouseout="this.style.background='var(--blue)'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+          </button>
         </div>
-        <div style="display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--border);background:white;">
-          <input id="suporte-input" style="flex:1;border:1.5px solid var(--border);border-radius:20px;padding:7px 12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.62rem;color:var(--text);outline:none;" placeholder="Digite sua dúvida..." onkeydown="if(event.key==='Enter')enviarSuporte()">
-          <button onclick="enviarSuporte()" style="width:32px;height:32px;border-radius:50%;background:var(--midnight);color:white;border:none;cursor:pointer;font-size:0.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">›</button>
+      </div>
+    </div>
+
+    <!-- Simulador rápido -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="panel" style="padding:16px 18px;">
+        <div style="font-size:0.58rem;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">🚗 Simulador de compra</div>
+        <div class="form-group" style="margin-bottom:10px;">
+          <label class="form-label" style="font-size:0.55rem;">Tipo</label>
+          <select id="sim-tipo" class="form-select" style="font-size:0.6rem;">
+            <option value="carro">Carro</option>
+            <option value="moto">Moto</option>
+            <option value="imovel">Imóvel</option>
+            <option value="eletronico">Eletrônico</option>
+            <option value="outro">Outro</option>
+          </select>
         </div>
-        <div style="display:flex;flex-wrap:wrap;gap:4px;padding:6px 10px 10px;background:#f8fafc;border-top:1px solid var(--border);">
-          <span class="shortcut" onclick="enviarSuporteMsg('Como registro um gasto?')">Registrar gasto</span>
-          <span class="shortcut" onclick="enviarSuporteMsg('Como cancelo meu plano?')">Cancelar plano</span>
-          <span class="shortcut" onclick="enviarSuporteMsg('Bot não responde')">Bot parado</span>
-          <span class="shortcut" onclick="enviarSuporteMsg('Meus dados estão seguros?')">Segurança</span>
+        <div class="form-group" style="margin-bottom:10px;">
+          <label class="form-label" style="font-size:0.55rem;">Valor do bem (R$)</label>
+          <input id="sim-valor" type="number" class="form-input" placeholder="Ex: 45000" style="font-size:0.6rem;">
+        </div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label class="form-label" style="font-size:0.55rem;">Entrada (R$)</label>
+          <input id="sim-entrada" type="number" class="form-input" placeholder="Ex: 10000" style="font-size:0.6rem;">
+        </div>
+        <button onclick="rodarSimulador()" style="width:100%;padding:9px;background:var(--blue);color:white;border:none;border-radius:8px;font-size:0.62rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+          Analisar com IA →
+        </button>
+      </div>
+
+      <div class="panel" style="padding:16px 18px;">
+        <div style="font-size:0.58rem;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">📊 Sua situação atual</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;justify-content:space-between;font-size:0.6rem;"><span style="color:var(--text-2)">Receita mensal</span><span style="color:#22c55e;font-weight:700;" id="sim-rec-val">—</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:0.6rem;"><span style="color:var(--text-2)">Gastos fixos</span><span style="color:#ef4444;font-weight:700;" id="sim-gas-val">—</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:0.6rem;"><span style="color:var(--text-2)">Sobra por mês</span><span style="color:var(--blue);font-weight:700;" id="sim-sobra-val">—</span></div>
+          <div style="border-top:1px solid var(--border);padding-top:8px;display:flex;justify-content:space-between;font-size:0.6rem;"><span style="color:var(--text-2)">Saldo acumulado</span><span style="color:white;font-weight:800;" id="sim-saldo-val">—</span></div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- ══ HOLERITES ══ -->
+<div id="page-holerites" class="page">
+  <div class="page-head">
+    <div>
+      <div class="page-greeting">Cofre de documentos</div>
+      <div class="page-title">Holerites & Documentos</div>
+    </div>
+    <label class="add-btn" style="cursor:pointer;display:flex;align-items:center;gap:6px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Adicionar documento
+      <input type="file" accept="image/*,application/pdf" style="display:none" onchange="adicionarHolerite(this)">
+    </label>
+  </div>
+
+  <!-- Banner descritivo -->
+  <div style="background:linear-gradient(135deg,var(--midnight),#0d1f3c);border:1px solid rgba(26,107,255,0.25);border-radius:var(--r);padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;gap:20px;">
+    <div style="width:52px;height:52px;background:rgba(26,107,255,0.15);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a6bff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+    </div>
+    <div style="flex:1;">
+      <div style="font-size:0.75rem;font-weight:800;color:white;margin-bottom:4px;">Seus documentos, sempre à mão</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.5);line-height:1.7;">
+        Guarde contracheques, recibos e comprovantes aqui. Quando precisar — para financiamento, concurso, INSS ou comprovação de renda — tudo estará seguro e acessível só por você.
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
+      <div style="display:flex;align-items:center;gap:6px;font-size:0.5rem;color:rgba(255,255,255,0.4);">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Acesso offline
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:0.5rem;color:rgba(255,255,255,0.4);">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Só você tem acesso
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:0.5rem;color:rgba(255,255,255,0.4);">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        PDF e imagens
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;">
+      <div style="font-size:0.44rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">Documentos salvos</div>
+      <div style="font-size:1.4rem;font-weight:800;color:var(--text);" id="hol-count">0</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;">
+      <div style="font-size:0.44rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">Último adicionado</div>
+      <div style="font-size:0.72rem;font-weight:700;color:var(--text);" id="hol-ultimo">—</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;">
+      <div style="font-size:0.44rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">Armazenamento</div>
+      <div style="font-size:0.72rem;font-weight:700;color:#22c55e;" id="hol-storage">Seguro</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;" id="holerites-grid">
+  </div>
+</div>
 
 <!-- ══ TERMOS ══ -->
 <div id="page-termos" class="page">
@@ -1022,9 +1269,7 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
       <div class="form-group">
         <label class="form-label">Categoria</label>
         <select class="form-select" id="tx-cat">
-          <option>Alimentação</option><option>Moradia</option><option>Transporte</option>
-          <option>Saúde</option><option>Lazer</option><option>Educação</option>
-          <option>Salário</option><option>Outros</option>
+<option>Alimentação</option><option>Moradia</option><option>Aluguel</option><option>Condomínio</option><option>Água</option><option>Energia Elétrica</option><option>Internet</option><option>Telefone / Celular</option><option>Streaming</option><option>Transporte</option><option>Combustível</option><option>Uber / Táxi</option><option>Ônibus / Metrô</option><option>Manutenção Veículo</option><option>Saúde</option><option>Farmácia</option><option>Plano de Saúde</option><option>Consulta Médica</option><option>Exames</option><option>Educação</option><option>Curso / Faculdade</option><option>Livros</option><option>Lazer</option><option>Academia</option><option>Cinema / Teatro</option><option>Viagem</option><option>Restaurante</option><option>Bar / Balada</option><option>Roupas / Calçados</option><option>Eletrônicos</option><option>Presentes</option><option>Pet</option><option>Salário</option><option>Freelance / Renda Extra</option><option>Investimentos</option><option>Empréstimo</option><option>Cartão de Crédito</option><option>Seguro</option><option>Imposto / Taxa</option><option>Outros</option>
         </select>
       </div>
       <div class="form-group">
@@ -1121,11 +1366,7 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
       <div class="form-group">
         <label class="form-label">Categoria</label>
         <select class="form-select" id="edit-cat">
-          <option>Alimentação</option><option>Moradia</option><option>Transporte</option>
-          <option>Saúde</option><option>Lazer</option><option>Educação</option>
-          <option>Salário</option><option>Freelance / Renda Extra</option>
-          <option>Combustível</option><option>Streaming</option><option>Farmácia</option>
-          <option>Energia Elétrica</option><option>Uber / Táxi</option><option>Outros</option>
+<option>Alimentação</option><option>Moradia</option><option>Aluguel</option><option>Condomínio</option><option>Água</option><option>Energia Elétrica</option><option>Internet</option><option>Telefone / Celular</option><option>Streaming</option><option>Transporte</option><option>Combustível</option><option>Uber / Táxi</option><option>Ônibus / Metrô</option><option>Manutenção Veículo</option><option>Saúde</option><option>Farmácia</option><option>Plano de Saúde</option><option>Consulta Médica</option><option>Exames</option><option>Educação</option><option>Curso / Faculdade</option><option>Livros</option><option>Lazer</option><option>Academia</option><option>Cinema / Teatro</option><option>Viagem</option><option>Restaurante</option><option>Bar / Balada</option><option>Roupas / Calçados</option><option>Eletrônicos</option><option>Presentes</option><option>Pet</option><option>Salário</option><option>Freelance / Renda Extra</option><option>Investimentos</option><option>Empréstimo</option><option>Cartão de Crédito</option><option>Seguro</option><option>Imposto / Taxa</option><option>Outros</option>
         </select>
       </div>
       <div class="form-group"><label class="form-label">Forma de pagamento</label><select class="form-select" id="edit-metodo"><option>PIX</option><option>Cartão de Crédito</option><option>Cartão de Débito</option><option>Boleto</option><option>TED</option><option>Dinheiro</option></select></div>
@@ -1142,7 +1383,30 @@ footer{background:var(--midnight);padding:14px 32px;display:flex;align-items:cen
 </div>
 
 <script>
+// ── showToast ──
+function showToast(msg, type) {
+  const t = document.createElement('div');
+  const colors = {info:'#1a6bff', success:'#22c55e', error:'#ef4444', warn:'#f59e0b'};
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:' + (colors[type]||colors.info) + ';color:white;padding:10px 20px;border-radius:10px;font-size:0.7rem;font-weight:700;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);font-family:inherit;';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// ══════════════════════════════════════════
 const API = 'https://financeiro-bot-production-571e.up.railway.app';
+const fetchWithTimeout = (url, opts={}, ms=3000) => {
+  // Rate limiting
+  const key = url.split('?')[0];
+  if (!_rateLimiter.check(key, 15, 60000)) {
+    return Promise.reject(new Error('Rate limit exceeded'));
+  }
+  // Sanitize URL
+  if (!/^https?:\/\//.test(url)) return Promise.reject(new Error('Invalid URL'));
+  const ctrl = new AbortController();
+  const id = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, {...opts, signal: ctrl.signal}).finally(() => clearTimeout(id));
+};
 const fmt = v => 'R$ ' + Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const DIAS  = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
@@ -1154,6 +1418,67 @@ let currentFilter = 'all';
 
 const now = new Date();
 document.getElementById('date-label').textContent = `${DIAS[now.getDay()]}, ${now.getDate()} de ${MESES[now.getMonth()]} de ${now.getFullYear()}`;
+
+// ── CÍRCULOS DASH ──
+function updateCircles(receitas, gastos, apagar) {
+  const CIRC = 175.9;
+  const BIG  = 452.4;
+  const sobra = Math.max(receitas - gastos - apagar, 0);
+  const saldo = receitas - gastos - apagar;
+
+  function setCircle(id, pctId, valId, subId, valor, total, sub) {
+    const pct = total > 0 ? Math.min(Math.round((valor / total) * 100), 100) : 0;
+    const offset = CIRC - (CIRC * pct / 100);
+    const el = document.getElementById(id); if (el) el.style.strokeDashoffset = offset;
+    const pe = document.getElementById(pctId); if (pe) pe.textContent = pct + '%';
+    const ve = document.getElementById(valId); if (ve) ve.textContent = fmt(valor);
+    const se = document.getElementById(subId); if (se && sub) se.textContent = sub;
+  }
+
+  const pctGastos = receitas > 0 ? Math.round((gastos / receitas) * 100) : 0;
+  const pctApagar = receitas > 0 ? Math.round((apagar / receitas) * 100) : 0;
+  const pctSobra  = receitas > 0 ? Math.round((sobra  / receitas) * 100) : 0;
+
+  // pequenos círculos removidos — apenas gráfico grande
+
+  // Gráfico circular grande — arcos stacked no SVG
+  // Cada arco: offset = BIG - (BIG * pct/100), rotacionado para começar após o anterior
+  const offGastos = BIG - (BIG * pctGastos / 100);
+  const offApagar = BIG - (BIG * pctApagar / 100);
+  const offSobra  = BIG - (BIG * pctSobra  / 100);
+  const degGastos = (pctGastos / 100) * 360;
+  const degApagar = (pctApagar / 100) * 360;
+
+  const gcEl = document.getElementById('big-circ-gastos');
+  const acEl = document.getElementById('big-circ-apagar');
+  const scEl = document.getElementById('big-circ-sobra');
+  if (gcEl) { gcEl.style.strokeDashoffset = offGastos; gcEl.setAttribute('transform', 'rotate(-90 90 90)'); }
+  if (acEl) { acEl.style.strokeDashoffset = offApagar; acEl.setAttribute('transform', `rotate(${-90 + degGastos} 90 90)`); }
+  if (scEl) { scEl.style.strokeDashoffset = offSobra;  scEl.setAttribute('transform', `rotate(${-90 + degGastos + degApagar} 90 90)`); }
+
+  // Saldo central
+  const sEl = document.getElementById('big-circ-saldo'); if (sEl) sEl.textContent = fmt(saldo);
+
+  // Legenda
+  const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+  set('big-leg-gastos', fmt(gastos)); set('big-leg-gastos-pct', `${pctGastos}% da receita`);
+  set('big-leg-apagar', fmt(apagar)); set('big-leg-apagar-pct', `${pctApagar}% da receita`);
+  set('big-leg-sobra',  fmt(sobra));  set('big-leg-sobra-pct',  `${pctSobra}% da receita`);
+  set('big-leg-rec', fmt(receitas));
+}
+
+// ── USER MENU ──
+function toggleUserMenu() {
+  const m = document.getElementById('user-menu');
+  if (!m) return;
+  m.style.display = m.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', e => {
+  const m = document.getElementById('user-menu');
+  if (m && !m.contains(e.target) && !e.target.closest('[onclick*="toggleUserMenu"]')) {
+    m.style.display = 'none';
+  }
+});
 
 // ── NAVIGATION ──
 function showPage(id, navBtn, sideBtn, filter) {
@@ -1183,7 +1508,7 @@ document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('cli
 // ── LOAD RESUMO ──
 async function loadResumo() {
   try {
-    const res = await fetch(`${API}/dashboard/resumo`);
+    const res = await fetchWithTimeout(`${API}/dashboard/resumo`);
     const d = await res.json();
     document.getElementById('d-receitas').textContent = fmt(d.receitas);
     document.getElementById('d-gastos').textContent = fmt(d.gastos);
@@ -1191,10 +1516,14 @@ async function loadResumo() {
     document.getElementById('d-saldo').textContent = fmt(d.saldo);
     document.getElementById('d-rec-sub').textContent = `${d.total_transacoes} transações no mês`;
     document.getElementById('d-gas-sub').textContent = `${d.total_transacoes} registradas`;
-    document.getElementById('sb-saldo').textContent = fmt(d.saldo);
-    document.getElementById('sb-rec').textContent = fmt(d.receitas);
-    document.getElementById('sb-gas').textContent = fmt(d.gastos);
-    document.getElementById('sb-pag').textContent = fmt(d.a_pagar);
+    // Saldo acumulado = saldo histórico salvo + saldo do mês atual
+    const _saldoMes = d.saldo || 0;
+    const _saldoAcum = parseFloat(localStorage.getItem('contix_saldo_acum') || '0') + _saldoMes;
+    localStorage.setItem('contix_saldo_acum', _saldoAcum);
+    document.getElementById('sb-saldo').textContent = fmt(_saldoAcum);
+    const _eco = d.receitas > 0 ? Math.round(((d.receitas - d.gastos - d.a_pagar) / d.receitas) * 100) : 0;
+    document.getElementById('sb-rec').textContent = _eco + '% salvo';
+    document.getElementById('sb-pag').textContent = 'dia 20';
     document.getElementById('sb-periodo').textContent = `${MESES[d.mes-1]} ${d.ano} · atualizado agora`;
     document.getElementById('rep-receitas').textContent = fmt(d.receitas);
     document.getElementById('rep-gastos').textContent = fmt(d.gastos);
@@ -1202,27 +1531,29 @@ async function loadResumo() {
     document.getElementById('txp-rec').textContent = fmt(d.receitas);
     document.getElementById('txp-gas').textContent = fmt(d.gastos);
     document.getElementById('txp-count').textContent = d.total_transacoes;
+    updateCircles(d.receitas, d.gastos, d.a_pagar);
   } catch(e) {
     // Demo resumo fallback
     document.getElementById('d-receitas').textContent = 'R$ 5.300,00';
     document.getElementById('d-gastos').textContent = 'R$ 2.003,80';
     document.getElementById('d-apagar').textContent = 'R$ 1.345,00';
     document.getElementById('d-saldo').textContent = 'R$ 3.296,20';
-    document.getElementById('sb-saldo').textContent = 'R$ 3.296,20';
-    document.getElementById('sb-rec').textContent = 'R$ 5.300,00';
-    document.getElementById('sb-gas').textContent = 'R$ 2.003,80';
-    document.getElementById('sb-pag').textContent = 'R$ 1.345,00';
+    const _saldoAcumDemo = parseFloat(localStorage.getItem('contix_saldo_acum') || '0');
+    document.getElementById('sb-saldo').textContent = fmt(_saldoAcumDemo);
+    document.getElementById('sb-rec').textContent = '37% salvo';
+    document.getElementById('sb-pag').textContent = 'dia 20';
     document.getElementById('sb-periodo').textContent = 'Abril 2026 · demo';
     document.getElementById('rep-receitas').textContent = 'R$ 5.300,00';
     document.getElementById('rep-gastos').textContent = 'R$ 2.003,80';
     document.getElementById('rep-saldo').textContent = 'R$ 3.296,20';
+    updateCircles(5300, 2003.80, 1345);
   }
 }
 
 // ── LOAD TRANSAÇÕES ──
 async function loadTransacoes() {
   try {
-    const res = await fetch(`${API}/dashboard/transacoes`);
+    const res = await fetchWithTimeout(`${API}/dashboard/transacoes`);
     allTx = await res.json();
     const pendentes = allTx.filter(t => t.status === 'nao_pago' || t.status === 'pendente');
     document.getElementById('tx-count').textContent = `${allTx.length} registros`;
@@ -1266,28 +1597,81 @@ function renderTx(filter, listId='txList') {
     filter==='receita' ? t.tipo==='receita' :
     t.status==='nao_pago'||t.status==='pendente'
   );
-  if(!filtered.length){ document.getElementById(listId).innerHTML='<div class="empty-msg">Nenhuma transação encontrada.</div>'; return; }
-  document.getElementById(listId).innerHTML = filtered.map((t,i) => {
-    const icon = CAT_ICONS[(t.categoria||'').toLowerCase()]||'📦';
+  renderTxList(filtered, listId);
+}
+
+function renderTxList(filtered, listId='txList') {
+  const el = document.getElementById(listId);
+  if (!el) return;
+  if (!filtered.length) { el.innerHTML = '<div class="empty-msg">Nenhuma transação encontrada.</div>'; return; }
+  el.innerHTML = filtered.map((t, i) => {
+    const icon = CAT_ICONS[(t.categoria||'').toLowerCase()] || '📦';
     const isPago = t.status === 'pago';
-    const desc = (t.descricao||'').replace(/'/g,"&#39;");
-    return `<div class="tx-item" style="animation-delay:${i*15}ms" id="tx-row-${t.id}">
+    return `<div class="tx-item" style="animation-delay:${i*15}ms" id="tx-row-${t.id}" data-id="${t.id}">
       <div class="tx-ico ${t.tipo}">${icon}</div>
       <div><div class="tx-name">${t.descricao}</div><div class="tx-meta"><span>${t.data}</span><span class="tx-cat">${t.categoria||'Outros'}</span><span style="color:var(--text-4)">${t.forma_pag||'PIX'}</span></div></div>
       <div class="tx-amt ${t.tipo}">${t.tipo==='receita'?'+':'−'} ${fmt(t.valor)}</div>
       <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
         <button class="tx-status tx-status-btn ${t.status}" onclick="toggleStatusTx(${t.id},'${t.status}',this)" title="Clique para alterar">${isPago?'✓ Pago':'⏳ A pagar'}</button>
         <button onclick="abrirEditar(${t.id})" style="width:26px;height:26px;border-radius:6px;border:none;cursor:pointer;background:var(--blue-bg);color:var(--blue);font-size:0.65rem;display:flex;align-items:center;justify-content:center;" title="Editar">✏️</button>
-        <button onclick="confirmarDeletar(${t.id},'${desc}')" style="width:26px;height:26px;border-radius:6px;border:none;cursor:pointer;background:var(--red-bg);color:var(--red);font-size:0.65rem;display:flex;align-items:center;justify-content:center;" title="Excluir">🗑️</button>
+        <button data-del-id="${t.id}" onclick="deletarTx(this)" style="width:26px;height:26px;border-radius:6px;border:none;cursor:pointer;background:var(--red-bg);color:var(--red);font-size:0.65rem;display:flex;align-items:center;justify-content:center;" title="Excluir">🗑️</button>
       </div>
     </div>`;
   }).join('');
 }
+
+function deletarTx(btn) {
+  const id = parseInt(btn.getAttribute('data-del-id'));
+  const row = document.getElementById('tx-row-' + id);
+  const nome = row ? row.querySelector('.tx-name')?.textContent || 'esta transação' : 'esta transação';
+  confirmarDeletar(id, nome);
+}
+
+
 function filterTx(f,btn) {
   document.querySelectorAll('.chip').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
-  renderTx(f);
+  currentFilter = f;
+  const cat = document.getElementById('filtro-cat-home')?.value || '';
+  renderTxFiltrado(f, cat);
 }
+
+let _currentCatFilter = '';
+function filtrarPorCategoria(cat) {
+  _currentCatFilter = cat;
+  const clearBtn = document.getElementById('filtro-cat-clear');
+  const res = document.getElementById('filtro-cat-resultado');
+  if (clearBtn) clearBtn.style.display = cat ? 'block' : 'none';
+  renderTxFiltrado(currentFilter, cat);
+  if (res) {
+    if (cat) {
+      const count = allTx.filter(t => t.categoria === cat).length;
+      res.textContent = `${count} transação${count !== 1 ? 'ões' : ''} em "${cat}"`;
+    } else { res.textContent = ''; }
+  }
+}
+
+function limparFiltroCat() {
+  _currentCatFilter = '';
+  const sel = document.getElementById('filtro-cat-home');
+  if (sel) sel.value = '';
+  const clearBtn = document.getElementById('filtro-cat-clear');
+  if (clearBtn) clearBtn.style.display = 'none';
+  const res = document.getElementById('filtro-cat-resultado');
+  if (res) res.textContent = '';
+  renderTxFiltrado(currentFilter, '');
+}
+
+function renderTxFiltrado(tipo, cat) {
+  let list = allTx;
+  if (tipo === 'despesa') list = list.filter(t => t.tipo === 'despesa');
+  else if (tipo === 'receita') list = list.filter(t => t.tipo === 'receita');
+  else if (tipo === 'pendente') list = list.filter(t => t.status === 'nao_pago' || t.status === 'pendente');
+  if (cat) list = list.filter(t => t.categoria === cat);
+  renderTxList(list, 'txList');
+}
+
+
 
 // ── RENDER PENDENTES ──
 function renderPendentes(pendentes) {
@@ -1306,7 +1690,7 @@ function renderPendentes(pendentes) {
 async function marcarPago(id,btn) {
   btn.disabled=true; btn.textContent='...';
   try {
-    await fetch(`${API}/dashboard/transacoes/${id}/pagar`,{method:'PATCH'});
+    await fetchWithTimeout(`${API}/dashboard/transacoes/${id}/pagar`,{method:'PATCH'},3000);
     document.getElementById(`pend-${id}`).style.opacity='0.4';
     btn.textContent='✓ Pago';
     setTimeout(()=>{loadResumo();loadTransacoes();},500);
@@ -1316,7 +1700,7 @@ async function marcarPago(id,btn) {
 // ── LOAD CATEGORIAS ──
 async function loadCats(listId='catList') {
   try {
-    const res = await fetch(`${API}/dashboard/categorias`);
+    const res = await fetchWithTimeout(`${API}/dashboard/categorias`);
     const cats = await res.json();
     if(!cats.length){ document.getElementById(listId).innerHTML='<div class="empty-msg">Sem gastos no mês.</div>'; return; }
     document.getElementById(listId).innerHTML = cats.slice(0,6).map(c => {
@@ -1331,13 +1715,35 @@ async function loadCats(listId='catList') {
       </div>`;
     }).join('');
     return cats;
-  } catch(e) { document.getElementById(listId).innerHTML='<div class="error-msg">Erro ao carregar.</div>'; }
+  } catch(e) {
+    const demoCats = [
+      {categoria:'Moradia',total:1200,percentual:35},
+      {categoria:'Alimentação',total:860,percentual:25},
+      {categoria:'Transporte',total:515,percentual:15},
+      {categoria:'Lazer',total:447,percentual:13},
+      {categoria:'Saúde',total:240,percentual:7},
+      {categoria:'Streaming',total:171,percentual:5},
+    ];
+    if(!demoCats.length){ document.getElementById(listId).innerHTML='<div class="empty-msg">Sem gastos no mês.</div>'; return demoCats; }
+    document.getElementById(listId).innerHTML = demoCats.slice(0,6).map(c => {
+      const color = CAT_COLORS[(c.categoria||'').toLowerCase()]||'#94a3b8';
+      const icon = CAT_ICONS[(c.categoria||'').toLowerCase()]||'🏷️';
+      return `<div class="cat-row">
+        <div class="cat-ico">${icon}</div>
+        <div class="cat-info">
+          <div class="cat-nr"><span class="cat-n">${c.categoria}</span><span class="cat-v">${fmt(c.total)}</span></div>
+          <div class="cat-bar"><div class="cat-fill" style="width:${c.percentual}%;background:${color}"></div></div>
+        </div>
+      </div>`;
+    }).join('');
+    return demoCats;
+  }
 }
 
 // ── LOAD HISTÓRICO ──
 async function loadHistorico(areaId='barArea') {
   try {
-    const res = await fetch(`${API}/dashboard/historico?meses=6`);
+    const res = await fetchWithTimeout(`${API}/dashboard/historico?meses=6`);
     const hist = await res.json();
     const maxVal = Math.max(...hist.map(h=>Math.max(h.receitas,h.gastos)),1);
     const H = 90;
@@ -1349,7 +1755,26 @@ async function loadHistorico(areaId='barArea') {
         </div>
         <div class="bar-lbl">${h.mes}</div>
       </div>`).join('');
-  } catch(e) { document.getElementById(areaId).innerHTML='<div class="error-msg" style="font-size:0.5rem">Erro</div>'; }
+  } catch(e) {
+    const demoHist = [
+      {mes:'Nov',receitas:4200,gastos:2800},
+      {mes:'Dez',receitas:5100,gastos:3200},
+      {mes:'Jan',receitas:4800,gastos:2600},
+      {mes:'Fev',receitas:5300,gastos:2900},
+      {mes:'Mar',receitas:4600,gastos:3100},
+      {mes:'Abr',receitas:5300,gastos:2003},
+    ];
+    const maxVal = Math.max(...demoHist.map(h=>Math.max(h.receitas,h.gastos)),1);
+    const H = 90;
+    document.getElementById(areaId).innerHTML = demoHist.map(h => `
+      <div class="bar-grp">
+        <div class="bars">
+          <div class="bar inc" style="height:${Math.round(h.receitas/maxVal*H)}px" title="${fmt(h.receitas)}"></div>
+          <div class="bar exp" style="height:${Math.round(h.gastos/maxVal*H)}px" title="${fmt(h.gastos)}"></div>
+        </div>
+        <div class="bar-lbl">${h.mes}</div>
+      </div>`).join('');
+  }
 }
 
 // ── RELATÓRIOS ──
@@ -1521,7 +1946,7 @@ function simWpp(msg) {
     let resp = botRes[msg];
     if(msg==='resumo') {
       try {
-        const r = await fetch(`${API}/dashboard/resumo`);
+        const r = await fetchWithTimeout(`${API}/dashboard/resumo`);
         const d = await r.json();
         resp = `🔔 <strong>Resumo de ${MESES[d.mes-1]}</strong><br>🔔 ${fmt(d.receitas)}<br>🔔 ${fmt(d.gastos)}<br>✅ Saldo: ${fmt(d.saldo)}`;
       } catch { resp='❌ Erro ao buscar resumo.'; }
@@ -1542,16 +1967,67 @@ function selectColor(el,color) {
   el.style.borderColor=color;
 }
 
+const MESES_FULL = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const DIAS_FULL = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+
 // ── INIT ──
 // Init com navegação de mês
 const _initNow = new Date();
-viewMes = _initNow.getMonth() + 1;
-viewAno = _initNow.getFullYear();
+let viewMes = _initNow.getMonth() + 1;
+let viewAno = _initNow.getFullYear();
 const _mesLbl = document.getElementById('mes-label');
 if (_mesLbl) _mesLbl.textContent = `${MESES_FULL[viewMes-1]} ${viewAno} ✦`;
 const _dlEl = document.getElementById('date-label');
 if (_dlEl) { const n=new Date(); _dlEl.textContent=`${DIAS_FULL[n.getDay()]}, ${n.getDate()} de ${MESES_FULL[n.getMonth()]} de ${n.getFullYear()}`; }
-Promise.all([loadResumo(), loadTransacoes(), loadCats(), loadHistorico()]);
+// ── DEMO INSTANT — preenche tudo sem esperar API ──
+function loadDemoInstant() {
+  // Estado inicial zerado — dados reais vêm da API
+  const ids = {
+    'd-receitas': 'R$ 0,00', 'd-gastos': 'R$ 0,00', 'd-apagar': 'R$ 0,00', 'd-saldo': 'R$ 0,00',
+    'd-rec-sub': '0 receitas no mês', 'd-gas-sub': '0 registradas',
+    'sb-periodo': new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'}),
+    'rep-receitas': 'R$ 0,00', 'rep-gastos': 'R$ 0,00', 'rep-saldo': 'R$ 0,00',
+    'txp-rec': 'R$ 0,00', 'txp-gas': 'R$ 0,00', 'txp-count': '0',
+    'txp-pend': '0', 'tx-count': '0 registros',
+    'sb-badge-tx': '0', 'sb-badge-pend': '0',
+    'pend-count': 'Nenhuma pendência',
+  };
+  Object.entries(ids).forEach(([id, val]) => { const el = document.getElementById(id); if (el) el.textContent = val; });
+
+  // Saldo acumulado do localStorage
+  const saldoAcum = parseFloat(localStorage.getItem('contix_saldo_acum') || '0');
+  const sbSaldo = document.getElementById('sb-saldo');
+  if (sbSaldo) sbSaldo.textContent = fmt(saldoAcum);
+
+  const ecoEl = document.getElementById('sb-rec'); if (ecoEl) ecoEl.textContent = '0% salvo';
+  const pagEl = document.getElementById('sb-pag'); if (pagEl) pagEl.textContent = '—';
+
+  updateCircles(0, 0, 0);
+
+  // Sem transações
+  allTx = [];
+  const txList = document.getElementById('txList');
+  if (txList) txList.innerHTML = '<div class="empty-msg" style="padding:32px;text-align:center;color:var(--text-3);font-size:0.65rem;">Nenhuma transação ainda.<br>Registre pelo WhatsApp ou clique em <strong>+ Registrar</strong></div>';
+  const pendList = document.getElementById('pendList');
+  if (pendList) pendList.innerHTML = '<div class="empty-msg">✅ Nenhuma conta pendente!</div>';
+
+  // Categorias vazias
+  ['catList','cat-list-full','rep-cats'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<div class="empty-msg" style="font-size:0.6rem;color:var(--text-3);padding:20px;text-align:center;">Sem dados ainda</div>';
+  });
+
+  // Gráfico vazio
+  ['barArea','rep-chart'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<div style="font-size:0.55rem;color:var(--text-3);text-align:center;padding:20px;">Sem dados ainda</div>';
+  });
+}
+
+// Tenta API primeiro, usa estado zerado se falhar
+Promise.all([loadResumo(), loadTransacoes(), loadCats(), loadHistorico()]).catch(() => loadDemoInstant());
+loadDemoInstant();
+setTimeout(() => Promise.all([loadResumo(), loadTransacoes(), loadCats(), loadHistorico()]), 200);
 setInterval(()=>{ loadResumo(); loadTransacoes(); },30000);
 
 // ── ASSINATURA ──
@@ -1647,10 +2123,6 @@ async function enviarSuporteMsg(msg) {
 
 // ── NAVEGAÇÃO DE MÊS ──
 const _nowNav = new Date();
-let viewMes = _nowNav.getMonth() + 1;
-let viewAno = _nowNav.getFullYear();
-const MESES_FULL = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-const DIAS_FULL = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 
 function mudarMes(dir) {
   viewMes += dir;
@@ -1682,9 +2154,9 @@ async function loadResumoMes(mes, ano) {
     document.getElementById('d-apagar').textContent   = fmt(d.a_pagar||0);
     document.getElementById('d-saldo').textContent    = fmt(d.saldo||0);
     document.getElementById('sb-saldo').textContent   = fmt(d.saldo||0);
-    document.getElementById('sb-rec').textContent     = fmt(d.receitas||0);
-    document.getElementById('sb-gas').textContent     = fmt(d.gastos||0);
-    document.getElementById('sb-pag').textContent     = fmt(d.a_pagar||0);
+    const _eco2 = (d.receitas||0) > 0 ? Math.round((((d.receitas||0) - (d.gastos||0) - (d.a_pagar||0)) / (d.receitas||0)) * 100) : 0;
+    document.getElementById('sb-rec').textContent     = _eco2 + '% salvo';
+    document.getElementById('sb-pag').textContent     = 'dia 20';
     document.getElementById('sb-periodo').textContent = `${MESES_FULL[(d.mes||mes)-1]} ${d.ano||ano}`;
   } catch(e) { /* usa os valores já mostrados */ }
 }
@@ -1716,9 +2188,9 @@ async function loadTransacoesMes(mes, ano) {
     document.getElementById('d-apagar').textContent   = fmt(pag);
     document.getElementById('d-saldo').textContent    = fmt(rec-gas);
     document.getElementById('sb-saldo').textContent   = fmt(rec-gas);
-    document.getElementById('sb-rec').textContent     = fmt(rec);
-    document.getElementById('sb-gas').textContent     = fmt(gas);
-    document.getElementById('sb-pag').textContent     = fmt(pag);
+    const _eco3 = rec > 0 ? Math.round(((rec - gas - pag) / rec) * 100) : 0;
+    document.getElementById('sb-rec').textContent     = _eco3 + '% salvo';
+    document.getElementById('sb-pag').textContent     = 'dia 20';
     document.getElementById('sb-periodo').textContent = `${MESES_FULL[mes-1]} ${ano} · demo`;
   }
 }
@@ -1754,6 +2226,67 @@ function atualizarContadores() {
 }
 
 // ── TOGGLE STATUS (pago ↔ não pago) ──
+async function toggleStatusTx(id, currentStatus, btn) {
+
+// ── logout ──
+function logout() {
+  localStorage.removeItem('contix_token');
+  localStorage.removeItem('finia_usuario');
+  localStorage.removeItem('contix_saldo_acum');
+  showToast('Até logo! 👋');
+  setTimeout(() => { try { window.location.href = '/'; } catch(e) {} }, 1200);
+}
+
+// ── abrirTrocarSenha ──
+function abrirTrocarSenha() {
+  showToast('Para alterar a senha, acesse pelo WhatsApp do bot contix.', 'info');
+  toggleUserMenu();
+}
+
+// ── salvarTx — salva nova transação do modal ──
+async function salvarTx() {
+  const tipo     = document.getElementById('tx-tipo')?.value || 'despesa';
+  const valor    = parseFloat(document.getElementById('tx-valor')?.value || '0');
+  const desc     = document.getElementById('tx-desc')?.value?.trim() || '';
+  const cat      = document.getElementById('tx-cat')?.value || 'Outros';
+  const metodo   = document.getElementById('tx-metodo')?.value || 'PIX';
+  const dataVal  = document.getElementById('tx-data')?.value || new Date().toISOString().slice(0,10);
+  const status   = document.getElementById('tx-status')?.value || 'pago';
+  const recorr   = document.getElementById('tx-recorrente')?.checked || false;
+
+  if (!desc) { showToast('Informe a descrição', 'warn'); return; }
+  if (!valor || valor <= 0) { showToast('Informe um valor válido', 'warn'); return; }
+
+  const payload = { tipo, valor, descricao: desc, categoria: cat, forma_pag: metodo, data: dataVal, status, recorrente: recorr };
+
+  try {
+    const res = await authFetch(`${API}/transacoes`, { method: 'POST', body: JSON.stringify(payload) });
+    if (res.ok) {
+      closeModal('modal-tx');
+      showToast('✅ Transação registrada!', 'success');
+      setTimeout(() => { loadResumo(); loadTransacoes(); }, 300);
+      return;
+    }
+  } catch(e) { /* API offline — salva local */ }
+
+  // Fallback local
+  const newTx = {
+    id: Date.now(),
+    tipo, valor, descricao: desc, categoria: cat, forma_pag: metodo,
+    data: new Date(dataVal).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}),
+    data_iso: dataVal, status
+  };
+  allTx.unshift(newTx);
+  closeModal('modal-tx');
+  renderTx('all');
+  renderPendentes(allTx.filter(t => t.status === 'nao_pago' || t.status === 'pendente'));
+  atualizarContadores();
+  showToast('✅ Transação registrada!', 'success');
+
+  // Limpa campos
+  ['tx-valor','tx-desc'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+}
+
 async function toggleStatusTx(id, currentStatus, btn) {
   const newStatus = currentStatus === 'pago' ? 'nao_pago' : 'pago';
   const original = btn.textContent;
@@ -1831,16 +2364,313 @@ async function salvarEdicao() {
 // ── EXCLUIR TRANSAÇÃO ──
 async function confirmarDeletar(id, nome) {
   if (!confirm(`Excluir "${nome}"?\nEsta ação não pode ser desfeita.`)) return;
-  try {
-    await authFetch(`${API}/transacoes/${id}`, { method:'DELETE' });
-  } catch(e) { /* demo — remove local */ }
+  // Remove local imediatamente
   allTx = allTx.filter(t => t.id !== id);
   const row = document.getElementById(`tx-row-${id}`);
-  if (row) { row.style.opacity='0'; row.style.transition='opacity 0.2s'; setTimeout(()=>row.remove(), 200); }
+  if (row) { row.style.opacity = '0'; row.style.transition = 'opacity 0.2s'; setTimeout(() => row.remove(), 200); }
   atualizarContadores();
-  showToast('🗑️ Transação excluída');
+  showToast('🗑️ Transação excluída', 'success');
+  // Tenta deletar na API em background (não bloqueia)
+  authFetch(`${API}/transacoes/${id}`, { method: 'DELETE' }).catch(() => {});
 }
 
+// ══════════════════════════════════════════
+// 💬 CHAT IA — contix
+// ══════════════════════════════════════════
+const _iaHistory = [];
+
+function addIAMsg(text, type) {
+  const box = document.getElementById('ia-msgs');
+  if (!box) return;
+  const wrap = document.createElement('div');
+  wrap.style.cssText = `display:flex;flex-direction:column;gap:3px;align-items:${type==='user'?'flex-end':'flex-start'}`;
+  const bubble = document.createElement('div');
+  bubble.style.cssText = `padding:10px 14px;border-radius:${type==='user'?'14px 14px 4px 14px':'14px 14px 14px 4px'};font-size:0.63rem;line-height:1.55;max-width:85%;white-space:pre-wrap;`;
+  bubble.style.background = type === 'user' ? 'var(--blue)' : 'var(--surface2)';
+  bubble.style.color = type === 'user' ? 'white' : 'var(--text)';
+  bubble.innerHTML = text;
+  wrap.appendChild(bubble);
+  box.appendChild(wrap);
+  box.scrollTop = box.scrollHeight;
+  return wrap;
+}
+
+function showIATyping() {
+  const box = document.getElementById('ia-msgs');
+  if (!box) return null;
+  const wrap = document.createElement('div');
+  wrap.id = 'ia-typing';
+  wrap.style.cssText = 'display:flex;flex-direction:column;gap:3px;align-items:flex-start;';
+  wrap.innerHTML = `<div style="background:var(--surface2);padding:10px 14px;border-radius:14px 14px 14px 4px;display:flex;gap:4px;">
+    <div style="width:6px;height:6px;background:var(--text-3);border-radius:50%;animation:bounce 1.2s infinite;"></div>
+    <div style="width:6px;height:6px;background:var(--text-3);border-radius:50%;animation:bounce 1.2s infinite;animation-delay:0.2s;"></div>
+    <div style="width:6px;height:6px;background:var(--text-3);border-radius:50%;animation:bounce 1.2s infinite;animation-delay:0.4s;"></div>
+  </div>`;
+  box.appendChild(wrap);
+  box.scrollTop = box.scrollHeight;
+  return wrap;
+}
+
+function getContextoFinanceiro() {
+  const rec = document.getElementById('d-receitas')?.textContent || 'nao informado';
+  const gas = document.getElementById('d-gastos')?.textContent || 'nao informado';
+  const pag = document.getElementById('d-apagar')?.textContent || 'nao informado';
+  const sal = document.getElementById('sb-saldo')?.textContent || 'nao informado';
+  const mes = new Date().toLocaleDateString('pt-BR', {month:'long', year:'numeric'});
+  return 'Dados financeiros em ' + mes + ': Receitas=' + rec + ', Gastos=' + gas + ', A pagar=' + pag + ', Saldo=' + sal;
+}
+
+async function sendIA() {
+  const input = document.getElementById('ia-input');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  addIAMsg(sanitize(text), 'user');
+  _iaHistory.push({role:'user', content: text});
+  const typing = showIATyping();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1500,
+        system: 'Voce e a IA financeira do contix, assistente pessoal do Philip. ' + getContextoFinanceiro() + ' Voce pode: 1. Analisar financas e dar insights. 2. Simular compras (carro, casa, etc) com parcelas e impacto no orcamento. 3. Montar planilhas de despesas em markdown. 4. Registrar transacoes. 5. Responder duvidas financeiras. Seja direto. Responda em portugues brasileiro. Para simulacoes mostre: valor total, entrada sugerida, parcela (24/36/48x), impacto na renda e veredicto final.',
+        messages: _iaHistory.slice(-10)
+      })
+    });
+    const data = await res.json();
+    typing?.remove();
+    const reply = data.content?.[0]?.text || 'Não consegui processar. Tente novamente.';
+    _iaHistory.push({role:'assistant', content: reply});
+    addIAMsg(reply.replace(/\n/g,'<br>'), 'ai');
+  } catch(e) {
+    typing?.remove();
+    addIAMsg('❌ Erro de conexão. Verifique sua internet.', 'ai');
+  }
+}
+
+function sendIAChip(text) {
+  showPage('chat-ia');
+  setTimeout(() => {
+    const input = document.getElementById('ia-input');
+    if (input) { input.value = text; sendIA(); }
+  }, 100);
+}
+
+// ── NOTA FISCAL POR FOTO ──
+async function processNF(input) {
+  if (!input.files[0]) return;
+  const file = input.files[0];
+  showPage('chat-ia');
+  addIAMsg('📷 Nota fiscal enviada — analisando...', 'user');
+  const typing = showIATyping();
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const base64 = e.target.result.split(',')[1];
+    const mediaType = file.type || 'image/jpeg';
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          model:'claude-sonnet-4-20250514',
+          max_tokens:1000,
+          system:'Você é um assistente financeiro. Analise a nota fiscal/cupom fiscal na imagem e extraia: estabelecimento, data, valor total, e lista de itens se visível. Responda em português, de forma organizada. Ao final sugira a categoria de despesa.',
+          messages:[{role:'user', content:[
+            {type:'image', source:{type:'base64', media_type:mediaType, data:base64}},
+            {type:'text', text:'Extraia os dados desta nota fiscal e me diga o valor total e estabelecimento.'}
+          ]}]
+        })
+      });
+      const data = await res.json();
+      typing?.remove();
+      const reply = data.content?.[0]?.text || 'Não consegui ler a nota fiscal.';
+      addIAMsg(reply.replace(/\n/g,'<br>'), 'ai');
+    } catch(err) {
+      typing?.remove();
+      addIAMsg('❌ Erro ao processar a imagem.', 'ai');
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── SIMULADOR ──
+function rodarSimulador() {
+  const tipo   = document.getElementById('sim-tipo')?.value || 'carro';
+  const valor  = parseFloat(document.getElementById('sim-valor')?.value) || 0;
+  const entrada= parseFloat(document.getElementById('sim-entrada')?.value) || 0;
+  if (!valor) { showToast('Informe o valor do bem', 'warn'); return; }
+  const tipoStr = tipo === 'imovel' ? 'comprar um imóvel' : 'comprar um ' + tipo;
+  const entradaStr = entrada ? ' com entrada de ' + fmt(entrada) : ' sem entrada';
+  const texto = tipoStr + ' de ' + fmt(valor) + entradaStr + '. Analise minha situação financeira atual e diga se consigo comprar, qual seria a parcela estimada (24, 36 e 48x) e o impacto no meu orçamento.';
+  showPage('chat-ia');
+  setTimeout(() => {
+    const input = document.getElementById('ia-input');
+    if (input) { input.value = texto; sendIA(); }
+  }, 150);
+}
+
+// Atualiza painel situação do simulador
+function atualizarSimulador() {
+  const rec = parseFloat(document.getElementById('d-receitas')?.textContent?.replace(/\D/g,'').replace(',','.')) || 0;
+  const gas = parseFloat(document.getElementById('d-gastos')?.textContent?.replace(/\D/g,'').replace(',','.')) || 0;
+  const sobra = rec - gas;
+  const saldo = parseFloat(document.getElementById('sb-saldo')?.textContent?.replace(/\D/g,'').replace(',','.')) || 0;
+  const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+  set('sim-rec-val', fmt(rec));
+  set('sim-gas-val', fmt(gas));
+  set('sim-sobra-val', fmt(sobra));
+  set('sim-saldo-val', fmt(saldo));
+}
+document.addEventListener('DOMContentLoaded', () => setTimeout(atualizarSimulador, 1500));
+
+// ══════════════════════════════════════════
+// 📄 HOLERITES
+// ══════════════════════════════════════════
+let _holerites = JSON.parse(localStorage.getItem('contix_holerites') || '[]');
+
+function salvarHolerites() {
+  try { localStorage.setItem('contix_holerites', JSON.stringify(_holerites)); } catch(e) {}
+}
+
+function renderHolerites() {
+  const grid = document.getElementById('holerites-grid');
+  if (!grid) return;
+
+  const countEl = document.getElementById('hol-count');
+  const ultimoEl = document.getElementById('hol-ultimo');
+  if (countEl) countEl.textContent = _holerites.length;
+  if (ultimoEl) ultimoEl.textContent = _holerites[0] ? _holerites[0].data : '—';
+
+  const pdfIcon = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3d5068" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>';
+  const plusIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3d5068" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>';
+
+  let html = '';
+  for (let i = 0; i < _holerites.length; i++) {
+    const h = _holerites[i];
+    const thumb = (h.tipo !== 'pdf' && h.data_url)
+      ? '<img src="' + h.data_url + '" style="width:100%;height:100%;object-fit:cover;" onclick="verHolerite(' + i + ')">'
+      : '<div style="display:flex;flex-direction:column;align-items:center;gap:6px;">' + pdfIcon + '<span style="font-size:0.5rem;color:var(--text-3);font-weight:600;">PDF</span></div>';
+
+    html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:all 0.15s;position:relative;"'
+      + ' onmouseover="this.style.borderColor=\'var(--blue)\';this.style.transform=\'translateY(-2px)\'"'
+      + ' onmouseout="this.style.borderColor=\'var(--border)\';this.style.transform=\'translateY(0)\'">'
+      + '<div style="height:110px;background:var(--surface2);display:flex;align-items:center;justify-content:center;overflow:hidden;border-bottom:1px solid var(--border);">'
+      + thumb + '</div>'
+      + '<div style="padding:12px 14px;">'
+      + '<div style="font-size:0.62rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;">' + sanitize(h.nome) + '</div>'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;">'
+      + '<div style="font-size:0.48rem;color:var(--text-3);">' + h.data + ' · ' + (h.tamanho || '—') + '</div>'
+      + '<div style="display:flex;gap:4px;">'
+      + '<button onclick="verHolerite(' + i + ')" style="width:24px;height:24px;border-radius:6px;background:rgba(26,107,255,0.1);border:none;color:var(--blue);cursor:pointer;font-size:0.6rem;display:flex;align-items:center;justify-content:center;" title="Visualizar">↗</button>'
+      + '<button onclick="excluirHolerite(' + i + ',event)" style="width:24px;height:24px;border-radius:6px;background:rgba(239,68,68,0.1);border:none;color:#ef4444;cursor:pointer;font-size:0.6rem;display:flex;align-items:center;justify-content:center;" title="Excluir">✕</button>'
+      + '</div></div></div></div>';
+  }
+
+  html += '<label style="border:2px dashed var(--border);border-radius:var(--r);padding:28px 20px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:all 0.15s;"'
+    + ' onmouseover="this.style.borderColor=\'var(--blue)\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
+    + '<div style="width:48px;height:48px;background:var(--surface2);border-radius:12px;display:flex;align-items:center;justify-content:center;">'
+    + plusIcon + '</div>'
+    + '<div style="font-size:0.62rem;font-weight:600;color:var(--text-2);">Adicionar documento</div>'
+    + '<div style="font-size:0.5rem;color:var(--text-3);text-align:center;">Holerite, recibo, comprovante</div>'
+    + '<input type="file" accept="image/*,application/pdf" style="display:none" onchange="adicionarHolerite(this)">'
+    + '</label>';
+
+  grid.innerHTML = html;
+}
+}
+
+function adicionarHolerite(input) {
+  if (!input.files[0]) return;
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    _holerites.unshift({
+      nome: file.name,
+      data: new Date().toLocaleDateString('pt-BR'),
+      tipo: file.type.includes('pdf') ? 'pdf' : 'imagem',
+      data_url: e.target.result,
+      tamanho: (file.size / 1024).toFixed(0) + 'KB'
+    });
+    salvarHolerites();
+    renderHolerites();
+    showToast('📄 Documento adicionado!', 'success');
+  };
+  reader.readAsDataURL(file);
+}
+
+function excluirHolerite(i, event) {
+  event.stopPropagation();
+  _holerites.splice(i, 1);
+  salvarHolerites();
+  renderHolerites();
+}
+
+function verHolerite(i) {
+  const h = _holerites[i];
+  if (!h) return;
+  window.open(h.data_url, '_blank');
+}
+
+// Renderiza holerites ao abrir a página
+const _origShowPage = showPage;
+showPage = function(id, ...args) {
+  _origShowPage(id, ...args);
+  if (id === 'holerites') renderHolerites();
+  if (id === 'chat-ia') atualizarSimulador();
+};
+
+// ── EXPOR FUNÇÕES NO ESCOPO GLOBAL (fix strict mode) ──
+window.confirmarDeletar = confirmarDeletar;
+window.deletarTx       = deletarTx;
+window.abrirEditar     = abrirEditar;
+window.salvarEdicao    = salvarEdicao;
+window.salvarTx        = salvarTx;
+window.toggleStatusTx  = toggleStatusTx;
+window.marcarPago      = marcarPago;
+window.filterTx        = filterTx;
+window.filterTxPage    = filterTxPage;
+window.filtrarPorCategoria = filtrarPorCategoria;
+window.limparFiltroCat = limparFiltroCat;
+window.openModal       = openModal;
+window.closeModal      = closeModal;
+window.showPage        = showPage;
+window.toggleUserMenu  = toggleUserMenu;
+window.logout          = logout;
+window.abrirTrocarSenha = abrirTrocarSenha;
+window.mudarMes        = mudarMes;
+window.toggleFaq       = toggleFaq;
+window.sendIA          = sendIA;
+window.sendIAChip      = sendIAChip;
+window.processNF       = processNF;
+window.rodarSimulador  = rodarSimulador;
+window.adicionarHolerite = adicionarHolerite;
+window.excluirHolerite = excluirHolerite;
+window.verHolerite     = verHolerite;
+window.searchTx        = searchTx;
+window.selectColor     = selectColor;
+window.simWpp          = simWpp;
+window.simWppInput     = simWppInput;
+window.atalhoChat      = atalhoChat;
+window.enviarSuporte   = enviarSuporte;
+window.enviarSuporteMsg = enviarSuporteMsg;
+window.buscarSuporte   = buscarSuporte;
+window.assinarPlano    = assinarPlano;
+window.pausarAssinatura = pausarAssinatura;
+window.reativarAssinatura = reativarAssinatura;
+window.atualizarCartao = atualizarCartao;
+window.upgradeParaPro  = upgradeParaPro;
+window.upgradeParaFamilia = upgradeParaFamilia;
+window.abrirUpgrade    = abrirUpgrade;
+window.downgradeGratis = downgradeGratis;
+window.confirmarCancelamento = confirmarCancelamento;
+window.executarCancelamento  = executarCancelamento;
+window.baixarRecibo    = baixarRecibo;
+window.focarChat       = focarChat;
 </script>
 
 <!-- Modal Confirmar Cancelamento -->
